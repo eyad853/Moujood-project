@@ -13,12 +13,12 @@ const SignupAs = () => {
         <div className="flex flex-col gap-3.5 w-full items-center px-5">
             <h1 className='text-2xl font-bold text-green-900'>Sign up</h1>
             <Link 
-            to={'/BusinessSignup'}
+            to={'/Business_sign_up'}
             className="w-full rounded-md h-10 flex font-bold justify-center items-center transform hover:scale-105 transition-all duration-200 text-white bg-green-700">
                 As a Business
             </Link>
             <Link 
-            to={'/ClientSignup'}
+            to={'/client_sign_up'}
             className="w-full rounded-md h-10 flex font-bold justify-center items-center transform hover:scale-105 transition-all duration-200 text-white bg-green-700">
                 As a User
             </Link>

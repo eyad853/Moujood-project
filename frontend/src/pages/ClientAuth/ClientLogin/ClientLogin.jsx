@@ -139,7 +139,7 @@ const ClientLogin = () => {
           {/* Register Link */}
           <div className="text-center text-sm mb-12">
             <span className="text-gray-400">Don't have an account? </span>
-            <Link to={'/ClientSignup'} className="text-[#009842] font-semibold">
+            <Link to={'/client_sign_up'} className="text-[#009842] font-semibold">
               Register
             </Link>
           </div>

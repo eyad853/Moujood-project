@@ -11,7 +11,7 @@ const router = createBrowserRouter([
     element:<SignupAs />
   },
   {
-    path:'/ClientSignup',
+    path:'/client_sign_up',
     element:<ClientSignup />
   },
   {
@@ -19,7 +19,7 @@ const router = createBrowserRouter([
     element:<ClientLogin />
   },
   {
-    path:'/BusinessSignup',
+    path:'/Business_sign_up',
     element:<BusinessSignup />
   },
 ])
