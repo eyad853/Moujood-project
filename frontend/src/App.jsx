@@ -5,7 +5,7 @@ import ClientSignup from './pages/ClientAuth/ClientSignup/ClientSignup';
 import ClientLogin from './pages/ClientAuth/ClientLogin/ClientLogin';
 import BusinessSignup from './pages/BusinessAuth/BusinessSignup/BusinessSignup';
 
-const router = createBrowserRouter([
+const routes = [
   {
     path:'/',
     element:<SignupAs />
@@ -22,7 +22,11 @@ const router = createBrowserRouter([
     path:'/Business_sign_up',
     element:<BusinessSignup />
   },
-])
+  
+]
+
+
+const router = createBrowserRouter(routes)
 
 
 const App = () => {
