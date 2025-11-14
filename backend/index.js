@@ -3,17 +3,30 @@ dotenv.config()
 import express from "express"
 import cors from "cors"
 import path from 'path';
+import http from 'http'
 import { fileURLToPath } from 'url'
 import { Pool } from 'pg';
 import session from 'express-session';
 import passport from 'passport';
 import authRouter from './routes/auth.js';
+import { Server } from 'socket.io';
 const app = express()
+const server = http.createServer(app);
+const io = new Server(server , {
+  cors: {
+    origin:process.env.frontendURL,
+    credentials: true// Allow requests from this origin
+  },
+});
 
 app.use(cors({
     origin:process.env.frontendURL,
     credentials: true
 }))
+
+io.on("connection", (socket) => {
+  console.log("A user connected");
+})
 
 // Make sure uploads directory exists - modern approach
 const __filename = fileURLToPath(import.meta.url);
@@ -100,7 +113,7 @@ async function startServer() {
 
     await createTables();
 
-    app.listen(process.env.PORT, () => console.log(`🚀 Server running on port ${process.env.PORT}`))
+    server.listen(process.env.PORT, () => console.log(`🚀 Server running on port ${process.env.PORT}`))
   } catch (err) {
     console.error('❌ Failed to connect to PostgreSQL:', err.message)
     process.exit(1)
