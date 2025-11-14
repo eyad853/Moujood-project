@@ -8,6 +8,7 @@ import Business_layout from './pages/business_pages/business_layout';
 import Business_dashboard from './pages/business_pages/business_dashboard/business_dashboard';
 import Business_profile from './pages/business_pages/business_profile/business_profile';
 import Business_offers from './pages/business_pages/business_offers/business_offers';
+import SA_Layout from './pages/Super_Admin/SA_Layout';
 
 const routes = [
   {
@@ -27,7 +28,7 @@ const routes = [
     element:<BusinessSignup />
   },
   {
-    path:'/Business',
+    path:'/Business/:id',
     element:<Business_layout />,
     children:[
       {
@@ -40,6 +41,76 @@ const routes = [
       },
       {
         path:'offers',
+        element:<Business_offers />
+      },
+    ]
+  },
+  {
+    path:'/super_admin',
+    element:<SA_Layout />,
+    children:[
+      {
+        path:'dashboard',
+      },
+      {
+        path:'users',
+      },
+      {
+        path:'categories',
+      },
+      {
+        path:'notifications',
+      },
+      {
+        path:'posts',
+      },
+      {
+        path:'businesses',
+      },
+    ]
+  },
+  {
+    path:'/client/:id',
+    element:<Business_layout />,
+    children:[
+      {
+        path:'feed',
+        element:<Business_dashboard />
+      },
+      {
+        path:'categories',
+        element:<Business_profile />
+      },
+      {
+        path:'all_categories',
+        element:<Business_offers />
+      },
+      {
+        path:'sub_categories',
+        element:<Business_offers />
+      },
+      {
+        path:'businesses_of_category',
+        element:<Business_offers />
+      },
+      {
+        path:'business_page',
+        element:<Business_offers />
+      },
+      {
+        path:'notifications',
+        element:<Business_offers />
+      },
+      {
+        path:'profile',
+        element:<Business_offers />
+      },
+      {
+        path:'notifications_settings',
+        element:<Business_offers />
+      },
+      {
+        path:'language_settings',
         element:<Business_offers />
       },
     ]
