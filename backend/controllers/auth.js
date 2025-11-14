@@ -6,7 +6,7 @@ import bcrypt from 'bcrypt'
 // controllers/auth.js
 export const localSignup = async (req, res, next) => {
   try {
-    const { name, email, password, confirm_password } = req.body;
+    const { name, email, password, confirm_password ,gender , city} = req.body;
     if (password !== confirm_password) 
       return res.status(400).json({ message: 'Passwords do not match' });
 
@@ -16,8 +16,8 @@ export const localSignup = async (req, res, next) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const result = await pool.query(
-      `INSERT INTO users (name, email, password, confirm_password, user_type) VALUES ($1,$2,$3,$4,$5) RETURNING *`,
-      [name, email, hashedPassword, hashedPassword,'client']
+      `INSERT INTO users (name, email, password, confirm_password, user_type, gender , city) VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
+      [name, email, hashedPassword, hashedPassword,'client', gender, city]
     );
 
     const newUser = result.rows[0];

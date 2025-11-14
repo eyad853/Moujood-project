@@ -78,6 +78,8 @@ async function createTables() {
         addresses TEXT,
         locations TEXT,
         number VARCHAR(50),
+        gender VARCHAR(20),
+        city VARCHAR(100),
         user_type VARCHAR(20) CHECK (user_type IN ('client', 'business', 'superadmin')) DEFAULT 'client',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );

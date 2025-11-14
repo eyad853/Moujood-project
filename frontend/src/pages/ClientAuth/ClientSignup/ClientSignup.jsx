@@ -15,7 +15,9 @@ const ClientSignup = () => {
     email: '',
     password: '',
     confirm_password: '',
-    acceptTerms: false
+    acceptTerms: false,
+    gender:'',
+    city:''
   });
 
   const handleInputChange = (e) => {
@@ -151,6 +153,81 @@ const ClientSignup = () => {
               </button>
             </div>
           </div>
+
+          {/* Gender */}
+            <div className="mb-5">
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                Gender
+              </label>
+              <div className="relative">
+                <select
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3.5 text-base border border-gray-200 rounded-xl outline-none bg-gray-50 focus:border-[#00875A] focus:ring-1 focus:ring-[#00875A] transition-colors appearance-none"
+                  style={{ color: formData.gender ? '#1a1a1a' : '#999' }}
+                >
+                  <option value="">Select your gender</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                </select>
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M4 6L8 10L12 6" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+              {/* City/Governorate */}
+              <div className="mb-5">
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  Your City
+                </label>
+                <div className="relative">
+                  <select
+                    name="city"
+                    value={formData.city}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3.5 text-base border border-gray-200 rounded-xl outline-none bg-gray-50 focus:border-[#00875A] focus:ring-1 focus:ring-[#00875A] transition-colors appearance-none"
+                    style={{ color: formData.city ? '#1a1a1a' : '#999' }}
+                  >
+                    <option value="">Select your city</option>
+                    <option value="Cairo">Cairo</option>
+                    <option value="Alexandria">Alexandria</option>
+                    <option value="Giza">Giza</option>
+                    <option value="Qalyubia">Qalyubia</option>
+                    <option value="Port Said">Port Said</option>
+                    <option value="Suez">Suez</option>
+                    <option value="Luxor">Luxor</option>
+                    <option value="Aswan">Aswan</option>
+                    <option value="Asyut">Asyut</option>
+                    <option value="Beheira">Beheira</option>
+                    <option value="Beni Suef">Beni Suef</option>
+                    <option value="Dakahlia">Dakahlia</option>
+                    <option value="Damietta">Damietta</option>
+                    <option value="Faiyum">Faiyum</option>
+                    <option value="Gharbia">Gharbia</option>
+                    <option value="Ismailia">Ismailia</option>
+                    <option value="Kafr El Sheikh">Kafr El Sheikh</option>
+                    <option value="Matrouh">Matrouh</option>
+                    <option value="Minya">Minya</option>
+                    <option value="Monufia">Monufia</option>
+                    <option value="New Valley">New Valley</option>
+                    <option value="North Sinai">North Sinai</option>
+                    <option value="Qena">Qena</option>
+                    <option value="Red Sea">Red Sea</option>
+                    <option value="Sharqia">Sharqia</option>
+                    <option value="Sohag">Sohag</option>
+                    <option value="South Sinai">South Sinai</option>
+                  </select>
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <path d="M4 6L8 10L12 6" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                </div>
+              </div>
 
           {/* Terms and Conditions */}
           <div className="mb-6 flex items-start">

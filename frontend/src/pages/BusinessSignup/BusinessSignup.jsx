@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Eye, EyeOff, Upload, MapPin, Bold } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios'
-import { businessAuth } from '../../../api/auth';
+import { businessAuth } from '../../api/auth';
 
 
 const BusinessSignup = () => {
