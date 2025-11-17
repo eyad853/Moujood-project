@@ -29,7 +29,7 @@ const Business_profile = () => {
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
       {/* Header with Green Background */}
-      <div className="bg-gradient-to-br from-[#009842] to-[#007a36] pt-12 pb-24 px-5 relative">
+      <div className="bg-[#009842] pt-12 pb-24 px-5 relative">
         <button
           onClick={() => navigate(-1)}
           className="absolute top-12 left-5 p-2 hover:bg-white/10 rounded-lg transition-colors"
