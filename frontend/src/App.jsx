@@ -30,10 +30,6 @@ import Business_notifications from './pages/Business_pages/Business_notification
 import { App as CapApp } from '@capacitor/app';
 import C_Scan_Offers from './pages/Client_pages/C_Scan_Offers/C_Scan_Offers';
 
-CapApp.addListener('appUrlOpen', (event) => {event.url
-  // /login
-
-})
 
 const handleBackButton = () => {
   if (window.history.length > 1) {
