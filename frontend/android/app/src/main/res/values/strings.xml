@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">moujood</string>
+    <string name="title_activity_main">moujood</string>
+    <string name="package_name">com.moujood.www</string>
+    <string name="custom_url_scheme">com.moujood.www</string>
+</resources>
