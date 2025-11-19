@@ -28,6 +28,19 @@ import C_Notifications from './pages/Client_pages/C_Notifications/C_Notification
 import C_Notification_Settings from './pages/Client_pages/C_Notification_Settings/C_Notification_Settings';
 import C_Language_Settings from './pages/Client_pages/C_Language_Settings/C_Language_Settings';
 import Business_notifications from './pages/Business_pages/Business_notifications/Business_notifications';
+import { App as CapApp } from '@capacitor/app';
+
+const handleBackButton = () => {
+  if (window.history.length > 1) {
+    window.history.back();
+  } else {
+    // hi eyad, if you want to minimize instead of exit, you can use this instead of exitApp()
+    // App.minimizeApp();
+    CapApp.exitApp();
+  }
+};
+
+CapApp.addListener('backButton', handleBackButton);
 
 const routes = [
   {
