@@ -1,5 +1,5 @@
 import socket from './Socket';
-import { createBrowserRouter, RouterProvider, useNavigate } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import SignupAs from './pages/SignupAs/SignupAs';
 import ClientSignup from './pages/ClientAuth/ClientSignup/ClientSignup';
 import ClientLogin from './pages/ClientAuth/ClientLogin/ClientLogin';
@@ -171,11 +171,10 @@ const routes = [
 
 const router = createBrowserRouter(routes)
 const App = () => {
-  const navigate = useNavigate()
-
   
 CapApp.addListener('appUrlOpen', (event) => {
-  navigate(event.url.split['app'][1])
+  const path = event.url.split("app")[1]
+  router.navigate(path)
 })
   return (
       <RouterProvider router={router}/>
