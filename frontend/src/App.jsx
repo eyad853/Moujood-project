@@ -4,6 +4,19 @@ import SignupAs from './pages/SignupAs/SignupAs';
 import ClientSignup from './pages/ClientAuth/ClientSignup/ClientSignup';
 import ClientLogin from './pages/ClientAuth/ClientLogin/ClientLogin';
 import BusinessSignup from './pages/BusinessAuth/BusinessSignup/BusinessSignup';
+import { App as CapApp } from '@capacitor/app';
+
+const handleBackButton = () => {
+  if (window.history.length > 1) {
+    window.history.back();
+  } else {
+    // hi eyad, if you want to minimize instead of exit, you can use this instead of exitApp()
+    // App.minimizeApp();
+    CapApp.exitApp();
+  }
+};
+
+CapApp.addListener('backButton', handleBackButton);
 
 const router = createBrowserRouter([
   {
