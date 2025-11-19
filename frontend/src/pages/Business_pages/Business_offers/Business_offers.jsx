@@ -89,18 +89,7 @@ const Business_offers = () => {
               {/* Offer Image/Thumbnail */}
               <div className="relative border-2 border-white w-30 h-24 bg-[#00863A] rounded-xl overflow-hidden ">
                 {/* Logo watermark */}
-                <div className="absolute top-2 left-2 ">
-                  <img src="/white-logo.png" alt="Logo" className="h-4 brightness-0 invert" />
-                </div>
-                
-                {/* Content */}
-                <div className="absolute pt-8 inset-0 flex flex-col items-center justify-center text-white text-xs">
-                  <p className="absolute right-1 top-2 font-bold mb-1 text-right">جعلوة<br/>مختار تاكل آية</p>
-
-                  <div className="w-full px-2 h-16 flex items-center justify-center">
-                    <img src="/logo.svg" className='w-full h-full object-contain' /> 
-                  </div>
-                </div>
+                <img src={offer.image} className='w-full h-full object-contain' />
               </div>
 
               {/* Offer Info */}

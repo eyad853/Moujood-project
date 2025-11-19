@@ -55,6 +55,8 @@ export const businessesSignup = async (req, res , next) => {
 
     // ✅ Multer provides the uploaded logo file here
     const logo = req.file ? req.file.path : null;
+    const logopath = `${process.env.backendURL}${logo}`
+
 
     // 1️⃣ Check if user already exists
     const existingUser = await pool.query("SELECT * FROM businesses WHERE email = $1", [email]);
@@ -82,39 +84,31 @@ export const businessesSignup = async (req, res , next) => {
         hashedPassword,
         hashedPassword, // use hashed for confirm_password as well
         category,
-        logo,
+        logopath,
         description,
         addresses,
         locations,
         number,
       ]
     );
-
-    // 2. Create QR path
-    const qrDirectory = path.join(process.cwd(),"..", "uploads", "qrcodes");
-    if (!fs.existsSync(qrDirectory)) fs.mkdirSync(qrDirectory, { recursive: true });
-
-    const qrFilename = `business-qrCode-${newUser.id}.png`;
-    const qrPath = path.join(qrDirectory, qrFilename);
+    const business = newBusiness.rows[0];
 
     // 3. Generate QR code (links to business page)
-    const qrURL = `${process.env.backendURL}/business/scan?businessId=${newBusiness.id}`;
-
-    await QRCode.toFile(qrPath, qrURL);
+    const qrURL = `${process.env.backendURL}/business/scan?businessId=${business.id}`;
 
     // 4. Save QR path to DB
     await pool.query(
       "UPDATE businesses SET qr_code = $1 WHERE id = $2",
-      [`${process.env.backendURL}/uploads/qrcodes/${qrFilename}`, newBusiness.id]
+      [qrURL, business.id]
     );
 
-    req.login(newBusiness, (err) => {
+    req.login(business, (err) => {
       if (err) if (err) return next(err);
     });
 
     res.status(201).json({
       message: "Business registered successfully",
-      user: newBusiness.rows[0],
+      user: business,
     });
   } catch (err) {
     console.error("❌ Signup error:", err);

@@ -20,6 +20,8 @@ const io = new Server(server , {
   },
 });
 
+app.set('io' , io)
+
 app.use(cors({
     origin:process.env.frontendURL,
     credentials: true
@@ -129,9 +131,48 @@ async function createTables() {
         image VARCHAR(255),
         offer_price_before DECIMAL(10,2) NOT NULL,
         offer_price_after DECIMAL(10,2),
+        category VARCHAR(80) NOT NULL
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (business_id) REFERENCES businesses(id)
       );
+
+      CREATE TABLE IF NOT EXISTS scans (
+        id SERIAL PRIMARY KEY,
+        user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        business_id INT REFERENCES businesses(id) ON DELETE CASCADE,
+        offer_id INT REFERENCES offers(id) ON DELETE CASCADE,
+        scanned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS likes (
+        id SERIAL PRIMARY KEY,
+        offer_id INTEGER REFERENCES offers(id),
+        user_id INTEGER REFERENCES users(id),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(offer_id, user_id)
+      )
+
+      CREATE TABLE IF NOT EXISTS comments (
+        id SERIAL PRIMARY KEY,
+        offer_id INTEGER REFERENCES offers(id),
+        user_id INTEGER REFERENCES users(id),
+        content TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+
+      CREATE TABLE IF NOT EXISTS sales (
+        id SERIAL PRIMARY KEY,
+        offer_id INTEGER REFERENCES offers(id),
+        user_id INTEGER REFERENCES users(id),
+        amount DECIMAL(10,2) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+
+      CREATE TABLE IF NOT EXISTS categories (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(150) NOT NULL,
+        parent_id INTEGER REFERENCES categories(id)  -- NULL means main category
+      )
     `);
 
     console.log('✅ Tables "users" and "businesses" are ready!');

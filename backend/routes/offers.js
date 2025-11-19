@@ -5,7 +5,7 @@ import { uploadFile } from '../utils/multer'
 const offersRoutes=express.Router()
 
 offersRoutes.post('/add',addOffer)
-offersRoutes.post('/edit',editOffer)
+offersRoutes.post('/edit/:offer_id',editOffer)
 offersRoutes.post('/get',getOffers)
 offersRoutes.post('/delete',deleteOffer)
 offersRoutes.get('/getBusinessOffers',getBusinessOffers)

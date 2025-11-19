@@ -116,29 +116,7 @@ const Business_dashboard = () => {
                   key={offer.id}
                   className="relative bg-[#01a347] rounded-md overflow-hidden shadow-lg aspect-square"
                 >
-                  {/* Logo watermark */}
-                  <div className="absolute z-10 w-12 h-12 top-3 left-3 ">
-                    <img src="/white-logo.png" alt="Logo" />
-                  </div>
-
-                  {/* Content */}
-                  <div className="absolute pt-[35%] inset-0 flex flex-col items-center   text-white">
-                    <div className="absolute right-2 top-8 text-right mb-3 ">
-                      <p className="text-lg font-bold leading-tight whitespace-pre-line">
-                        {offer.title}
-                      </p>
-                    </div>
-                    
-                    {/* Placeholder for person image */}
-                    <div className="w-full px-2 h-[100%] flex justify-center items-center  object-contain">
-                      <img src={'/logo.svg'} className='w-full h-full object-contain'/>
-                    </div>
-                  </div>
-
-                  {/* Bottom info */}
-                  <div className="absolute z-10 bottom-1 left-1 right-3 flex justify-between items-center text-white text-xs">
-                    <span>www.maujood.net</span>
-                  </div>
+                  <img src={offer.image} className='w-full h-full object-contain' />
                 </div>
               ))}
             </div>

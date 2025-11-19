@@ -14,7 +14,7 @@ const Business_layout = () => {
       <Outlet />
 
       {/* the paages buttons */}
-      <div className="fixed z-50 bottom-0 w-full border-t bg-white border-neutral-200 h-16 flex justify-around items-center">
+      <div className="fixed z-30 bottom-0 w-full border-t bg-white border-neutral-200 h-16 flex justify-around items-center">
         {/* dashboard */}
         <Link
         onClick={()=>{
