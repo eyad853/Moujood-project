@@ -1,0 +1,5 @@
+[{
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target" : { "namespace": "android_app", "package_name": "com.moujood.www",
+    "sha256_cert_fingerprints": ["56:2A:26:0D:CA:45:B0:5D:4F:16:60:CE:76:97:BD:2D:CD:79:08:01:8B:A9:98:55:9C:E9:1D:1B:14:6A:4B:63"] }
+}]
