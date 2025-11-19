@@ -1,6 +1,5 @@
-import React, { useEffect } from 'react'
 import socket from './Socket';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, useNavigate } from 'react-router-dom';
 import SignupAs from './pages/SignupAs/SignupAs';
 import ClientSignup from './pages/ClientAuth/ClientSignup/ClientSignup';
 import ClientLogin from './pages/ClientAuth/ClientLogin/ClientLogin';
@@ -29,6 +28,12 @@ import C_Notification_Settings from './pages/Client_pages/C_Notification_Setting
 import C_Language_Settings from './pages/Client_pages/C_Language_Settings/C_Language_Settings';
 import Business_notifications from './pages/Business_pages/Business_notifications/Business_notifications';
 import { App as CapApp } from '@capacitor/app';
+import C_Scan_Offers from './pages/Client_pages/C_Scan_Offers/C_Scan_Offers';
+
+CapApp.addListener('appUrlOpen', (event) => {event.url
+  // /login
+
+})
 
 const handleBackButton = () => {
   if (window.history.length > 1) {
@@ -155,6 +160,10 @@ const routes = [
         path:'language_settings',
         element:<C_Language_Settings />
       },
+      {
+        path:'scans/:id',
+        element:<C_Scan_Offers/>
+      },
     ]
   }
 ]
@@ -162,6 +171,12 @@ const routes = [
 
 const router = createBrowserRouter(routes)
 const App = () => {
+  const navigate = useNavigate()
+
+  
+CapApp.addListener('appUrlOpen', (event) => {
+  navigate(event.url.split['app'][1])
+})
   return (
       <RouterProvider router={router}/>
   )

@@ -94,7 +94,7 @@ export const businessesSignup = async (req, res , next) => {
     const business = newBusiness.rows[0];
 
     // 3. Generate QR code (links to business page)
-    const qrURL = `${process.env.backendURL}/business/scan?businessId=${business.id}`;
+    const qrURL = `${process.env.frontendURL}/client/scans/${business.id}`;
 
     // 4. Save QR path to DB
     await pool.query(
