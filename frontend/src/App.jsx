@@ -172,10 +172,19 @@ const routes = [
 const router = createBrowserRouter(routes)
 const App = () => {
   
-CapApp.addListener('appUrlOpen', (event) => {
-  const path = event.url.split("app")[1]
-  router.navigate(path)
-})
+CapApp.addListener("appUrlOpen", (event) => {
+    try {
+      // Example app link: myapp://app/business/home
+      // Extract path after "app"
+      const path = event.url.split("app")[1]; // "/business/home"
+      if (path) {
+        router.navigate(path);
+      }
+    } catch (err) {
+      console.log("Deep link error:", err);
+    }
+  });
+
   return (
       <RouterProvider router={router}/>
   )
