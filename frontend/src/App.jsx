@@ -103,7 +103,7 @@ const routes = [
         element:<SA_Notifications />
       },
       {
-        path:'posts',
+        path:'offers',
         element:<SA_Posts />
       },
       {

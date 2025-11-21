@@ -34,7 +34,7 @@ const SA_Layout = () => {
       )}
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-h-screen">
+      <div className="flex-1 lg:pl-64 flex flex-col min-h-screen">
         {/* Navbar */}
         <SA_Navbar onMenuToggle={toggleSidebar} />
 

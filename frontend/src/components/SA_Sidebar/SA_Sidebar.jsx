@@ -28,8 +28,8 @@ const SA_Sidebar = () => {
       icon: Bell
     },
     {
-      name: 'Posts',
-      path: '/super_admin/posts',
+      name: 'Offers',
+      path: '/super_admin/offers',
       icon: FileText
     },
     {
@@ -44,7 +44,7 @@ const SA_Sidebar = () => {
   ];
 
   return (
-    <aside className="w-64 bg-white border-r border-gray-200 min-h-screen flex flex-col">
+    <aside className="fixed w-64 bg-white border-r border-gray-200 min-h-screen flex flex-col">
       {/* Logo */}
       <div className="p-6 border-b border-gray-200">
         <img src="/logo.svg" className="h-10 object-contain" />

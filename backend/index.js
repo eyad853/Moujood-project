@@ -171,7 +171,17 @@ async function createTables() {
       CREATE TABLE IF NOT EXISTS categories (
         id SERIAL PRIMARY KEY,
         name VARCHAR(150) NOT NULL,
+        image VARCHAR(150) NOT NULL,
         parent_id INTEGER REFERENCES categories(id)  -- NULL means main category
+      )
+
+      CRAETE TABLE IF NOT EXISTS notifications(
+        id SERIAL PRIMARY KEY,
+        title VARCHAR(100) NOT NULL,
+        receiver_type VARCHAR(20) CHECK (receiver_type IN ('user', 'business')) NOT NULL,
+        receiver_id INTEGER NOT NULL,
+        content TEXT NOT NOLL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
 
