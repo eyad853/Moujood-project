@@ -78,7 +78,7 @@ const Business_notifications = () => {
             className="bg-gray-100 rounded-2xl p-4 flex items-start gap-3 cursor-pointer hover:bg-gray-200 transition-colors"
           >
             {/* Sender Logo */}
-            <div className="w-12 h-12 bg-[#009842] rounded-full flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 bg-[#009842] rounded-full flex items-center justify-center ">
               <img
                 src={notification.sender_logo}
                 alt={notification.sender_name}
