@@ -57,7 +57,7 @@ export const editOffer = async (req, res) => {
     const { title, description, offer_price_before, offer_price_after } = req.body;
 
     // 3) Image (if sent, use new one. If not, keep old)
-    const image = req.file ? req.file : oldOffer.image;
+    const image = req.file ? `${process.env.backendURL}${req.file.path}` : oldOffer.image;
 
     // 4) Update only provided fields using COALESCE
     const result = await pool.query(
@@ -127,20 +127,5 @@ export const getOffers = async (req, res) => {
   }
 };
 
-export const getBusinessOffers = async (req, res) => {
-  try {
-    const business_id = req.user.id;
 
-    const result = await pool.query(
-      `SELECT * FROM offers 
-       WHERE business_id = $1
-       ORDER BY created_at DESC`,
-      [business_id]
-    );
-
-    res.json(result.rows);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
 

@@ -2,9 +2,6 @@ import dotenv from 'dotenv'
 dotenv.config()
 import { pool } from '../index.js';
 import bcrypt from 'bcrypt'
-import QRCode from 'qrcode'
-import path from 'path'
-import fs from 'fs'
 
 
 // controllers/auth.js

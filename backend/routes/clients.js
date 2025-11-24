@@ -1,11 +1,11 @@
 import express from 'express'
-import { getbusinessesOfCategoryData, getBusinessPageData, getFeedPageData, getprofileData, getSubCategoriesOfCategory } from '../controllers/clients'
+import { getBusinessesOfCategoryData, getBusinessPageData, getFeedPageData, getProfileData, getSubCategoriesOfCategory } from '../controllers/clients'
 const clientsRouter=express.Router()
 
 clientsRouter.get('/getFeedPageData',getFeedPageData)
 clientsRouter.get('/getSubCategoriesOfCategory',getSubCategoriesOfCategory)
-clientsRouter.get('/getbusinessesOfCategoryData',getbusinessesOfCategoryData)
+clientsRouter.get('/getbusinessesOfCategoryData',getBusinessesOfCategoryData)
 clientsRouter.get('/getBusinessPageData',getBusinessPageData)
-clientsRouter.get('/getprofileData',getprofileData)
+clientsRouter.get('/getprofileData',getProfileData)
 
 export default clientsRouter

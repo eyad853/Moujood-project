@@ -10,6 +10,7 @@ const SA_Notifications = () => {
   // Filter states
   const [filterBy, setFilterBy] = useState('');
   const [category, setCategory] = useState('');
+  const [subCategory, setSubCategory] = useState('');
   const [city, setCity] = useState('');
   const [gender, setGender] = useState('');
 
@@ -106,6 +107,7 @@ const SA_Notifications = () => {
   const handleResetFilters = () => {
     setFilterBy('');
     setCategory('');
+    setSubCategory('');
     setCity('');
     setGender('');
     setSearchQuery('');
@@ -215,9 +217,10 @@ const SA_Notifications = () => {
               ) : (
                 <>
                   <option value="category">Specific Category</option>
+                  <option value="subcategory">Specific Sub-Category</option>
                 </>
               )}
-              <option value="specific">Specific IDs</option>
+              <option value="specific">Specific Names</option>
             </select>
           </div>
 
@@ -273,6 +276,42 @@ const SA_Notifications = () => {
                 <option value="retail">Retail</option>
                 <option value="healthcare">Healthcare</option>
                 <option value="services">Services</option>
+              </select>
+            </div>
+          )}
+
+          {formData.filter_type === 'subcategory' && (
+            <div className="mb-6">
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                Select Sub-Category
+              </label>
+              <select
+                value={formData.filter_value}
+                onChange={(e) => setFormData(prev => ({ ...prev, filter_value: e.target.value }))}
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg outline-none focus:border-[#009842] focus:ring-1 focus:ring-[#009842] appearance-none bg-white"
+              >
+                <option value="">Choose Sub-Category</option>
+                <optgroup label="Food & Dining">
+                  <option value="fast-food">Fast Food</option>
+                  <option value="restaurants">Restaurants</option>
+                  <option value="cafes">Cafes</option>
+                  <option value="desserts">Desserts</option>
+                </optgroup>
+                <optgroup label="Retail">
+                  <option value="clothing">Clothing</option>
+                  <option value="electronics">Electronics</option>
+                  <option value="home-decor">Home Decor</option>
+                </optgroup>
+                <optgroup label="Healthcare">
+                  <option value="clinics">Clinics</option>
+                  <option value="pharmacies">Pharmacies</option>
+                  <option value="labs">Labs</option>
+                </optgroup>
+                <optgroup label="Services">
+                  <option value="beauty">Beauty & Spa</option>
+                  <option value="repairs">Repairs</option>
+                  <option value="cleaning">Cleaning</option>
+                </optgroup>
               </select>
             </div>
           )}
@@ -500,7 +539,21 @@ const SA_Notifications = () => {
                 </select>
                 <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
               </div>
-              <div></div>
+
+              {/* Sub-Category */}
+              <div className="relative">
+                <select
+                  value={subCategory}
+                  onChange={(e) => setSubCategory(e.target.value)}
+                  className="w-full px-4 pr-10 py-2.5 border border-gray-200 rounded-lg outline-none focus:border-[#009842] focus:ring-1 focus:ring-[#009842] appearance-none bg-white text-sm"
+                >
+                  <option value="">Sub-Category</option>
+                  <option value="fast-food">Fast Food</option>
+                  <option value="restaurants">Restaurants</option>
+                  <option value="cafes">Cafes</option>
+                </select>
+                <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+              </div>
             </>
           )}
 
@@ -527,62 +580,81 @@ const SA_Notifications = () => {
         </div>
       </div>
 
-      {/* Notifications Table */}
+      {/* Notifications List */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[900px]">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr>
-                <th className="text-left px-3 sm:px-6 py-4 text-sm font-semibold text-gray-700 whitespace-nowrap">Title</th>
-                <th className="text-left px-3 sm:px-6 py-4 text-sm font-semibold text-gray-700 whitespace-nowrap">Message</th>
-                <th className="text-left px-3 sm:px-6 py-4 text-sm font-semibold text-gray-700 whitespace-nowrap">Target</th>
-                <th className="text-left px-3 sm:px-6 py-4 text-sm font-semibold text-gray-700 whitespace-nowrap">Recipients</th>
-                <th className="text-left px-3 sm:px-6 py-4 text-sm font-semibold text-gray-700 whitespace-nowrap">Status</th>
-                <th className="text-left px-3 sm:px-6 py-4 text-sm font-semibold text-gray-700 whitespace-nowrap">Date</th>
-                <th className="text-left px-3 sm:px-6 py-4 text-sm font-semibold text-gray-700 whitespace-nowrap">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {notifications.map((notification) => (
-                <tr key={notification.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-3 sm:px-6 py-4">
-                    <span className="font-medium text-gray-900 text-sm">{notification.title}</span>
-                  </td>
-                  <td className="px-3 sm:px-6 py-4">
-                    <span className="text-sm text-gray-600 line-clamp-1">{notification.message}</span>
-                  </td>
-                  <td className="px-3 sm:px-6 py-4 text-sm text-gray-600 whitespace-nowrap">{notification.target}</td>
-                  <td className="px-3 sm:px-6 py-4 text-sm text-gray-900 font-medium whitespace-nowrap">
-                    {notification.recipients_count.toLocaleString()}
-                  </td>
-                  <td className="px-3 sm:px-6 py-4">
-                    <span className="inline-block px-3 py-1 bg-green-100 text-green-700 rounded-lg text-sm font-medium">
-                      {notification.status}
-                    </span>
-                  </td>
-                  <td className="px-3 sm:px-6 py-4 text-sm text-gray-600 whitespace-nowrap">{notification.sent_date}</td>
-                  <td className="px-3 sm:px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => handleEditNotification(notification)}
-                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                        title="Edit notification"
-                      >
-                        <Edit size={18} className="text-gray-600" />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteNotification(notification.id)}
-                        className="p-2 hover:bg-red-50 rounded-lg transition-colors"
-                        title="Delete notification"
-                      >
-                        <Trash2 size={18} className="text-gray-600" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        {/* Header */}
+        <div className="grid grid-cols-12 gap-4 px-4 sm:px-6 py-4 bg-gray-50 border-b border-gray-200">
+          <div className="col-span-2 text-sm font-semibold text-gray-700">Title</div>
+          <div className="col-span-2 text-sm font-semibold text-gray-700">Message</div>
+          <div className="col-span-2 text-sm font-semibold text-gray-700">Target</div>
+          <div className="col-span-2 text-sm font-semibold text-gray-700">Recipients</div>
+          <div className="col-span-1 text-sm font-semibold text-gray-700">Status</div>
+          <div className="col-span-2 text-sm font-semibold text-gray-700">Date</div>
+          <div className="col-span-1 text-sm font-semibold text-gray-700">Actions</div>
+        </div>
+
+        {/* Notifications Items */}
+        <div className="divide-y divide-gray-200">
+          {notifications.map((notification) => (
+            <div
+              key={notification.id}
+              className="grid grid-cols-12 gap-4 px-4 sm:px-6 py-4 hover:bg-gray-50 transition-colors items-center"
+            >
+              {/* Title */}
+              <div className="col-span-2">
+                <span className="font-medium text-gray-900 text-sm">{notification.title}</span>
+              </div>
+
+              {/* Message */}
+              <div className="col-span-2">
+                <span className="text-sm text-gray-600 line-clamp-1">{notification.message}</span>
+              </div>
+
+              {/* Target */}
+              <div className="col-span-2">
+                <span className="text-sm text-gray-600">{notification.target}</span>
+              </div>
+
+              {/* Recipients */}
+              <div className="col-span-2">
+                <span className="text-sm text-gray-900 font-medium">
+                  {notification.recipients_count.toLocaleString()}
+                </span>
+              </div>
+
+              {/* Status */}
+              <div className="col-span-1">
+                <span className="inline-block px-3 py-1 bg-green-100 text-green-700 rounded-lg text-sm font-medium">
+                  {notification.status}
+                </span>
+              </div>
+
+              {/* Date */}
+              <div className="col-span-2">
+                <span className="text-sm text-gray-600">{notification.sent_date}</span>
+              </div>
+
+              {/* Actions */}
+              <div className="col-span-1">
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handleEditNotification(notification)}
+                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                    title="Edit notification"
+                  >
+                    <Edit size={18} className="text-gray-600" />
+                  </button>
+                  <button
+                    onClick={() => handleDeleteNotification(notification.id)}
+                    className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                    title="Delete notification"
+                  >
+                    <Trash2 size={18} className="text-gray-600" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* Pagination */}

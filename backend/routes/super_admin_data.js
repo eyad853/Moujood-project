@@ -1,9 +1,10 @@
 import express from 'express'
-import { getBusinessPageData, getDashboardPageData, getUserPageData } from '../controllers/super_admin_data'
-const categoriesRouter=express.Router()
+import { editBusinessActivity, getBusinessPageData, getDashboardPageData, getUserPageData } from '../controllers/super_admin_data'
+const suerAdminRouter=express.Router()
 
-categoriesRouter.get('/getBusinessPageData',getBusinessPageData)
-categoriesRouter.get('/getUserPageData',getUserPageData)
-categoriesRouter.get('/getDashboardPageData',getDashboardPageData)
+suerAdminRouter.get('/getBusinessPageData',getBusinessPageData)
+suerAdminRouter.patch('/editBusinessActivity',editBusinessActivity)
+suerAdminRouter.get('/getUserPageData',getUserPageData)
+suerAdminRouter.get('/getDashboardPageData',getDashboardPageData)
 
-export default categoriesRouter
+export default suerAdminRouter

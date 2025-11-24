@@ -224,67 +224,62 @@ const SA_Businesses = () => {
         </div>
       </div>
 
-      {/* Businesses Table */}
+      {/* Businesses List */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[900px]">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr>
-                <th className="text-left px-3 sm:px-6 py-4 text-sm font-semibold text-gray-700 whitespace-nowrap">Logo</th>
-                <th className="text-left px-3 sm:px-6 py-4 text-sm font-semibold text-gray-700 whitespace-nowrap">Business Name</th>
-                <th className="text-left px-3 sm:px-6 py-4 text-sm font-semibold text-gray-700 whitespace-nowrap">Category</th>
-                <th className="text-left px-3 sm:px-6 py-4 text-sm font-semibold text-gray-700 whitespace-nowrap">Offers Scaned</th>
-                <th className="text-left px-3 sm:px-6 py-4 text-sm font-semibold text-gray-700 whitespace-nowrap">STATUS</th>
-                <th className="text-left px-3 sm:px-6 py-4 text-sm font-semibold text-gray-700 whitespace-nowrap">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {businesses.map((business) => (
-                <tr key={business.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-3 sm:px-6 py-4">
-                    <div className="w-12 h-12 bg-[#009842] rounded-xl flex items-center justify-center flex-shrink-0">
-                      <img
-                        src={business.logo}
-                        alt={business.name}
-                        className="w-8 h-8 object-contain brightness-0 invert"
-                      />
-                    </div>
-                  </td>
-                  <td className="px-3 sm:px-6 py-4">
-                    <span className="font-medium text-gray-900 text-sm whitespace-nowrap">{business.name}</span>
-                  </td>
-                  <td className="px-3 sm:px-6 py-4 text-sm text-gray-600 whitespace-nowrap">{business.category}</td>
-                  <td className="px-3 sm:px-6 py-4 text-sm text-gray-900 font-medium whitespace-nowrap">{business.offers_scanned}</td>
-                  <td className="px-3 sm:px-6 py-4">
-                    <span className={`inline-block px-4 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap ${
-                      business.status === 'active' 
-                        ? 'bg-green-100 text-green-700' 
-                        : 'bg-red-100 text-red-700'
-                    }`}>
-                      {business.status === 'active' ? 'Active' : 'Not Active'}
-                    </span>
-                  </td>
-                  <td className="px-3 sm:px-6 py-4">
-                    {business.status === 'active' ? (
-                      <button
-                        onClick={() => handleDeactivate(business.id)}
-                        className="px-4 py-1.5 bg-red-100 text-red-700 rounded-lg text-sm font-medium hover:bg-red-200 transition-colors whitespace-nowrap"
-                      >
-                        De Activate
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => handleActivate(business.id)}
-                        className="px-4 py-1.5 bg-green-100 text-green-700 rounded-lg text-sm font-medium hover:bg-green-200 transition-colors whitespace-nowrap"
-                      >
-                        Activate
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        {/* Header */}
+        <div className="grid grid-cols-11 gap-4 px-4 sm:px-6 py-4 bg-gray-50 border-b border-gray-200">
+          <div className="col-span-1 text-sm font-semibold text-gray-700">Logo</div>
+          <div className="col-span-3 text-sm font-semibold text-gray-700">Business Name</div>
+          <div className="col-span-3 text-sm font-semibold text-gray-700">Category</div>
+          <div className="col-span-2 text-sm font-semibold text-gray-700">Offers Scaned</div>
+          <div className="col-span-2 text-sm font-semibold text-gray-700">STATUS</div>
+        </div>
+
+        {/* Businesses Items */}
+        <div className="divide-y divide-gray-200">
+          {businesses.map((business) => (
+            <div
+              key={business.id}
+              className="grid grid-cols-11 gap-4 px-4 sm:px-6 py-4 hover:bg-gray-50 transition-colors items-center"
+            >
+              {/* Logo */}
+              <div className="col-span-1">
+                <div className="w-12 h-12 bg-[#009842] rounded-xl flex items-center justify-center flex-shrink-0">
+                  <img
+                    src={business.logo}
+                    alt={business.name}
+                    className="w-8 h-8 object-contain brightness-0 invert"
+                  />
+                </div>
+              </div>
+
+              {/* Business Name */}
+              <div className="col-span-3">
+                <span className="font-medium text-gray-900 text-sm">{business.name}</span>
+              </div>
+
+              {/* Category */}
+              <div className="col-span-3">
+                <span className="text-sm text-gray-600">{business.category}</span>
+              </div>
+
+              {/* Offers Scanned */}
+              <div className="col-span-2">
+                <span className="text-sm text-gray-900 font-medium">{business.offers_scanned}</span>
+              </div>
+
+              {/* Status */}
+              <div className="col-span-2">
+                <span className={`inline-block px-4 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap ${
+                  business.status === 'active' 
+                    ? 'bg-green-100 text-green-700' 
+                    : 'bg-red-100 text-red-700'
+                }`}>
+                  {business.status === 'active' ? 'Active' : 'Not Active'}
+                </span>
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* Pagination */}

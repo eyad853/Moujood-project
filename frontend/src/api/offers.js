@@ -1,42 +1,54 @@
-export const getOffers = async(setError)=>{
+import axios from 'axios'
+
+const addOffer = async (setError)=>{
     try{
-        
+        const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/offers/add`)
     }catch(error){
-        setError(error)
+        if (err.response?.data?.message) {
+            setError(err.response.data.message)
+        } else if (err.message) {
+            setError(err.message)
+        } else {
+            setError('Something went wrong')
+        }
     }
 }
-
-export const addOffer = async(setError)=>{
+const editOffer = async (setError,offerId)=>{
     try{
-        
+        const response = await axios.patch(`${import.meta.env.VITE_BACKEND_URL}/offers/edit/${offerId}`)
     }catch(error){
-        setError(error)
+        if (err.response?.data?.message) {
+            setError(err.response.data.message)
+        } else if (err.message) {
+            setError(err.message)
+        } else {
+            setError('Something went wrong')
+        }
     }
 }
-
-export const editOffer = async(setError)=>{
+const getOffers = async (setError)=>{
     try{
-        
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/offers/get`)
     }catch(error){
-        setError(error)
+        if (err.response?.data?.message) {
+            setError(err.response.data.message)
+        } else if (err.message) {
+            setError(err.message)
+        } else {
+            setError('Something went wrong')
+        }
     }
 }
-
-export const deleteOffer = async(setError)=>{
+const deleteOffer = async (setError)=>{
     try{
-        
+        const response = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/offers/delete`)
     }catch(error){
-        setError(error)
+        if (err.response?.data?.message) {
+            setError(err.response.data.message)
+        } else if (err.message) {
+            setError(err.message)
+        } else {
+            setError('Something went wrong')
+        }
     }
 }
-
-export const getBusinessOFfers = async(setError)=>{
-    try{
-        
-    }catch(error){
-        setError(error)
-    }
-}
-
-
-

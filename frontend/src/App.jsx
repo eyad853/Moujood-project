@@ -13,7 +13,6 @@ import SA_Dashboard from './pages/Super_Admin/SA_Dashboard/SA_Dashboard';
 import SA_Users from './pages/Super_Admin/SA_Users/SA_Users';
 import SA_Categories from './pages/Super_Admin/SA_Categories/SA_Categories';
 import SA_Notifications from './pages/Super_Admin/SA_Notifications/SA_Notifications';
-import SA_Posts from './pages/Super_Admin/SA_Posts/SA_Posts';
 import SA_Businesses from './pages/Super_Admin/SA_Businesses/SA_Businesses';
 import C_Layout from './pages/Client_pages/C_Layout';
 import C_Feed from './pages/Client_pages/C_Feed/C_Feed';
@@ -29,6 +28,8 @@ import C_Language_Settings from './pages/Client_pages/C_Language_Settings/C_Lang
 import Business_notifications from './pages/Business_pages/Business_notifications/Business_notifications';
 import { App as CapApp } from '@capacitor/app';
 import C_Scan_Offers from './pages/Client_pages/C_Scan_Offers/C_Scan_Offers';
+import Settings from './pages/Settings/Settings';
+import SA_Offers from './pages/Super_Admin/SA_Offers/SA_Offers';
 
 
 const handleBackButton = () => {
@@ -47,6 +48,10 @@ const routes = [
   {
     path:'/',
     element:<SignupAs />
+  },
+  {
+    path:'settings',
+    element:<Settings />
   },
   {
     path:'/client_sign_up',
@@ -104,7 +109,7 @@ const routes = [
       },
       {
         path:'offers',
-        element:<SA_Posts />
+        element:<SA_Offers />
       },
       {
         path:'businesses',

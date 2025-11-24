@@ -3,7 +3,7 @@ import { Menu, Search, ChevronDown } from 'lucide-react';
 
 const SA_Navbar = ({ onMenuToggle }) => {
   return (
-    <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between sticky top-0">
+    <header className="bg-white border-b z-50 border-gray-200 px-6 py-4 flex items-center justify-between sticky top-0">
       {/* Left Section - Menu Toggle & Search */}
       <div className="flex items-center gap-4 flex-1">
         <button

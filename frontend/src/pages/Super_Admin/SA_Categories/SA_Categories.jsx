@@ -298,121 +298,146 @@ const SA_Categories = () => {
         </div>
       </div>
 
-      {/* Categories Table */}
+      {/* Categories List */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[700px]">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr>
-                <th className="text-left px-3 sm:px-6 py-4 text-sm font-semibold text-gray-700 whitespace-nowrap">Category Name</th>
-                <th className="text-left px-3 sm:px-6 py-4 text-sm font-semibold text-gray-700 whitespace-nowrap">Status</th>
-                <th className="text-left px-3 sm:px-6 py-4 text-sm font-semibold text-gray-700 whitespace-nowrap">Business Number</th>
-                <th className="text-left px-3 sm:px-6 py-4 text-sm font-semibold text-gray-700 whitespace-nowrap">Sub-Categories</th>
-                <th className="text-left px-3 sm:px-6 py-4 text-sm font-semibold text-gray-700 whitespace-nowrap">DEL</th>
-                <th className="text-left px-3 sm:px-6 py-4 text-sm font-semibold text-gray-700 whitespace-nowrap">Edit</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {mainCategories.map((category) => {
-                const subcategories = getSubcategories(category.id);
-                const isExpanded = expandedCategories.includes(category.id);
-                
-                return (
-                  <React.Fragment key={category.id}>
-                    {/* Main Category Row */}
-                    <tr className="hover:bg-gray-50 transition-colors">
-                      <td className="px-3 sm:px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          {subcategories.length > 0 && (
-                            <button
-                              onClick={() => toggleCategory(category.id)}
-                              className="p-1 hover:bg-gray-200 rounded transition-colors"
-                            >
-                              {isExpanded ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
-                            </button>
-                          )}
-                          <div className="w-12 h-12 bg-[#009842] rounded-xl flex items-center justify-center flex-shrink-0">
-                            <span className="text-2xl">{category.image}</span>
-                          </div>
-                          <span className="font-medium text-gray-900 text-sm whitespace-nowrap">{category.name}</span>
-                        </div>
-                      </td>
-                      <td className="px-3 sm:px-6 py-4">
-                        <span className="inline-block px-3 py-1 bg-green-100 text-green-700 rounded-lg text-sm font-medium">
-                          {category.status}
-                        </span>
-                      </td>
-                      <td className="px-3 sm:px-6 py-4 text-sm text-gray-900 font-medium whitespace-nowrap">{category.business_count} Business</td>
-                      <td className="px-3 sm:px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm text-gray-900 font-medium">{category.subcategories_count}</span>
-                          <button
-                            onClick={() => handleAddCategory(category.id)}
-                            className="p-1 hover:bg-green-100 rounded transition-colors"
-                          >
-                            <Plus size={16} className="text-green-600" />
-                          </button>
-                        </div>
-                      </td>
-                      <td className="px-3 sm:px-6 py-4">
-                        <button
-                          onClick={() => handleDeleteCategory(category.id)}
-                          className="p-2 hover:bg-red-50 rounded-lg transition-colors"
-                        >
-                          <Trash2 size={18} className="text-gray-600" />
-                        </button>
-                      </td>
-                      <td className="px-3 sm:px-6 py-4">
-                        <button
-                          onClick={() => handleEditCategory(category)}
-                          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                        >
-                          <Edit size={18} className="text-gray-600" />
-                        </button>
-                      </td>
-                    </tr>
+        {/* Header */}
+        <div className="grid grid-cols-12 gap-4 px-4 sm:px-6 py-4 bg-gray-50 border-b border-gray-200">
+          <div className="col-span-4 text-sm font-semibold text-gray-700">Category Name</div>
+          <div className="col-span-2 text-sm font-semibold text-gray-700">Status</div>
+          <div className="col-span-2 text-sm font-semibold text-gray-700">Business Number</div>
+          <div className="col-span-2 text-sm font-semibold text-gray-700">Sub-Categories</div>
+          <div className="col-span-1 text-sm font-semibold text-gray-700">DEL</div>
+          <div className="col-span-1 text-sm font-semibold text-gray-700">Edit</div>
+        </div>
 
-                    {/* Subcategories Rows */}
-                    {isExpanded && subcategories.map((subcategory) => (
-                      <tr key={subcategory.id} className="bg-gray-50/50 hover:bg-gray-100 transition-colors">
-                        <td className="px-3 sm:px-6 py-4">
-                          <div className="flex items-center gap-3 pl-12">
-                            <div className="w-10 h-10 bg-[#009842] rounded-lg flex items-center justify-center flex-shrink-0">
-                              <span className="text-xl">{subcategory.image}</span>
-                            </div>
-                            <span className="font-medium text-gray-700 text-sm whitespace-nowrap">{subcategory.name}</span>
-                          </div>
-                        </td>
-                        <td className="px-3 sm:px-6 py-4">
-                          <span className="inline-block px-3 py-1 bg-green-100 text-green-700 rounded-lg text-sm font-medium">
-                            {subcategory.status}
-                          </span>
-                        </td>
-                        <td className="px-3 sm:px-6 py-4 text-sm text-gray-700 font-medium whitespace-nowrap">{subcategory.business_count} Business</td>
-                        <td className="px-3 sm:px-6 py-4 text-sm text-gray-700">-</td>
-                        <td className="px-3 sm:px-6 py-4">
-                          <button
-                            onClick={() => handleDeleteCategory(subcategory.id)}
-                            className="p-2 hover:bg-red-50 rounded-lg transition-colors"
-                          >
-                            <Trash2 size={18} className="text-gray-600" />
-                          </button>
-                        </td>
-                        <td className="px-3 sm:px-6 py-4">
-                          <button
-                            onClick={() => handleEditCategory(subcategory)}
-                            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                          >
-                            <Edit size={18} className="text-gray-600" />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </React.Fragment>
-                );
-              })}
-            </tbody>
-          </table>
+        {/* Categories Items */}
+        <div className="divide-y divide-gray-200">
+          {mainCategories.map((category) => {
+            const subcategories = getSubcategories(category.id);
+            const isExpanded = expandedCategories.includes(category.id);
+            
+            return (
+              <React.Fragment key={category.id}>
+                {/* Main Category Row */}
+                <div className="grid grid-cols-12 gap-4 px-4 sm:px-6 py-4 hover:bg-gray-50 transition-colors items-center">
+                  {/* Category Name */}
+                  <div className="col-span-4">
+                    <div className="flex items-center gap-3">
+                      {subcategories.length > 0 && (
+                        <button
+                          onClick={() => toggleCategory(category.id)}
+                          className="p-1 hover:bg-gray-200 rounded transition-colors"
+                        >
+                          {isExpanded ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+                        </button>
+                      )}
+                      <div className="w-12 h-12 bg-[#009842] rounded-xl flex items-center justify-center flex-shrink-0">
+                        <span className="text-2xl">{category.image}</span>
+                      </div>
+                      <span className="font-medium text-gray-900 text-sm">{category.name}</span>
+                    </div>
+                  </div>
+
+                  {/* Status */}
+                  <div className="col-span-2">
+                    <span className="inline-block px-3 py-1 bg-green-100 text-green-700 rounded-lg text-sm font-medium">
+                      {category.status}
+                    </span>
+                  </div>
+
+                  {/* Business Number */}
+                  <div className="col-span-2">
+                    <span className="text-sm text-gray-900 font-medium">{category.business_count} Business</span>
+                  </div>
+
+                  {/* Sub-Categories */}
+                  <div className="col-span-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-900 font-medium">{category.subcategories_count}</span>
+                      <button
+                        onClick={() => handleAddCategory(category.id)}
+                        className="p-1 hover:bg-green-100 rounded transition-colors"
+                      >
+                        <Plus size={16} className="text-green-600" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Delete */}
+                  <div className="col-span-1">
+                    <button
+                      onClick={() => handleDeleteCategory(category.id)}
+                      className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                    >
+                      <Trash2 size={18} className="text-gray-600" />
+                    </button>
+                  </div>
+
+                  {/* Edit */}
+                  <div className="col-span-1">
+                    <button
+                      onClick={() => handleEditCategory(category)}
+                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                    >
+                      <Edit size={18} className="text-gray-600" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Subcategories Rows */}
+                {isExpanded && subcategories.map((subcategory) => (
+                  <div key={subcategory.id} className="grid grid-cols-12 gap-4 px-4 sm:px-6 py-4 bg-gray-50/50 hover:bg-gray-100 transition-colors items-center">
+                    {/* Category Name */}
+                    <div className="col-span-4">
+                      <div className="flex items-center gap-3 pl-12">
+                        <div className="w-10 h-10 bg-[#009842] rounded-lg flex items-center justify-center flex-shrink-0">
+                          <span className="text-xl">{subcategory.image}</span>
+                        </div>
+                        <span className="font-medium text-gray-700 text-sm">{subcategory.name}</span>
+                      </div>
+                    </div>
+
+                    {/* Status */}
+                    <div className="col-span-2">
+                      <span className="inline-block px-3 py-1 bg-green-100 text-green-700 rounded-lg text-sm font-medium">
+                        {subcategory.status}
+                      </span>
+                    </div>
+
+                    {/* Business Number */}
+                    <div className="col-span-2">
+                      <span className="text-sm text-gray-700 font-medium">{subcategory.business_count} Business</span>
+                    </div>
+
+                    {/* Sub-Categories */}
+                    <div className="col-span-2">
+                      <span className="text-sm text-gray-700">-</span>
+                    </div>
+
+                    {/* Delete */}
+                    <div className="col-span-1">
+                      <button
+                        onClick={() => handleDeleteCategory(subcategory.id)}
+                        className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                      >
+                        <Trash2 size={18} className="text-gray-600" />
+                      </button>
+                    </div>
+
+                    {/* Edit */}
+                    <div className="col-span-1">
+                      <button
+                        onClick={() => handleEditCategory(subcategory)}
+                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                      >
+                        <Edit size={18} className="text-gray-600" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </React.Fragment>
+            );
+          })}
         </div>
 
         {/* Pagination */}
