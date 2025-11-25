@@ -1,10 +1,12 @@
 import express from 'express'
-import { editProfileData, getBusinessDashboardData, getProfileData } from '../controllers/business'
+import { editProfileData, getBusinessDashboardData, getBusinessOffers, getProfileData } from '../controllers/business.js'
 
-const businessRoutes=express.Router()
+const businessRouter=express.Router()
 
-businessRoutes.get('/getProfileData',getProfileData)
-businessRoutes.get('/getBusinessDashboardData',getBusinessDashboardData)
-businessRoutes.patch('/editProfileData',editProfileData)
+businessRouter.get('/getProfileData',getProfileData)
+businessRouter.get('/getBusinessDashboardData',getBusinessDashboardData)
+businessRouter.patch('/editProfileData',editProfileData)
+businessRouter.get('/getBusinessOffers',getBusinessOffers)
 
-export default businessRoutes
+
+export default businessRouter

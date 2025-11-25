@@ -1,5 +1,5 @@
-import socket from './Socket';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { App as CapApp } from '@capacitor/app';
 import SignupAs from './pages/SignupAs/SignupAs';
 import ClientSignup from './pages/ClientAuth/ClientSignup/ClientSignup';
 import ClientLogin from './pages/ClientAuth/ClientLogin/ClientLogin';
@@ -13,7 +13,6 @@ import SA_Dashboard from './pages/Super_Admin/SA_Dashboard/SA_Dashboard';
 import SA_Users from './pages/Super_Admin/SA_Users/SA_Users';
 import SA_Categories from './pages/Super_Admin/SA_Categories/SA_Categories';
 import SA_Notifications from './pages/Super_Admin/SA_Notifications/SA_Notifications';
-import SA_Posts from './pages/Super_Admin/SA_Posts/SA_Posts';
 import SA_Businesses from './pages/Super_Admin/SA_Businesses/SA_Businesses';
 import C_Layout from './pages/Client_pages/C_Layout';
 import C_Feed from './pages/Client_pages/C_Feed/C_Feed';
@@ -23,12 +22,12 @@ import C_Sub_Categories from './pages/Client_pages/C_Sub_Categories/C_Sub_Catego
 import C_Business_Of_Category from './pages/Client_pages/C_Business_Of_Category/C_Business_Of_Category';
 import C_Business_Page from './pages/Client_pages/C_Business_Page/C_Business_Page';
 import C_Profile from './pages/Client_pages/C_Profile/C_Profile';
-import C_Notifications from './pages/Client_pages/C_Notifications/C_Notifications';
 import C_Notification_Settings from './pages/Client_pages/C_Notification_Settings/C_Notification_Settings';
 import C_Language_Settings from './pages/Client_pages/C_Language_Settings/C_Language_Settings';
-import Business_notifications from './pages/Business_pages/Business_notifications/Business_notifications';
-import { App as CapApp } from '@capacitor/app';
-import C_Scan_Offers from './pages/Client_pages/C_Scan_Offers/C_Scan_Offers';
+import Settings from './pages/SettingsPage/Settings';
+import SA_Offers from './pages/Super_Admin/SA_Offers/SA_Offers';
+import Notifications from './pages/Notifications/Notifications';
+import C_Camera from './pages/Client_pages/C_Camera/C_Camera';
 
 
 const handleBackButton = () => {
@@ -78,7 +77,11 @@ const routes = [
       },
       {
         path:'notifications',
-        element:<Business_notifications />
+        element:<Notifications />
+      },
+      {
+        path:'settings',
+        element:<Settings />
       },
     ]
   },
@@ -103,8 +106,8 @@ const routes = [
         element:<SA_Notifications />
       },
       {
-        path:'posts',
-        element:<SA_Posts />
+        path:'offers',
+        element:<SA_Offers />
       },
       {
         path:'businesses',
@@ -142,7 +145,7 @@ const routes = [
       },
       {
         path:'notifications',
-        element:<C_Notifications />
+        element:<Notifications />
       },
       {
         path:'profile',
@@ -157,8 +160,12 @@ const routes = [
         element:<C_Language_Settings />
       },
       {
-        path:'scans/:id',
-        element:<C_Scan_Offers/>
+        path:'scan',
+        element:<C_Camera/>
+      },
+      {
+        path:'settings',
+        element:<Settings />
       },
     ]
   }

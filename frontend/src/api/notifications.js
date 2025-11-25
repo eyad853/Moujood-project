@@ -1,8 +1,8 @@
 import axios from 'axios'
 
-const addOffer = async (setError)=>{
+const createNotification = async (setError)=>{
     try{
-        const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/offers/add`)
+        const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/notifications/createNotification`)
     }catch(error){
         if (err.response?.data?.message) {
             setError(err.response.data.message)
@@ -13,9 +13,10 @@ const addOffer = async (setError)=>{
         }
     }
 }
-const editOffer = async (setError,offerId)=>{
+
+const editNotification = async (setError)=>{
     try{
-        const response = await axios.patch(`${import.meta.env.VITE_BACKEND_URL}/offers/edit/${offerId}`)
+        const response = await axios.patch(`${import.meta.env.VITE_BACKEND_URL}/notifications/editNotification`)
     }catch(error){
         if (err.response?.data?.message) {
             setError(err.response.data.message)
@@ -26,9 +27,10 @@ const editOffer = async (setError,offerId)=>{
         }
     }
 }
-const getOffers = async (setError)=>{
+
+const deleteNotification = async (setError)=>{
     try{
-        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/offers/get`)
+        const response = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/notifications/deleteNotification`)
     }catch(error){
         if (err.response?.data?.message) {
             setError(err.response.data.message)
@@ -39,9 +41,10 @@ const getOffers = async (setError)=>{
         }
     }
 }
-const deleteOffer = async (setError)=>{
+
+const getAllNotifications = async (setError)=>{
     try{
-        const response = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/offers/delete`)
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/notifications/getAllNotfications`)
     }catch(error){
         if (err.response?.data?.message) {
             setError(err.response.data.message)

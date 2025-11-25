@@ -1,13 +1,13 @@
 import express from 'express'
-import { addOffer, deleteOffer, editOffer, getBusinessOffers, getOffers } from '../controllers/offers'
-import { uploadFile } from '../utils/multer'
+import { addOffer, deleteOffer, editOffer, getOffers } from '../controllers/offers.js'
+import { uploadFile } from '../utils/multer.js'
+import B_SA from '../utils/B&SA.js'
 
-const offersRoutes=express.Router()
+const offersRouter=express.Router()
 
-offersRoutes.post('/add',addOffer)
-offersRoutes.post('/edit/:offer_id',editOffer)
-offersRoutes.post('/get',getOffers)
-offersRoutes.post('/delete',deleteOffer)
-offersRoutes.get('/getBusinessOffers',getBusinessOffers)
+offersRouter.post('/add',uploadFile('offers').single('image') ,addOffer)
+offersRouter.post('/edit/:offer_id',uploadFile('offers').single('image') , B_SA,editOffer)
+offersRouter.post('/get',getOffers)
+offersRouter.post('/delete/:offer_id',deleteOffer)
 
-export default offersRoutes
+export default offersRouter

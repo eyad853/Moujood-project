@@ -8,9 +8,20 @@ import { fileURLToPath } from 'url'
 import { Pool } from 'pg';
 import session from 'express-session';
 import passport from 'passport';
-import authRouter from './routes/auth.js';
 import { Server } from 'socket.io';
-import './config/googleAuth.js'
+import fs from 'fs'
+import authRouter from './routes/auth.js';
+import notificationsRouter from './routes/notifications.js';
+import settingsRouter from './routes/settings.js';
+import offersRouter from './routes/offers.js';
+import clientsRouter from './routes/clients.js';
+import businessRouter from './routes/business.js';
+import suerAdminRouter from './routes/super_admin_data.js';
+import categoriesRouter from './routes/categories.js';
+
+
+
+
 const app = express()
 const server = http.createServer(app);
 const io = new Server(server , {
@@ -79,8 +90,15 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
-
+// Routers
 app.use('/auth', authRouter)
+app.use('/notifications', notificationsRouter)
+app.use('/settings', settingsRouter)
+app.use('/offers', offersRouter)
+app.use('/clients', clientsRouter)
+app.use('/businesses', businessRouter)
+app.use('/super_admin', suerAdminRouter)
+app.use('/categories', categoriesRouter)
 
 export const pool = new Pool({
     user: 'postgres',
@@ -92,88 +110,9 @@ export const pool = new Pool({
 
 async function createTables() {
   try {
-
+    const sql = fs.readFileSync('./schema/tables.sql','utf8')
     // users table
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS users (
-        id SERIAL PRIMARY KEY,
-        name VARCHAR(150) NOT NULL,
-        email VARCHAR(150) UNIQUE NOT NULL,
-        password VARCHAR(255) NOT NULL,
-        confirm_password VARCHAR(255) NOT NULL,
-        gender VARCHAR(20) CHECK (gender IN ('male', 'female')) DEFAULT 'male',
-        city VARCHAR(100) DEFAULT 'Cairo',
-        user_type VARCHAR(20) CHECK (user_type IN ('client', 'super_admin')) DEFAULT 'client',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-
-      CREATE TABLE IF NOT EXISTS businesses (
-        id SERIAL PRIMARY KEY,
-        name VARCHAR(150) NOT NULL,
-        email VARCHAR(150) UNIQUE NOT NULL,
-        password VARCHAR(255) NOT NULL,
-        confirm_password VARCHAR(255) NOT NULL,
-        category VARCHAR(100),
-        logo VARCHAR(255),
-        description TEXT,
-        addresses TEXT,
-        locations TEXT,
-        number VARCHAR(50),
-        qr_code VARCHAR(255),
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-
-      CREATE TABLE IF NOT EXISTS offers (
-        offer_id SERIAL PRIMARY KEY,
-        business_id INT NOT NULL,
-        title VARCHAR(200) NOT NULL,
-        description TEXT,
-        image VARCHAR(255),
-        offer_price_before DECIMAL(10,2) NOT NULL,
-        offer_price_after DECIMAL(10,2),
-        category VARCHAR(80) NOT NULL
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (business_id) REFERENCES businesses(id)
-      );
-
-      CREATE TABLE IF NOT EXISTS scans (
-        id SERIAL PRIMARY KEY,
-        user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-        business_id INT REFERENCES businesses(id) ON DELETE CASCADE,
-        offer_id INT REFERENCES offers(id) ON DELETE CASCADE,
-        scanned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-
-      CREATE TABLE IF NOT EXISTS likes (
-        id SERIAL PRIMARY KEY,
-        offer_id INTEGER REFERENCES offers(id),
-        user_id INTEGER REFERENCES users(id),
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        UNIQUE(offer_id, user_id)
-      )
-
-      CREATE TABLE IF NOT EXISTS comments (
-        id SERIAL PRIMARY KEY,
-        offer_id INTEGER REFERENCES offers(id),
-        user_id INTEGER REFERENCES users(id),
-        content TEXT NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-
-      CREATE TABLE IF NOT EXISTS sales (
-        id SERIAL PRIMARY KEY,
-        offer_id INTEGER REFERENCES offers(id),
-        user_id INTEGER REFERENCES users(id),
-        amount DECIMAL(10,2) NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-
-      CREATE TABLE IF NOT EXISTS categories (
-        id SERIAL PRIMARY KEY,
-        name VARCHAR(150) NOT NULL,
-        parent_id INTEGER REFERENCES categories(id)  -- NULL means main category
-      )
-    `);
+    await pool.query(sql);
 
     console.log('✅ Tables "users" and "businesses" are ready!');
   } catch (err) {

@@ -157,3 +157,20 @@ export const getBusinessDashboardData = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+export const getBusinessOffers = async (req, res) => {
+  try {
+    const business_id = req.user.id;
+
+    const result = await pool.query(
+      `SELECT * FROM offers 
+       WHERE business_id = $1
+       ORDER BY created_at DESC`,
+      [business_id]
+    );
+
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};

@@ -1,8 +1,8 @@
 import axios from 'axios'
 
-const addOffer = async (setError)=>{
+const getFeedPageData = async (setError)=>{
     try{
-        const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/offers/add`)
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/clients/getFeedPageData`)
     }catch(error){
         if (err.response?.data?.message) {
             setError(err.response.data.message)
@@ -13,9 +13,10 @@ const addOffer = async (setError)=>{
         }
     }
 }
-const editOffer = async (setError,offerId)=>{
+
+const getSubCategoriesOfCategory = async (setError)=>{
     try{
-        const response = await axios.patch(`${import.meta.env.VITE_BACKEND_URL}/offers/edit/${offerId}`)
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/clients/getSubCategoriesOfCategory`)
     }catch(error){
         if (err.response?.data?.message) {
             setError(err.response.data.message)
@@ -26,9 +27,10 @@ const editOffer = async (setError,offerId)=>{
         }
     }
 }
-const getOffers = async (setError)=>{
+
+const getBusinessesOfCategoryData = async (setError)=>{
     try{
-        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/offers/get`)
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/clients/getbusinessesOfCategoryData`)
     }catch(error){
         if (err.response?.data?.message) {
             setError(err.response.data.message)
@@ -39,9 +41,24 @@ const getOffers = async (setError)=>{
         }
     }
 }
-const deleteOffer = async (setError)=>{
+
+const getBusinessPageData = async (setError)=>{
     try{
-        const response = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/offers/delete`)
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/clients/getBusinessPageData`)
+    }catch(error){
+        if (err.response?.data?.message) {
+            setError(err.response.data.message)
+        } else if (err.message) {
+            setError(err.message)
+        } else {
+            setError('Something went wrong')
+        }
+    }
+}
+
+const getProfileData = async (setError)=>{
+    try{
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/clients/getprofileData`)
     }catch(error){
         if (err.response?.data?.message) {
             setError(err.response.data.message)
