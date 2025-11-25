@@ -58,6 +58,8 @@ export const getCategoriesPageData = async (setError , setCategories)=>{
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/super_admin/getCategoriesPageData`)
         if(response){
             setCategories(response.data.categories)
+        console.log(response.data);
+
         }
     }catch(error){
         if (err.response?.data?.message) {

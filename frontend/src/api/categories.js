@@ -7,13 +7,23 @@ export const createCategory = async (setError , data , imagePreview , setCategor
         id:tempId,
         name:data.name,
         image:imagePreview,
-        parent_id:data.parent_id
+        parent_id:data.parent_id,
+        category_usage:0,
+        subcategory_usage:0
     }
     try{
 
         setCategories(prev => [...prev , tempCategory])
 
-        const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/categories/createCategory` , data)
+        const formData = new FormData();
+        formData.append("name", data.name);
+        formData.append("parent_id", data.parent_id === null ? "" : data.parent_id);
+        formData.append("image", data.image);   // IMPORTANT
+
+        const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/categories/createCategory` , formData , {
+            headers:{"Content-Type":"multipart/form-data"}
+        })
+        console.log(response.data);
 
         const realCategory = response.data.category
         
@@ -41,6 +51,7 @@ export const editCategory = async (setError , data , imagePreview, categoryId , 
 
     try{
         const response = await axios.patch(`${import.meta.env.VITE_BACKEND_URL}/categories/editCategory/${categoryId}` , data)
+        console.log(response.data);
     }catch(error){
         setCategories(prev =>prev.map(cat =>cat.id === categoryId ? previous : cat));
 
@@ -68,6 +79,7 @@ export const deleteCategory = async (setError ,categoryId, setCategories)=>{
         });
 
         const response = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/categories/deleteCategory/${categoryId}`)
+        console.log(response.data);
     }catch(error){
 
          // Rollback UI if failed
@@ -89,6 +101,8 @@ export const getAllCategories = async (setError , setCategories)=>{
     try{
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/categories/getAllCategories`)
         setCategories(response.data.categories)
+        console.log(response.data);
+
     }catch(error){
         if (error.response?.data?.message) {
             setError(error.response.data.message)

@@ -10,6 +10,13 @@ CREATE TABLE IF NOT EXISTS users (
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
 
+      CREATE TABLE IF NOT EXISTS categories (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(150) NOT NULL,
+        image VARCHAR(150) NOT NULL,
+        parent_id INTEGER REFERENCES categories(id)  
+      );
+
       CREATE TABLE IF NOT EXISTS businesses (
         id SERIAL PRIMARY KEY,
         name VARCHAR(150) NOT NULL,
@@ -72,12 +79,7 @@ CREATE TABLE IF NOT EXISTS users (
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
 
-      CREATE TABLE IF NOT EXISTS categories (
-        id SERIAL PRIMARY KEY,
-        name VARCHAR(150) NOT NULL,
-        image VARCHAR(150) NOT NULL,
-        parent_id INTEGER REFERENCES categories(id)  
-      );
+      
 
       CREATE TABLE IF NOT EXISTS notifications(
         id SERIAL PRIMARY KEY,

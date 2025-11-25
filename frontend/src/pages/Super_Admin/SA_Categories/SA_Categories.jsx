@@ -198,8 +198,10 @@ const SA_Categories = () => {
               onClick={()=>{
                 if(formMode==='add'){
                   createCategory(setError , formData , imagePreview , setCategories)
+                  setView('list')
                 }else{
                   editCategory(setError , formData , imagePreview ,editingCategory.id, setCategories)
+                  setView('list')
                 }
               }}
               className="flex-1 bg-[#009842] text-white py-3 rounded-lg font-semibold hover:bg-[#007a36] transition-colors"
@@ -263,7 +265,7 @@ const SA_Categories = () => {
           <>
           {/* header */}
           <div className="grid grid-cols-12 gap-4 px-4 sm:px-6 py-4 bg-gray-50 border-b border-gray-200">
-            <div className="col-span-4 text-sm font-semibold text-gray-700">Category Name</div>
+            <div className="col-span-4 text-sm font-semibold text-gray-700">Name</div>
             <div className="col-span-2 text-sm font-semibold text-gray-700">Status</div>
             <div className="col-span-2 text-sm font-semibold text-gray-700">Business Number</div>
             <div className="col-span-2 text-sm font-semibold text-gray-700">Sub-Categories</div>
@@ -293,7 +295,7 @@ const SA_Categories = () => {
                           </button>
                         )}
                         <div className="w-12 h-12 bg-[#009842] rounded-xl flex items-center justify-center">
-                          <span className="text-2xl">{category.image}</span>
+                          <img src={category.image}  className='w-full h-full object-contain'/>
                         </div>
                         <span className="font-medium text-gray-900 text-sm">{category.name}</span>
                       </div>
@@ -302,19 +304,19 @@ const SA_Categories = () => {
                     {/* Status */}
                     <div className="col-span-2">
                       <span className="inline-block px-3 py-1 bg-green-100 text-green-700 rounded-lg text-sm font-medium">
-                        {category.status}
+                        Puplished
                       </span>
                     </div>
   
                     {/* Business Number */}
                     <div className="col-span-2">
-                      <span className="text-sm text-gray-900 font-medium">{category.business_count} Business</span>
+                      <span className="text-sm text-gray-900 font-medium">{category.category_usage} Business</span>
                     </div>
   
                     {/* Sub-Categories */}
                     <div className="col-span-2">
                       <div className="flex items-center gap-2">
-                        <span className="text-sm text-gray-900 font-medium">{category.subcategories_count}</span>
+                        <span className="text-sm text-gray-900 font-medium">{category.subcategory_usage}</span>
                         <button
                           onClick={() => handleAddCategory(category.id)}
                           className="p-1 hover:bg-green-100 rounded transition-colors"
@@ -352,7 +354,7 @@ const SA_Categories = () => {
                       <div className="col-span-4">
                         <div className="flex items-center gap-3 pl-12">
                           <div className="w-10 h-10 bg-[#009842] rounded-lg flex items-center justify-center ">
-                            <span className="text-xl">{subcategory.image}</span>
+                            <img src={category.image}  className='w-full h-full object-contain'/>
                           </div>
                           <span className="font-medium text-gray-700 text-sm">{subcategory.name}</span>
                         </div>
@@ -361,24 +363,24 @@ const SA_Categories = () => {
                       {/* Status */}
                       <div className="col-span-2">
                         <span className="inline-block px-3 py-1 bg-green-100 text-green-700 rounded-lg text-sm font-medium">
-                          {subcategory.status}
+                          Puplished
                         </span>
                       </div>
   
                       {/* Business Number */}
                       <div className="col-span-2">
-                        <span className="text-sm text-gray-700 font-medium">{subcategory.business_count} Business</span>
+                        <span className="text-sm text-gray-700 font-medium">{subcategory.category_usage} Business</span>
                       </div>
   
                       {/* Sub-Categories */}
                       <div className="col-span-2">
-                        <span className="text-sm text-gray-700">-</span>
+                        <span className="text-sm text-gray-700">{subcategory.subcategory_usage}</span>
                       </div>
   
                       {/* Delete */}
                       <div className="col-span-1">
                         <button
-                          onClick={() => handleDeleteCategory(subcategory.id)}
+                          onClick={() => deleteCategory(setError , subcategory.id , setCategories)}
                           className="p-2 hover:bg-red-50 rounded-lg transition-colors"
                         >
                           <Trash2 size={18} className="text-gray-600" />

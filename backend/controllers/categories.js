@@ -3,16 +3,44 @@ import { pool } from "../index.js";
 // CREATE a new category with full image URL
 export const createCategory = async (req, res) => {
   try {
-    const { name, parent_id } = req.body;
-    const image = req.file ? `${process.env.backendURL}${req.file.path}` : null;
+    let { name, parent_id } = req.body;
+    parent_id = parent_id === "" ? null : Number(parent_id);
+    const image = req.file? `${process.env.backendURL}/${req.file.path.replace(/\\/g, '/')}`: null;
 
     if (!image) return res.status(400).json({ message: "Image is required" });
 
-    const result = await pool.query(
+    const insert = await pool.query(
       `INSERT INTO categories (name, image, parent_id)
        VALUES ($1, $2, $3) RETURNING *`,
-      [name, image, parent_id || null]
+      [name, image, parent_id]
     );
+
+    const result = await pool.query(`
+      SELECT 
+        c.*,
+
+        CASE 
+          WHEN c.parent_id IS NULL THEN (
+              SELECT COUNT(*) 
+              FROM businesses b 
+              WHERE b.category = c.id
+          )
+          ELSE 0
+        END AS category_usage,
+
+        CASE 
+          WHEN c.parent_id IS NOT NULL THEN (
+              SELECT COUNT(DISTINCT o.business_id) 
+              FROM offers o 
+              WHERE o.category = c.id
+          )
+          ELSE 0
+        END AS subcategory_usage
+
+      FROM categories c
+      WHERE c.id = ${insert.rows[0].id}
+      `)
+
 
     res.status(201).json({ message: "Category created", category: result.rows[0] });
   } catch (err) {
