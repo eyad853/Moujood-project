@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Search, ChevronDown, ChevronRight, Trash2, Edit, Plus, Upload, X, ArrowLeft } from 'lucide-react';
+import { getCategoriesPageData } from '../../../api/super_admin_data'; 
+import Loadiing from '../../../components/Loadiing/Loadiing';
+import { createCategory , editCategory , deleteCategory } from '../../../api/categories';
 
 const SA_Categories = () => {
   const [view, setView] = useState('list'); // 'list' or 'form'
@@ -8,70 +11,14 @@ const SA_Categories = () => {
   const [expandedCategories, setExpandedCategories] = useState([]);
   const [editingCategory, setEditingCategory] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
-  
+  const [categories , setCategories]=useState([])
+  const [error , setError]=useState(false)
+  const [loading , setLoading]=useState(false)
   const [formData, setFormData] = useState({
     name: '',
     image: null,
     parent_id: null
   });
-
-  // Fake categories data
-  const categories = [
-    {
-      id: 1,
-      name: 'Food & Dining',
-      image: '🍔',
-      parent_id: null,
-      business_count: 200,
-      subcategories_count: 5,
-      status: 'Published'
-    },
-    {
-      id: 2,
-      name: 'Fast Food',
-      image: '🍟',
-      parent_id: 1,
-      business_count: 80,
-      subcategories_count: 0,
-      status: 'Published'
-    },
-    {
-      id: 3,
-      name: 'Restaurants',
-      image: '🍽️',
-      parent_id: 1,
-      business_count: 70,
-      subcategories_count: 0,
-      status: 'Published'
-    },
-    {
-      id: 4,
-      name: 'Cafes',
-      image: '☕',
-      parent_id: 1,
-      business_count: 50,
-      subcategories_count: 0,
-      status: 'Published'
-    },
-    {
-      id: 5,
-      name: 'Healthcare',
-      image: '⚕️',
-      parent_id: null,
-      business_count: 200,
-      subcategories_count: 5,
-      status: 'Published'
-    },
-    {
-      id: 6,
-      name: 'Retail',
-      image: '🛍️',
-      parent_id: null,
-      business_count: 200,
-      subcategories_count: 5,
-      status: 'Published'
-    },
-  ];
 
   const mainCategories = categories.filter(cat => cat.parent_id === null);
 
@@ -107,11 +54,6 @@ const SA_Categories = () => {
     setView('form');
   };
 
-  const handleDeleteCategory = (categoryId) => {
-    console.log('Delete category:', categoryId);
-    // Add delete logic here
-  };
-
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -124,17 +66,30 @@ const SA_Categories = () => {
     }
   };
 
-  const handleSubmit = () => {
-    console.log('Submit form:', formData);
-    // Add submit logic here
-    setView('list');
-  };
-
   const handleCancel = () => {
     setView('list');
     setFormData({ name: '', image: null, parent_id: null });
     setImagePreview(null);
   };
+
+  useEffect(()=>{
+    const fetchData = async () => {
+    try {
+      setLoading(true);
+      await getCategoriesPageData(setError, setCategories);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchData();
+  },[])
+
+  if(loading){
+    return <Loadiing />
+  }
 
   // Form View
   if (view === 'form') {
@@ -189,6 +144,7 @@ const SA_Categories = () => {
               )}
               <input
                 type="file"
+                name='image'
                 id="categoryImage"
                 accept="image/*"
                 onChange={handleImageUpload}
@@ -239,7 +195,13 @@ const SA_Categories = () => {
           {/* Submit Button */}
           <div className="flex gap-3">
             <button
-              onClick={handleSubmit}
+              onClick={()=>{
+                if(formMode==='add'){
+                  createCategory(setError , formData , imagePreview , setCategories)
+                }else{
+                  editCategory(setError , formData , imagePreview ,editingCategory.id, setCategories)
+                }
+              }}
               className="flex-1 bg-[#009842] text-white py-3 rounded-lg font-semibold hover:bg-[#007a36] transition-colors"
             >
               {formMode === 'add' ? 'Add Category' : 'Update Category'}
@@ -278,9 +240,6 @@ const SA_Categories = () => {
             All Categories
             <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#009842]" />
           </button>
-          <button className="pb-3 px-1 font-medium text-gray-500 hover:text-gray-700">
-            Sub- Categories
-          </button>
         </div>
       </div>
 
@@ -300,150 +259,152 @@ const SA_Categories = () => {
 
       {/* Categories List */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        {/* Header */}
-        <div className="grid grid-cols-12 gap-4 px-4 sm:px-6 py-4 bg-gray-50 border-b border-gray-200">
-          <div className="col-span-4 text-sm font-semibold text-gray-700">Category Name</div>
-          <div className="col-span-2 text-sm font-semibold text-gray-700">Status</div>
-          <div className="col-span-2 text-sm font-semibold text-gray-700">Business Number</div>
-          <div className="col-span-2 text-sm font-semibold text-gray-700">Sub-Categories</div>
-          <div className="col-span-1 text-sm font-semibold text-gray-700">DEL</div>
-          <div className="col-span-1 text-sm font-semibold text-gray-700">Edit</div>
-        </div>
-
-        {/* Categories Items */}
-        <div className="divide-y divide-gray-200">
-          {mainCategories.map((category) => {
-            const subcategories = getSubcategories(category.id);
-            const isExpanded = expandedCategories.includes(category.id);
-            
-            return (
-              <React.Fragment key={category.id}>
-                {/* Main Category Row */}
-                <div className="grid grid-cols-12 gap-4 px-4 sm:px-6 py-4 hover:bg-gray-50 transition-colors items-center">
-                  {/* Category Name */}
-                  <div className="col-span-4">
-                    <div className="flex items-center gap-3">
-                      {subcategories.length > 0 && (
-                        <button
-                          onClick={() => toggleCategory(category.id)}
-                          className="p-1 hover:bg-gray-200 rounded transition-colors"
-                        >
-                          {isExpanded ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
-                        </button>
-                      )}
-                      <div className="w-12 h-12 bg-[#009842] rounded-xl flex items-center justify-center flex-shrink-0">
-                        <span className="text-2xl">{category.image}</span>
-                      </div>
-                      <span className="font-medium text-gray-900 text-sm">{category.name}</span>
-                    </div>
-                  </div>
-
-                  {/* Status */}
-                  <div className="col-span-2">
-                    <span className="inline-block px-3 py-1 bg-green-100 text-green-700 rounded-lg text-sm font-medium">
-                      {category.status}
-                    </span>
-                  </div>
-
-                  {/* Business Number */}
-                  <div className="col-span-2">
-                    <span className="text-sm text-gray-900 font-medium">{category.business_count} Business</span>
-                  </div>
-
-                  {/* Sub-Categories */}
-                  <div className="col-span-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-gray-900 font-medium">{category.subcategories_count}</span>
-                      <button
-                        onClick={() => handleAddCategory(category.id)}
-                        className="p-1 hover:bg-green-100 rounded transition-colors"
-                      >
-                        <Plus size={16} className="text-green-600" />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Delete */}
-                  <div className="col-span-1">
-                    <button
-                      onClick={() => handleDeleteCategory(category.id)}
-                      className="p-2 hover:bg-red-50 rounded-lg transition-colors"
-                    >
-                      <Trash2 size={18} className="text-gray-600" />
-                    </button>
-                  </div>
-
-                  {/* Edit */}
-                  <div className="col-span-1">
-                    <button
-                      onClick={() => handleEditCategory(category)}
-                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                    >
-                      <Edit size={18} className="text-gray-600" />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Subcategories Rows */}
-                {isExpanded && subcategories.map((subcategory) => (
-                  <div key={subcategory.id} className="grid grid-cols-12 gap-4 px-4 sm:px-6 py-4 bg-gray-50/50 hover:bg-gray-100 transition-colors items-center">
+        {categories.length>0?(
+          <>
+          {/* header */}
+          <div className="grid grid-cols-12 gap-4 px-4 sm:px-6 py-4 bg-gray-50 border-b border-gray-200">
+            <div className="col-span-4 text-sm font-semibold text-gray-700">Category Name</div>
+            <div className="col-span-2 text-sm font-semibold text-gray-700">Status</div>
+            <div className="col-span-2 text-sm font-semibold text-gray-700">Business Number</div>
+            <div className="col-span-2 text-sm font-semibold text-gray-700">Sub-Categories</div>
+            <div className="col-span-1 text-sm font-semibold text-gray-700">DEL</div>
+            <div className="col-span-1 text-sm font-semibold text-gray-700">Edit</div>
+          </div>
+  
+          {/* Categories Items */}
+          <div className="divide-y divide-gray-200">
+            {mainCategories.map((category) => {
+              const subcategories = getSubcategories(category.id);
+              const isExpanded = expandedCategories.includes(category.id);
+              
+              return (
+                <React.Fragment key={category.id}>
+                  {/* Main Category Row */}
+                  <div className="grid grid-cols-12 gap-4 px-4 sm:px-6 py-4 hover:bg-gray-50 transition-colors items-center">
                     {/* Category Name */}
                     <div className="col-span-4">
-                      <div className="flex items-center gap-3 pl-12">
-                        <div className="w-10 h-10 bg-[#009842] rounded-lg flex items-center justify-center flex-shrink-0">
-                          <span className="text-xl">{subcategory.image}</span>
+                      <div className="flex items-center gap-3">
+                        {subcategories.length > 0 && (
+                          <button
+                            onClick={() => toggleCategory(category.id)}
+                            className="p-1 hover:bg-gray-200 rounded transition-colors"
+                          >
+                            {isExpanded ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+                          </button>
+                        )}
+                        <div className="w-12 h-12 bg-[#009842] rounded-xl flex items-center justify-center">
+                          <span className="text-2xl">{category.image}</span>
                         </div>
-                        <span className="font-medium text-gray-700 text-sm">{subcategory.name}</span>
+                        <span className="font-medium text-gray-900 text-sm">{category.name}</span>
                       </div>
                     </div>
-
+  
                     {/* Status */}
                     <div className="col-span-2">
                       <span className="inline-block px-3 py-1 bg-green-100 text-green-700 rounded-lg text-sm font-medium">
-                        {subcategory.status}
+                        {category.status}
                       </span>
                     </div>
-
+  
                     {/* Business Number */}
                     <div className="col-span-2">
-                      <span className="text-sm text-gray-700 font-medium">{subcategory.business_count} Business</span>
+                      <span className="text-sm text-gray-900 font-medium">{category.business_count} Business</span>
                     </div>
-
+  
                     {/* Sub-Categories */}
                     <div className="col-span-2">
-                      <span className="text-sm text-gray-700">-</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-gray-900 font-medium">{category.subcategories_count}</span>
+                        <button
+                          onClick={() => handleAddCategory(category.id)}
+                          className="p-1 hover:bg-green-100 rounded transition-colors"
+                        >
+                          <Plus size={16} className="text-green-600" />
+                        </button>
+                      </div>
                     </div>
-
+  
                     {/* Delete */}
                     <div className="col-span-1">
                       <button
-                        onClick={() => handleDeleteCategory(subcategory.id)}
+                        onClick={() => deleteCategory(setError,category.id,setCategories)}
                         className="p-2 hover:bg-red-50 rounded-lg transition-colors"
                       >
                         <Trash2 size={18} className="text-gray-600" />
                       </button>
                     </div>
-
+  
                     {/* Edit */}
                     <div className="col-span-1">
                       <button
-                        onClick={() => handleEditCategory(subcategory)}
+                        onClick={() => handleEditCategory(category)}
                         className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                       >
                         <Edit size={18} className="text-gray-600" />
                       </button>
                     </div>
                   </div>
-                ))}
-              </React.Fragment>
-            );
-          })}
-        </div>
-
-        {/* Pagination */}
-        <div className="px-4 sm:px-6 py-4 border-t border-gray-200">
-          <span className="text-sm text-gray-600">Showing 1-09 of 78</span>
-        </div>
+  
+                  {/* Subcategories Rows */}
+                  {isExpanded && subcategories.map((subcategory) => (
+                    <div key={subcategory.id} className="grid grid-cols-12 gap-4 px-4 sm:px-6 py-4 bg-gray-50/50 hover:bg-gray-100 transition-colors items-center">
+                      {/* Category Name */}
+                      <div className="col-span-4">
+                        <div className="flex items-center gap-3 pl-12">
+                          <div className="w-10 h-10 bg-[#009842] rounded-lg flex items-center justify-center ">
+                            <span className="text-xl">{subcategory.image}</span>
+                          </div>
+                          <span className="font-medium text-gray-700 text-sm">{subcategory.name}</span>
+                        </div>
+                      </div>
+  
+                      {/* Status */}
+                      <div className="col-span-2">
+                        <span className="inline-block px-3 py-1 bg-green-100 text-green-700 rounded-lg text-sm font-medium">
+                          {subcategory.status}
+                        </span>
+                      </div>
+  
+                      {/* Business Number */}
+                      <div className="col-span-2">
+                        <span className="text-sm text-gray-700 font-medium">{subcategory.business_count} Business</span>
+                      </div>
+  
+                      {/* Sub-Categories */}
+                      <div className="col-span-2">
+                        <span className="text-sm text-gray-700">-</span>
+                      </div>
+  
+                      {/* Delete */}
+                      <div className="col-span-1">
+                        <button
+                          onClick={() => handleDeleteCategory(subcategory.id)}
+                          className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                        >
+                          <Trash2 size={18} className="text-gray-600" />
+                        </button>
+                      </div>
+  
+                      {/* Edit */}
+                      <div className="col-span-1">
+                        <button
+                          onClick={() => handleEditCategory(subcategory)}
+                          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                        >
+                          <Edit size={18} className="text-gray-600" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </React.Fragment>
+              );
+            })}
+          </div>
+        
+          </>
+        ):(
+          <div className=" flex justify-center bg-neutral-50 items-center text-md font-bold text-gray-600">There's Not Any Categories Yet...</div>
+        )}
       </div>
     </div>
   );

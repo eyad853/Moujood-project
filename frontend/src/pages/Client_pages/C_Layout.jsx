@@ -4,10 +4,12 @@ import { IoHomeOutline } from "react-icons/io5";
 import { CgProfile } from "react-icons/cg";
 import { FaPlus } from "react-icons/fa6";
 import { TbBorderAll } from "react-icons/tb";
+import { LuScanLine } from "react-icons/lu";
+import { IoMdSettings } from "react-icons/io";
 
 const C_Layout = () => {
   const [activePage , setActivePage]=useState('feed')
-  const pages = ['feed' , 'categories' , 'profile']
+  const pages = ['feed' , 'categories' , 'profile' , 'settings' , 'scans']
   return (
     <div>
       <Outlet />
@@ -47,6 +49,28 @@ const C_Layout = () => {
         className={`w-1/4 h-full flex justify-center items-center`}>
           <div className={`h-full w-16 rounded-full ${activePage==="profile"?"bg-[#009842] text-white":null} flex transition-all duration-200 justify-center items-center `}>
             <CgProfile size={25}/>
+          </div>
+        </Link>
+
+        <Link
+        onClick={()=>{
+          setActivePage(pages[3])
+        }} 
+        to={`/client/settings`} 
+        className={`w-1/4 h-full flex justify-center items-center`}>
+          <div className={`h-full w-16 rounded-full ${activePage==="settings"?"bg-[#009842] text-white":null} flex transition-all duration-200 justify-center items-center `}>
+            <IoMdSettings  size={25}/>
+          </div>
+        </Link>
+
+        <Link
+        onClick={()=>{
+          setActivePage(pages[4])
+        }} 
+        to={`/client/scan`} 
+        className={`w-1/4 h-full flex justify-center items-center`}>
+          <div className={`h-full w-16 rounded-full ${activePage==="scans"?"bg-[#009842] text-white":null} flex transition-all duration-200 justify-center items-center `}>
+            <LuScanLine  size={25}/>
           </div>
         </Link>
       </div>

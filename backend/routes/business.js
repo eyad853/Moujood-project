@@ -1,5 +1,5 @@
 import express from 'express'
-import { editProfileData, getBusinessDashboardData, getBusinessOffers, getProfileData } from '../controllers/business'
+import { editProfileData, getBusinessDashboardData, getBusinessOffers, getProfileData } from '../controllers/business.js'
 
 const businessRouter=express.Router()
 

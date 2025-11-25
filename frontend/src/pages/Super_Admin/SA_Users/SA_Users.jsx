@@ -188,42 +188,58 @@ const SA_Users = () => {
       </div>
 
       <div className="flex flex-col xl:flex-row gap-6">
-        {/* Users Table */}
+        {/* Users List */}
         <div className="flex-1">
           <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-            {/* Table Header */}
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[700px]">
-                <thead className="bg-gray-50 border-b border-gray-200">
-                  <tr>
-                    <th className="text-left px-3 sm:px-6 py-4 text-sm font-semibold text-gray-700 whitespace-nowrap">User</th>
-                    <th className="text-left px-3 sm:px-6 py-4 text-sm font-semibold text-gray-700 whitespace-nowrap">User ID</th>
-                    <th className="text-left px-3 sm:px-6 py-4 text-sm font-semibold text-gray-700 whitespace-nowrap">Scans</th>
-                    <th className="text-left px-3 sm:px-6 py-4 text-sm font-semibold text-gray-700 whitespace-nowrap">Location</th>
-                    <th className="text-left px-3 sm:px-6 py-4 text-sm font-semibold text-gray-700 whitespace-nowrap">Email</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {users.map((user) => (
-                    <tr key={user.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-3 sm:px-6 py-4">
-                        <div className="flex items-center gap-2 sm:gap-3">
-                          <img
-                            src={user.avatar}
-                            alt={user.name}
-                            className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex-shrink-0"
-                          />
-                          <span className="font-medium text-gray-900 text-sm whitespace-nowrap">{user.name}</span>
-                        </div>
-                      </td>
-                      <td className="px-3 sm:px-6 py-4 text-sm text-gray-600 whitespace-nowrap">ID: {user.user_id}</td>
-                      <td className="px-3 sm:px-6 py-4 text-sm text-gray-900 font-medium whitespace-nowrap">{user.scans}</td>
-                      <td className="px-3 sm:px-6 py-4 text-sm text-gray-600 whitespace-nowrap">{user.location}</td>
-                      <td className="px-3 sm:px-6 py-4 text-sm text-gray-600 whitespace-nowrap">{user.email}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            {/* Header */}
+            <div className="grid grid-cols-12 gap-4 px-4 sm:px-6 py-4 bg-gray-50 border-b border-gray-200">
+              <div className="col-span-3 text-sm font-semibold text-gray-700">User</div>
+              <div className="col-span-2 text-sm font-semibold text-gray-700">User ID</div>
+              <div className="col-span-2 text-sm font-semibold text-gray-700">Scans</div>
+              <div className="col-span-2 text-sm font-semibold text-gray-700">Location</div>
+              <div className="col-span-3 text-sm font-semibold text-gray-700">Email</div>
+            </div>
+
+            {/* Users Items */}
+            <div className="divide-y divide-gray-200">
+              {users.map((user) => (
+                <div
+                  key={user.id}
+                  className="grid grid-cols-12 gap-4 px-4 sm:px-6 py-4 hover:bg-gray-50 transition-colors items-center"
+                >
+                  {/* User */}
+                  <div className="col-span-3">
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <img
+                        src={user.avatar}
+                        alt={user.name}
+                        className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex-shrink-0"
+                      />
+                      <span className="font-medium text-gray-900 text-sm truncate">{user.name}</span>
+                    </div>
+                  </div>
+
+                  {/* User ID */}
+                  <div className="col-span-2">
+                    <span className="text-sm text-gray-600">ID: {user.user_id}</span>
+                  </div>
+
+                  {/* Scans */}
+                  <div className="col-span-2">
+                    <span className="text-sm text-gray-900 font-medium">{user.scans}</span>
+                  </div>
+
+                  {/* Location */}
+                  <div className="col-span-2">
+                    <span className="text-sm text-gray-600">{user.location}</span>
+                  </div>
+
+                  {/* Email */}
+                  <div className="col-span-3">
+                    <span className="text-sm text-gray-600 truncate">{user.email}</span>
+                  </div>
+                </div>
+              ))}
             </div>
 
             {/* Pagination */}

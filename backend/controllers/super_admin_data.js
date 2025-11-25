@@ -143,3 +143,45 @@ export const editBusinessActivity = async (req, res) => {
   }
 };
 
+export const getCategoriesPageData = async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT 
+        c.*,
+
+        CASE 
+          WHEN c.parent_id IS NULL THEN (
+              SELECT COUNT(*) 
+              FROM businesses b 
+              WHERE b.category = c.id
+          )
+          ELSE 0
+        END AS category_usage,
+
+        CASE 
+          WHEN c.parent_id IS NOT NULL THEN (
+              SELECT COUNT(DISTINCT o.business_id) 
+              FROM offers o 
+              WHERE o.category = c.id
+          )
+          ELSE 0
+        END AS subcategory_usage
+
+      FROM categories c
+      ORDER BY c.id DESC;
+    `);
+
+    res.status(200).json({
+      error: false,
+      categories: result.rows
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      error: true,
+      message: "Failed to load categories page"
+    });
+  }
+};
+

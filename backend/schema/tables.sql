@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS users (
         email VARCHAR(150) UNIQUE NOT NULL,
         password VARCHAR(255) NOT NULL,
         confirm_password VARCHAR(255) NOT NULL,
-        category VARCHAR(100),
+        category INT REFERENCES categories(id),
         logo VARCHAR(255),
         description TEXT,
         addresses TEXT,
@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS users (
         image VARCHAR(255),
         offer_price_before DECIMAL(10,2) NOT NULL,
         offer_price_after DECIMAL(10,2),
-        category VARCHAR(80) NOT NULL,
+        category INT REFERENCES categories(id),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (business_id) REFERENCES businesses(id)
       );

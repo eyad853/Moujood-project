@@ -1,5 +1,5 @@
 import express from 'express'
-import { getBusinessesOfCategoryData, getBusinessPageData, getFeedPageData, getProfileData, getSubCategoriesOfCategory } from '../controllers/clients'
+import { getBusinessesOfCategoryData, getBusinessPageData, getFeedPageData, getProfileData, getSubCategoriesOfCategory } from '../controllers/clients.js'
 const clientsRouter=express.Router()
 
 clientsRouter.get('/getFeedPageData',getFeedPageData)

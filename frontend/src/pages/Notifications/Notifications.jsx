@@ -2,7 +2,7 @@ import React from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const C_Notifications = () => {
+const Notifications = () => {
   const navigate = useNavigate();
 
   // Fake notifications data
@@ -117,4 +117,4 @@ const C_Notifications = () => {
   );
 };
 
-export default C_Notifications;
+export default Notifications;
