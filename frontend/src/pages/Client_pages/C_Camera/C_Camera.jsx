@@ -2,10 +2,37 @@ import React from 'react';
 import { X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import {
+  BarcodeScanner,
+  BarcodeFormat,
+  LensFacing,
+} from '@capacitor-mlkit/barcode-scanning';
+import { useEffect } from 'react';
+
+const startScan = async () => {
+  const listener = await BarcodeScanner.addListener(
+    'barcodeScanned',
+    async result => {
+      if (result.barcode.displayValue.startsWith("http://192.168.1.5:5173/")) {
+        await stopScan();
+        window.location.href = result.barcode.displayValue;
+      }
+    },
+  );
+
+  await BarcodeScanner.startScan();
+};
+
+const stopScan = async () => {
+  await BarcodeScanner.removeAllListeners();
+  await BarcodeScanner.stopScan();
+};
 
 const C_Camera = () => {
   const navigate = useNavigate();
-
+  useEffect(() => {
+    startScan();
+  })
   return (
     <div className="fixed inset-0  flex flex-col">
       {/* Camera View */}
