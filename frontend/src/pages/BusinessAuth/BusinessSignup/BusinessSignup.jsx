@@ -3,6 +3,7 @@ import { Eye, EyeOff, Upload, MapPin, Bold } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios'
 import { businessAuth } from '../../../api/auth';
+import { getAllCategories } from '../../../api/categories';
 
 
 const BusinessSignup = () => {
@@ -12,6 +13,7 @@ const BusinessSignup = () => {
   const [loading , setLoading]=useState(false)
   const [error , setError]=useState('')
   const [logoPreview, setLogoPreview] = useState(null);
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -25,6 +27,19 @@ const BusinessSignup = () => {
     businessPhone: '',
     acceptTerms: false
   });
+
+  useEffect(()=>{
+    getAllCategories()
+  },[])
+
+  const categoryOptions = [
+  { value: 'retail', label: 'Retail' },
+  { value: 'food', label: 'Food & Beverage' },
+  { value: 'services', label: 'Services' },
+  { value: 'technology', label: 'Technology' },
+  { value: 'healthcare', label: 'Healthcare' },
+  { value: 'education', label: 'Education' }
+];
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -236,55 +251,54 @@ useEffect(() => {
         </div>
 
         {/* Business Category */}
-        <div style={{ marginBottom: '20px' }}>
-          <label style={{ 
-            display: 'block', 
-            fontSize: '14px', 
-            fontWeight: '600', 
-            marginBottom: '8px',
-            color: '#1a1a1a'
-          }}>
-            Business category
-          </label>
-          <div style={{ position: 'relative' }}>
-            <select
-              name="businessCategory"
-              value={formData.businessCategory}
-              onChange={handleInputChange}
-              style={{
-                width: '100%',
-                padding: '14px 40px 14px 16px',
-                fontSize: '15px',
-                border: '1px solid #e0e0e0',
-                borderRadius: '12px',
-                outline: 'none',
-                boxSizing: 'border-box',
-                backgroundColor: '#fafafa',
-                appearance: 'none',
-                color: formData.businessCategory ? '#1a1a1a' : '#999'
-              }}
-            >
-              <option value="">Chose from the categories</option>
-              <option value="retail">Retail</option>
-              <option value="food">Food & Beverage</option>
-              <option value="services">Services</option>
-              <option value="technology">Technology</option>
-              <option value="healthcare">Healthcare</option>
-              <option value="education">Education</option>
-            </select>
-            <div style={{
-              position: 'absolute',
-              right: '16px',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              pointerEvents: 'none'
-            }}>
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M4 6L8 10L12 6" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </div>
-          </div>
-        </div>
+<div className="mb-5">
+  <label className="block text-sm font-semibold mb-2 text-gray-900">
+    Business category
+  </label>
+  
+  {/* Custom Dropdown */}
+  <div className="relative">
+    <button
+      type="button"
+      onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
+      className="w-full px-4 py-3.5 text-[15px] border border-gray-200 rounded-xl bg-gray-50 text-left flex items-center justify-between"
+    >
+      <span className={formData.businessCategory ? 'text-gray-900' : 'text-gray-400'}>
+        {categoryOptions.find(opt => opt.value === formData.businessCategory)?.label || 'Choose from the categories'}
+      </span>
+      <svg 
+        width="16" 
+        height="16" 
+        viewBox="0 0 16 16" 
+        fill="none"
+        className={`transition-transform ${showCategoryDropdown ? 'rotate-180' : 'rotate-0'}`}
+      >
+        <path d="M4 6L8 10L12 6" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    </button>
+    
+    {/* Dropdown Menu */}
+    {showCategoryDropdown && (
+      <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-lg z-10 max-h-60 overflow-y-auto">
+        {categoryOptions.map((option) => (
+          <button
+            key={option.value}
+            type="button"
+            onClick={() => {
+              setFormData(prev => ({ ...prev, businessCategory: option.value }));
+              setShowCategoryDropdown(false);
+            }}
+            className={`w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors text-[15px] border-b border-gray-100 last:border-b-0 ${
+              formData.businessCategory === option.value ? 'bg-green-50 text-[#009842] font-semibold' : 'text-gray-900'
+            }`}
+          >
+            {option.label}
+          </button>
+        ))}
+      </div>
+    )}
+  </div>
+</div>
 
         {/* Business Logo */}
 <div style={{ marginBottom: '20px' }}>

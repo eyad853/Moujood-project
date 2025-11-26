@@ -20,10 +20,16 @@ const SA_Categories = () => {
     parent_id: null
   });
 
-  const mainCategories = categories.filter(cat => cat.parent_id === null);
+  const mainCategories = categories.filter(cat => cat.parent_id === null).filter(cat => searchQuery.trim() === "" ? true 
+    : cat.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const getSubcategories = (parentId) => {
     return categories.filter(cat => cat.parent_id === parentId);
+  };
+
+  const getSubcategoriesNumber = (parentId) => {
+    return categories.filter(cat => cat.parent_id === parentId).length
   };
 
   const toggleCategory = (categoryId) => {
@@ -121,7 +127,7 @@ const SA_Categories = () => {
               {imagePreview ? (
                 <div className="relative mb-4">
                   <div className="w-40 h-40 bg-gray-100 rounded-2xl flex items-center justify-center overflow-hidden">
-                    {typeof imagePreview === 'string' && imagePreview.startsWith('data:') ? (
+                    {typeof imagePreview === 'string' && (imagePreview.startsWith('data:') || imagePreview.startsWith('http') || imagePreview.startsWith('/')) ? (
                       <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
                     ) : (
                       <span className="text-6xl">{imagePreview}</span>
@@ -316,7 +322,7 @@ const SA_Categories = () => {
                     {/* Sub-Categories */}
                     <div className="col-span-2">
                       <div className="flex items-center gap-2">
-                        <span className="text-sm text-gray-900 font-medium">{category.subcategory_usage}</span>
+                        <span className="text-sm text-gray-900 font-medium">{getSubcategoriesNumber(category.id)}</span>
                         <button
                           onClick={() => handleAddCategory(category.id)}
                           className="p-1 hover:bg-green-100 rounded transition-colors"
@@ -369,12 +375,12 @@ const SA_Categories = () => {
   
                       {/* Business Number */}
                       <div className="col-span-2">
-                        <span className="text-sm text-gray-700 font-medium">{subcategory.category_usage} Business</span>
+                        <span className="text-sm text-gray-700 font-medium">{subcategory.subcategory_usage} Business</span>
                       </div>
   
                       {/* Sub-Categories */}
                       <div className="col-span-2">
-                        <span className="text-sm text-gray-700">{subcategory.subcategory_usage}</span>
+                        
                       </div>
   
                       {/* Delete */}

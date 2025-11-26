@@ -54,7 +54,8 @@ export const editCategory = async (req, res) => {
   try {
     const { id } = req.params;
     const { name, parent_id } = req.body;
-    const newImage = req.file ? `${process.env.backendURL}${req.file.path}` : null;
+    const newImage = req.file? `${process.env.backendURL}/${req.file.path.replace(/\\/g, '/')}`: null;
+
 
     // Fetch existing category to keep old image if no new image uploaded
     const existingRes = await pool.query(`SELECT * FROM categories WHERE id = $1`, [id]);
