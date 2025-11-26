@@ -26,7 +26,7 @@ const app = express()
 const server = http.createServer(app);
 const io = new Server(server , {
   cors: {
-    origin:'*',
+    origin:process.env.frontendURL,
     credentials: true// Allow requests from this origin
   },
 });
@@ -34,7 +34,7 @@ const io = new Server(server , {
 app.set('io' , io)
 
 app.use(cors({
-    origin:"*",
+    origin:process.env.frontendURL,
     credentials: true
 }))
 

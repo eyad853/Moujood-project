@@ -17,7 +17,7 @@ export const localSignup = async (req, res, next) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const result = await pool.query(
-      `INSERT INTO users (name, email, password, confirm_password, gender , city) VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
+      `INSERT INTO users (name, email, password, confirm_password, gender , city) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`,
       [name, email, hashedPassword, hashedPassword, gender, city]
     );
 
