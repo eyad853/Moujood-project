@@ -7,11 +7,11 @@ const C_Camera = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="fixed inset-0 bg-black z-50 flex flex-col">
+    <div className="fixed inset-0  flex flex-col">
       {/* Camera View */}
       <div className="flex-1 relative">
         {/* Camera placeholder - Replace with actual camera stream */}
-        <div className="w-full h-full bg-gray-900 flex items-center justify-center">
+        <div className="w-full h-full  flex items-center justify-center">
           <div className="text-center">
             <p className="text-gray-500 text-lg font-semibold">Camera View</p>
             <p className="text-gray-600 text-sm mt-2">Position QR code in the frame</p>
