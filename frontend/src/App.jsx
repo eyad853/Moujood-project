@@ -30,6 +30,7 @@ import Notifications from './pages/Notifications/Notifications';
 import C_Camera from './pages/Client_pages/C_Camera/C_Camera';
 import { OfferProvider } from './context/offerContext';
 import C_Topics from './pages/Client_pages/C_Topics/C_Topics';
+import { SocialLogin } from '@capgo/capacitor-social-login';
 
 
 const handleBackButton = () => {
@@ -184,18 +185,25 @@ const routes = [
 
 const router = createBrowserRouter(routes)
 const App = () => {
-  
-CapApp.addListener("appUrlOpen", (event) => {
-    try {
-      // Example app link: myapp://app/business/home
-      // Extract path after "app"
-      const path = event.url.split("app")[1]; // "/business/home"
-      if (path) {
-        router.navigate(path);
+  useEffect(()=> {
+    SocialLogin.initialize({
+      google: {
+        webClientId: '1052525713737-uvbc9cv2d4ncndl5f198dq2l3qg7qkop.apps.googleusercontent.com',
       }
-    } catch (err) {
-      console.log("Deep link error:", err);
-    }
+    })
+  }, [])
+  
+  CapApp.addListener("appUrlOpen", (event) => {
+      try {
+        // Example app link: myapp://app/business/home
+        // Extract path after "app"
+        const path = event.url.split("app")[1]; // "/business/home"
+        if (path) {
+          router.navigate(path);
+        }
+      } catch (err) {
+        console.log("Deep link error:", err);
+      }
   });
 
   return (
