@@ -3,6 +3,9 @@
   "appName": "moujood",
   "webDir": "dist",
   "plugins": {
+    "PushNotifications": {
+      "presentationOptions": [ "sound", "alert"]
+    },
     "SplashScreen": {
       "launchShowDuration": 3000,
       "launchAutoHide": true,

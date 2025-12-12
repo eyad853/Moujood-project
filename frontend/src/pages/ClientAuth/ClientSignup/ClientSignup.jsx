@@ -67,8 +67,8 @@ const cityOptions = [
 ];
 
   if(loading){
-    return 
-    (<div className="fixed inset-0">
+    return (
+    <div className="fixed inset-0">
       <Loading />
     </div>)
   }

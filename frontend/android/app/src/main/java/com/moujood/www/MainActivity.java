@@ -17,6 +17,9 @@ public class MainActivity extends BridgeActivity implements ModifiedMainActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //watch out
+        WebView.setWebContentsDebuggingEnabled(true);
+    
 
         WebView webView = (WebView) this.bridge.getWebView();
         WebSettings settings = webView.getSettings();
