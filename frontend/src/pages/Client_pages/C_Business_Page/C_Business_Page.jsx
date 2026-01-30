@@ -22,6 +22,11 @@ const C_Business_Page = ({businessId}) => {
   const [selectedOffer , setSelectedOffer]=useState(null)
   const {showMapModal,setShowMapModal,markers,setMarkers , userLocation, setUserLocation}=useMapProvider()
   const {user} = useUser()
+  const location = useLocation();
+  
+  const fullUrl =
+  window.location.origin + location.pathname;
+  
   
   
 
