@@ -21,7 +21,6 @@ const C_Business_Page = ({businessId}) => {
   const [isOfferSheetOpen , setIsOfferSheetOpen]=useState(false)
   const [selectedOffer , setSelectedOffer]=useState(null)
   const {showMapModal,setShowMapModal,markers,setMarkers , userLocation, setUserLocation}=useMapProvider()
-  const [isShareSheetOpen , setIsShareSheetOpen]=useState(false)
   const {user} = useUser()
   
   
@@ -179,7 +178,7 @@ const filteredOffers = offers.filter(offer => {
                 {user?.accountType!=='super_admin'&&(
                   <button
                   onClick={()=>{
-                    setIsShareSheetOpen(true)
+                    
                   }}
                   className="p-2 bg-[#009842] rounded-full hover:bg-[#007a36] transition-colors"
                 >
