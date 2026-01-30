@@ -7,6 +7,7 @@ import OfferDetailSheet from '../../../components/OfferDetailSheet/OfferDetailSh
 import MapModal from '../../../components/modals/MapModal/MapModal';
 import { useMapProvider } from '../../../context/mapContext';
 import { useUser } from '../../../context/userContext';
+import { Share } from '@capacitor/share';
 
 const C_Business_Page = ({businessId}) => {
   const navigate = useNavigate();
@@ -182,8 +183,10 @@ const filteredOffers = offers.filter(offer => {
               <div className="flex items-center gap-4">
                 {user?.accountType!=='super_admin'&&(
                   <button
-                  onClick={()=>{
-                    
+                  onClick={async ()=>{
+                    await Share.share({
+                      url: fullUrl,
+                    });
                   }}
                   className="p-2 bg-[#009842] rounded-full hover:bg-[#007a36] transition-colors"
                 >

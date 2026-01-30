@@ -17,6 +17,7 @@
     "@capacitor/ios": "^7.4.4",
     "@capacitor/preferences": "^7.0.3",
     "@capacitor/push-notifications": "^7.0.4",
+    "@capacitor/share": "^7.0.3",
     "@capacitor/splash-screen": "^7.0.3",
     "@capgo/capacitor-social-login": "^7.20.0",
     "@tailwindcss/vite": "^4.1.16",
