@@ -23,7 +23,10 @@ import likesRouter from './routes/likes.js';
 import commentsRouter from './routes/comments.js';
 import LovedCategoriesRouter from './routes/lovedTopics.js';
 import './config/googleAuth.js'
+import adsRouter from './routes/ads.js';
 import './config/facebookAuth.js'
+import scansRouter from './routes/scans.js';
+import sharedsession from 'express-socket.io-session';
 
 const app = express()
 const server = http.createServer(app);
@@ -49,9 +52,6 @@ app.use(cors({
     credentials: true
 }))
 
-io.on("connection", (socket) => {
-  console.log("A user connected");
-})
 
 // Make sure uploads directory exists - modern approach
 const __filename = fileURLToPath(import.meta.url);
@@ -65,17 +65,22 @@ app.use(express.json());
 
 const PgSession = connectPgSimple(session);
 
-app.use(session({
-  secret:process.env.SESSION_SECRET_KEY,
+const sessionMiddleware = session({
+  secret: process.env.SESSION_SECRET_KEY,
   cookie: { 
     httpOnly: true,
     secure: false,
-    maxAge: 1000 * 60 * 60 * 24 * 30 * 12  },
-    store:new PgSession({
-      pool,
-      createTableIfMissing:true
-    })
-}))
+    maxAge: 1000 * 60 * 60 * 24 * 30 * 12
+  },
+  store: new PgSession({
+    pool,
+    createTableIfMissing: true
+  }),
+  resave: false,
+  saveUninitialized: false
+});
+
+app.use(sessionMiddleware)
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -88,12 +93,12 @@ passport.deserializeUser(async (obj, done) => {
   try {
     const { id, accountType } = obj;
 
-    if (accountType === "user") {
+    if (accountType === "user" || accountType==='super_admin') {
       const result = await pool.query("SELECT * FROM users WHERE id = $1", [id]);
-      if (result.rows.length > 0) return done(null, { ...result.rows[0], accountType: "user" });
+      if (result.rows.length > 0) return done(null, { ...result.rows[0], accountType: accountType });
     } else if (accountType === "business") {
       const result = await pool.query("SELECT * FROM businesses WHERE id = $1", [id]);
-      if (result.rows.length > 0) return done(null, { ...result.rows[0], accountType: "business" });
+      if (result.rows.length > 0) return done(null, { ...result.rows[0], accountType: accountType });
     }
 
     return done(null, false);
@@ -101,6 +106,28 @@ passport.deserializeUser(async (obj, done) => {
     done(err, null);
   }
 });
+
+io.use(sharedsession(sessionMiddleware, {
+  autoSave: true
+}));
+
+io.on("connection", (socket) => {
+  // session info is available via socket.handshake.session
+  const userSession = socket.handshake.session.passport?.user;
+
+  if (userSession) {
+    const { id, accountType } = userSession;
+    const roomName = `${accountType}_${id}`;
+    socket.join(roomName);
+    console.log(`${roomName} connected and joined room ${roomName}`);
+  } else {
+    console.log("A user connected without a valid session");
+  }
+
+  socket.on("disconnect", () => {
+    console.log("A user disconnected");
+  });
+})
 
 
 // Routers
@@ -115,7 +142,8 @@ app.use('/categories', categoriesRouter)
 app.use('/likes', likesRouter)
 app.use('/comments', commentsRouter)
 app.use('/lovedCategoies' , LovedCategoriesRouter)
-
+app.use('/ads' , adsRouter)
+app.use('/scans' , scansRouter)
 
 
 async function createTables() {

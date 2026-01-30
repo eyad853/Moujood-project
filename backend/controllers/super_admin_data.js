@@ -4,14 +4,20 @@ import { pool } from "../index.js"
 export const getBusinessPageData = async (req, res) => {
   try {
     const result = await pool.query(`
-      SELECT b.*, COUNT(s.id) AS total_scans
+      SELECT 
+        b.id,
+        b.name,
+        b.logo,
+        b.number,
+        b.active,
+        b.created_at,
+        c.name AS category
       FROM businesses b
-      LEFT JOIN scans s ON b.id = s.business_id
-      GROUP BY b.id
+      LEFT JOIN categories c ON b.category = c.id 
       ORDER BY b.created_at DESC
     `);
 
-    const rows = result.rows
+    const rows = result.rows;
 
     res.json(rows);
   } catch (err) {
@@ -23,14 +29,107 @@ export const getBusinessPageData = async (req, res) => {
 // 2️⃣ Get all users with male, female and total counts
 export const getUserPageData = async (req, res) => {
   try {
-    const total = await pool.query(`SELECT COUNT(*) FROM users`);
-    const male = await pool.query(`SELECT COUNT(*) FROM users WHERE gender = 'male'`);
-    const female = await pool.query(`SELECT COUNT(*) FROM users WHERE gender = 'female'`);
+    // THIS WEEK
+    const totalWeek = await pool.query(`
+      SELECT COUNT(*) 
+      FROM users 
+      WHERE created_at >= NOW() - INTERVAL '7 days'
+      AND user_type != 'super_admin'
+    `);
+
+    const maleWeek = await pool.query(`
+      SELECT COUNT(*) 
+      FROM users 
+      WHERE gender = 'male' 
+      AND created_at >= NOW() - INTERVAL '7 days'
+      AND user_type != 'super_admin'
+    `);
+
+    const femaleWeek = await pool.query(`
+      SELECT COUNT(*) 
+      FROM users 
+      WHERE gender = 'female' 
+      AND created_at >= NOW() - INTERVAL '7 days'
+      AND user_type != 'super_admin'
+    `);
+
+    // LAST WEEK
+    const totalLastWeek = await pool.query(`
+      SELECT COUNT(*) 
+      FROM users 
+      WHERE created_at >= NOW() - INTERVAL '14 days'
+      AND created_at < NOW() - INTERVAL '7 days'
+      AND user_type != 'super_admin'
+    `);
+
+    const maleLastWeek = await pool.query(`
+      SELECT COUNT(*) 
+      FROM users 
+      WHERE gender = 'male'
+      AND created_at >= NOW() - INTERVAL '14 days'
+      AND created_at < NOW() - INTERVAL '7 days'
+      AND user_type != 'super_admin'
+    `);
+
+    const femaleLastWeek = await pool.query(`
+      SELECT COUNT(*) 
+      FROM users 
+      WHERE gender = 'female'
+      AND created_at >= NOW() - INTERVAL '14 days'
+      AND created_at < NOW() - INTERVAL '7 days'
+      AND user_type != 'super_admin'
+    `);
+
+    // TOTAL USERS (all time)
+    const total = await pool.query(`SELECT 
+      u.id ,
+      u.name ,
+      u.email ,
+      u.gender ,
+      u.avatar,
+      u.governorate ,
+      COUNT(s.*) scans
+      FROM users u
+      LEFT JOIN scans s 
+      ON u.id = s.user_id
+      WHERE u.email != $1
+      AND user_type != 'super_admin'
+      GROUP BY u.id
+      ` , [process.env.SUPER_ADMIN]);
+
+    // PERCENTAGE HELPER
+    const calcPercent = (current, previous) => {
+      if (previous === 0) {
+        return current > 0 ? 100 : 0;
+      }
+      return ((current - previous) / previous * 100).toFixed(2);
+    };
+    const total_users=total.rows
+
+    const percentage_total=calcPercent(
+      Number(totalWeek.rows[0].count),
+      Number(totalLastWeek.rows[0].count)
+    )
+
+    const percentage_male=calcPercent(
+      Number(maleWeek.rows[0].count),
+      Number(maleLastWeek.rows[0].count)
+    )
+
+    const percentage_female=calcPercent(
+      Number(femaleWeek.rows[0].count),
+      Number(femaleLastWeek.rows[0].count)
+    )
+
+    console.log(percentage_total);
+    console.log(percentage_male);
+    console.log(percentage_female);
 
     res.json({
-      total_users: parseInt(total.rows[0].count),
-      male_users: parseInt(male.rows[0].count),
-      female_users: parseInt(female.rows[0].count),
+      total_users,
+      percentage_total,
+      percentage_male,
+      percentage_female
     });
   } catch (err) {
     console.error(err);
@@ -81,7 +180,7 @@ export const getDashboardPageData = async (req, res) => {
         previous,
         diff,
         percentage: Math.round(percentage),
-        message: diff >= 0 ? `${Math.round(percentage)}% increase` : `${Math.round(Math.abs(percentage))}% decrease`
+        message: diff >= 0 ? `${Math.round(percentage)}% Up From Last Week` : `${Math.round(Math.abs(percentage))}% Down From Last Week`
       };
     };
 
@@ -94,15 +193,16 @@ export const getDashboardPageData = async (req, res) => {
 
     // Also prepare sales details for visualization (daily sales last 30 days)
     const salesChartRes = await pool.query(`
-      SELECT DATE(created_at) AS date, COALESCE(SUM(amount),0) AS total
+      SELECT 
+        DATE_TRUNC('month', created_at) AS month,
+        COALESCE(SUM(amount), 0) AS total
       FROM sales
-      WHERE created_at >= NOW() - INTERVAL '30 days'
-      GROUP BY DATE(created_at)
-      ORDER BY DATE(created_at)
+      GROUP BY DATE_TRUNC('month', created_at)
+      ORDER BY DATE_TRUNC('month', created_at)
     `);
 
     const salesChartData = salesChartRes.rows.map(row => ({
-      date: row.date.toISOString().split('T')[0],
+      date: row.month.toISOString().slice(0, 7), // YYYY-MM
       total: parseFloat(row.total)
     }));
 
@@ -110,10 +210,10 @@ export const getDashboardPageData = async (req, res) => {
       error:false,
       percentages: data, 
       salesChartData ,
-      totalUsers:totalUsersRes.rows,
-      totalBusinesses:totalBusinessesRes.rows,
-      totalScans:totalSalesRes.rows,
-      totalSalesRes:totalSalesRes.rows
+      totalUsers:totalUsersRes.rows[0],
+      totalBusinesses:totalBusinessesRes.rows[0],
+      totalScans:totalScansRes.rows[0],
+      totalSales:totalSalesRes.rows[0]
     });
 
   } catch (err) {
@@ -185,3 +285,36 @@ export const getCategoriesPageData = async (req, res) => {
   }
 };
 
+export const getOffersPageData = async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT
+        o.offer_id,
+        o.title,
+        o.description,
+        o.image,
+        o.created_at,
+
+        b.id AS business_id,
+        b.name AS business_name,
+        b.logo AS business_logo,
+
+        bc.id AS business_category_id,
+        bc.name AS business_category_name,
+
+        sc.id AS offer_category_id,
+        sc.name AS offer_category_name
+        
+      FROM offers o
+      JOIN businesses b ON o.business_id = b.id
+      LEFT JOIN categories bc ON b.category = bc.id AND bc.parent_id IS NULL
+      LEFT JOIN categories sc ON o.category = sc.id AND sc.parent_id IS NOT NULL
+      ORDER BY o.created_at DESC
+    `);
+
+    res.status(200).json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Failed to load offers page data' });
+  }
+};

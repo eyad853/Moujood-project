@@ -4,34 +4,58 @@ import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import OfferSheet from '../../../components/OfferSheet/OfferSheet';
 import { getBusinessDashboardData } from '../../../api/business';
-import { getUser } from '../../../api/auth';
 import Loading from '../../../components/Loadiing/Loadiing';
 import { useUser } from '../../../context/userContext';
 import { useOffer } from '../../../context/offerContext';
+import OfferDetailSheet from '../../../components/OfferDetailSheet/OfferDetailSheet';
+import socket from '../../../Socket';
 
 const Business_dashboard = () => {
   const [selectedCategoy , setSelectedCategory]=useState(null)
   const {isOfferSheetOpen, setIsOfferSheetOpen, selectedOffer, setSelectedOffer} = useOffer()
   const [offers , setOffers]=useState([])
-  const [totalScans , setTotalScans]=useState(0)
-  const [totalSales , setTotalSales]=useState(0)
   const [totalOffers , setTotalOffers]=useState(0)
   const [totalLikes , setTotalLikes]=useState(0)
   const [loading , setLoading]=useState(false)
   const [error , setError]=useState(false)
   const {user} = useUser() 
   const [categories , setCategories]=useState([])
+  const [isOfferDetailsOpen , setIsOffersDetailsOpen]=useState(false)
+  const [notificationsCount , setNotificationsCount] = useState(0)
+  
+
+  
+    useEffect(() => {
+    const onNotificationCreated = () => {
+          setNotificationsCount(prev=>prev+1)
+        };
+      
+    // 🗑️ Notification deleted
+    const onNotificationDeleted = () => {
+      setNotificationsCount(prev=>prev-1)
+    };
+
+    socket.on("notification_created", onNotificationCreated);
+    socket.on("notification_deleted", onNotificationDeleted);
+  
+    // 🔹 Cleanup
+    return () => {
+      socket.off("notification_created", onNotificationCreated);
+      socket.off("notification_deleted", onNotificationDeleted);
+    };
+  }, [socket]);
+  
   
   
   const filteredOffers = selectedCategoy
-  ? offers.filter(o => o.category === selectedCategoy.id)
+  ? offers.filter(o => o.category === selectedCategoy)
   : offers; // no category selected → show all offers
 
   useEffect(()=>{
     const loadData =async ()=>{
       try{
         setLoading(true)
-        await getBusinessDashboardData(setError,setOffers,setTotalScans,setTotalSales,setTotalOffers,setTotalLikes , setCategories)
+        await getBusinessDashboardData(setError,setOffers,setTotalOffers,setTotalLikes , setCategories)
       }catch(error){
         setError(error)
       }finally{
@@ -41,9 +65,13 @@ const Business_dashboard = () => {
     loadData()
   },[])
 
+  
+useEffect(()=>{
+  console.log(categories);
+} , [categories])
+
+
   const stats = [
-    { id: 1, label: 'Total Scans', value: totalScans, icon: QrCode },
-    { id: 2, label: 'Total Sales', value: totalSales, icon: TrendingUp },
     { id: 3, label: 'Total Offers', value: totalOffers, icon: Grid3x3 },
     { id: 4, label: 'Total Loves', value: totalLikes, icon: Heart },
   ];
@@ -62,7 +90,7 @@ const Business_dashboard = () => {
     <div className="min-h-screen bg-gray-50 pb-24">
       {/* Header */}
       <div className="bg-white px-5 py-4 flex items-center justify-between border-b border-gray-200">
-        <div className="flex items-center gap-3">
+        <div className="flex w-12 rounded-full overflow-hidden h-12 items-center gap-3">
           <img
             src={user?.logo}
             className="w-full h-full object-contain rounded-full"
@@ -75,16 +103,17 @@ const Business_dashboard = () => {
 
         <Link to={'/Business/notifications'} className="relative">
           <Bell size={24} className="text-gray-700" />
-          <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#009842] text-white text-xs rounded-full flex items-center justify-center">
-            3
-          </span>
+          {notificationsCount>0&&
+            (<span className="absolute -top-1 -right-1 w-5 h-5 bg-[#009842] text-white text-xs rounded-full flex items-center justify-center">
+              {notificationsCount}
+            </span>)}
         </Link>
       </div>
 
       {/* Main Content */}
       <div className="py-6">
         {/* Stats Grid */}
-        <div className="px-3 grid grid-cols-2 gap-3 mb-6">
+        <div className="px-3 flex flex-col gap-3 mb-6">
           {stats.map((stat) => {
             const Icon = stat.icon;
             return (
@@ -116,20 +145,22 @@ const Business_dashboard = () => {
 
             {/* Category Filter Pills */}
             <div className="px-3 flex gap-2 mb-5 overflow-x-auto pb-2 hide-scrollbar">
-              {categories.map((category, index) => (
+              {categories?.map((category, index) => (
                 <button
                   onClick={()=>{
-                    setSelectedCategory(category)
+                    setSelectedCategory(
+                      category.id === selectedCategoy ? null : category.id
+                    );
                   }}
-                  key={category.id}
+                  key={category?.id}
                   className={`flex items-center gap-2 px-4 py-2.5 rounded-full whitespace-nowrap transition-colors ${
-                    selectedCategoy === category
+                    selectedCategoy === category.id
                       ? 'bg-[#009842] text-white'
                       : 'bg-white text-gray-700 border border-gray-200 hover:border-[#009842]'
                   }`}
                 >
-                  <span className="text-lg">{category.icon}</span>
-                  <span className="font-medium text-sm">{category.name}</span>
+                  <span className="text-lg">{category?.icon}</span>
+                  <span className="font-medium text-sm">{category?.name}</span>
                 </button>
               ))}
             </div>
@@ -139,6 +170,10 @@ const Business_dashboard = () => {
               {filteredOffers.map((offer) => (
                 <div
                   key={offer.offer_id}
+                  onClick={()=>{
+                    setSelectedOffer(offer)
+                    setIsOffersDetailsOpen(true)
+                  }}
                   className="relative bg-[#01a347] rounded-md overflow-hidden shadow-lg aspect-square"
                 >
                   <img src={offer.image} className='w-full h-full object-contain' />
@@ -164,14 +199,26 @@ const Business_dashboard = () => {
           </button>
         </div>
       </div>
+      {isOfferSheetOpen&&(
       <OfferSheet
-      isOpen={isOfferSheetOpen}
-      onClose={() => setIsOfferSheetOpen(false)}
-      offerData={selectedOffer}
-      setOffers={setOffers}
-      setTotalOffers={setTotalOffers}
-      setFuncUsedCategories={setCategories}
-      />
+        isOpen={isOfferSheetOpen}
+        onClose={() => setIsOfferSheetOpen(false)}
+        offerId={selectedOffer?.offer_id}
+        setOffers={setOffers}
+        setTotalOffers={setTotalOffers}
+        setFuncUsedCategories={setCategories}
+      />)}
+
+      {isOfferDetailsOpen && selectedOffer?.offer_id&& (
+        <OfferDetailSheet 
+          isOpen={isOfferDetailsOpen} 
+          onClose={() => {
+            setIsOffersDetailsOpen(false);
+            setSelectedOffer(null)
+          }}
+          offerId={selectedOffer?.offer_id}
+        /> 
+      )}
     </div>
   );
 };

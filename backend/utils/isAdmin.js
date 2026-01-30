@@ -9,7 +9,7 @@ const isAdmin = (req, res, next) => {
     }
 
     // Check admin role
-    if (req.session.user.user_type !== "super_admin") {
+    if (req.session.user.accountType !== "super_admin") {
       return res.status(403).json({
         error: true,
         message: "Access denied. Admins only"

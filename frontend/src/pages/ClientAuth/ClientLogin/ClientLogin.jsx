@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios'
 import { handleGoogleAuth , handleFacebookAuth } from '../../../api/auth';
 import { login } from '../../../api/auth';
+import { useUser } from '../../../context/userContext';
 
 
 
@@ -13,6 +14,8 @@ const ClientLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading , setLoading]=useState(false)
   const [error , setError]=useState('')
+  const [fieldErrors, setFieldErrors] = useState({})
+  const {setUser}=useUser()
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -85,7 +88,9 @@ const ClientLogin = () => {
               placeholder="Enter your email"
               value={formData.email}
               onChange={handleInputChange}
-              className="w-full px-4 py-3.5 text-base border border-gray-200 rounded-xl outline-none bg-gray-50 focus:border-[#00875A] focus:ring-1 focus:ring-[#00875A] transition-colors"
+              className={`w-full px-4 py-3.5 text-base border rounded-xl outline-none bg-gray-50 ${fieldErrors.email 
+              ? 'border-2 border-red-500 focus:ring-red-500 focus:border-red-500'
+              : 'border-2 border-gray-200 focus:border-[#00875A] focus:ring-[#00875A]'}  transition-colors`}
             />
           </div>
 
@@ -101,7 +106,9 @@ const ClientLogin = () => {
                 placeholder="Enter your password"
                 value={formData.password}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3.5 pr-12 text-base border border-gray-200 rounded-xl outline-none bg-gray-50 focus:border-[#00875A] focus:ring-1 focus:ring-[#00875A] transition-colors"
+                className={`w-full px-4 py-3.5 pr-12 text-base border rounded-xl outline-none bg-gray-50 ${fieldErrors.password 
+              ? 'border-2 border-red-500 focus:ring-red-500 focus:border-red-500'
+              : 'border-2 border-gray-200 focus:border-[#00875A] focus:ring-[#00875A]'}  transition-colors`}
               />
               <button
                 type="button"
@@ -121,7 +128,7 @@ const ClientLogin = () => {
           </div>
 
           {error&&(
-          <div className="flex justify-center items-center text-red-600 font-semibold">
+          <div className="flex text-sm mb-5 justify-center items-center text-red-600 font-semibold">
             {error}
           </div>
         )}
@@ -129,7 +136,7 @@ const ClientLogin = () => {
           {/* Submit Button */}
           <button
             onClick={()=>{
-              login(setError , formData , navigate)
+              login(setError , formData , navigate , setLoading ,setUser, setFieldErrors)
             }}
             className="w-full py-4 text-base font-semibold text-white bg-[#1A423A] rounded-full hover:bg-[#083d30] transition-colors mb-4"
           >

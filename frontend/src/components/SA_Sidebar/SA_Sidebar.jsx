@@ -1,10 +1,16 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, Grid3x3, Bell, FileText, Building2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { LayoutDashboard, Users, Grid3x3, Bell, FileText, Building2 ,Megaphone} from 'lucide-react';
 import { RiLogoutBoxLine } from "react-icons/ri";
+import { logout } from '../../api/auth';
+import { useUser } from '../../context/userContext';
 
 const SA_Sidebar = () => {
   const location = useLocation();
+  const navigate = useNavigate()
+  const [error , setError]=useState('')
+  const [loading , setLoading]=useState(false)
+  const {setUser}=useUser()
 
   const menuItems = [
     {
@@ -36,6 +42,11 @@ const SA_Sidebar = () => {
       name: 'Businesses',
       path: '/super_admin/businesses',
       icon: Building2
+    },
+    {
+      name: 'Ads',
+      path: '/super_admin/ads',
+      icon: Megaphone
     },
     {
       name: 'LogOut',
@@ -77,7 +88,7 @@ const SA_Sidebar = () => {
             {/* Logout Button - at bottom */}
             <button
               onClick={() => {
-                
+                logout(setError , navigate , setUser , setLoading)
               }}
               className="flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-400 text-red-600 hover:bg-red-500 cursor-pointer hover:text-white mt-auto"
             >

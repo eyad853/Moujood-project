@@ -1,70 +1,121 @@
 import React from 'react';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { useEffect } from 'react';
+import { fetchMyNotifications , markAllNotificationsAsRead } from '../../api/notifications';
+import Loadiing from '../../components/Loadiing/Loadiing';
+import { useUser } from '../../context/userContext';
+import NotificationBottomSheet from '../../components/NotificationBottomSheet/NotificationBottomSheet';
+import { useNotifications } from '../../context/notificationContext';
+import socket from '../../Socket';
+import { deleteNotification } from '../../api/notifications';
 
 const Notifications = () => {
   const navigate = useNavigate();
+  const [error ,setError]=useState('')
+  const [loading , setLoading]=useState(false)
+  const [notifications , setNotifications]=useState([])
+  const {user}=useUser()
+  const {isNotificationSheetOpen,setIsNotificationSheetOpen,selectedNotification,setSelectedNotification}=useNotifications()
+  
+  useEffect(() => {
+  if (!user) return;
 
-  // Fake notifications data
-  const notifications = [
-    {
-      id: 1,
-      sender_name: 'Bruno Pham',
-      sender_logo: '/logo.svg',
-      message: 'Hello, I really like your photo about...',
-      time: '2 mins ago',
-      read: false
-    },
-    {
-      id: 2,
-      sender_name: 'Bruno Pham',
-      sender_logo: '/logo.svg',
-      message: 'Hello, I really like your photo about...',
-      time: '2 mins ago',
-      read: false
-    },
-    {
-      id: 3,
-      sender_name: 'Bruno Pham',
-      sender_logo: '/logo.svg',
-      message: 'Hello, I really like your photo about...',
-      time: '2 mins ago',
-      read: false
-    },
-    {
-      id: 4,
-      sender_name: 'Bruno Pham',
-      sender_logo: '/logo.svg',
-      message: 'Hello, I really like your photo about...',
-      time: '2 mins ago',
-      read: false
-    },
-    {
-      id: 5,
-      sender_name: 'Bruno Pham',
-      sender_logo: '/logo.svg',
-      message: 'Hello, I really like your photo about...',
-      time: '2 mins ago',
-      read: false
-    },
-  ];
-
-  const handleNotificationClick = (notificationId) => {
-    console.log('Notification clicked:', notificationId);
-    // Add navigation logic here (e.g., navigate to the related offer or post)
+  const get = async () => {
+    try {
+      setLoading(true);
+      await fetchMyNotifications(user?.accountType,setNotifications,setError);
+      if(notifications.length>0){
+        await markAllNotificationsAsRead(user?.accountType,notifications,setNotifications,setError);
+      }
+    } catch (err) {
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  get();
+}, [user?.accountType]);
+
+    useEffect(() => {
+  // 🔔 Notification created
+      const onNotificationCreated = ({ notification }) => {
+        setNotifications(prev => {
+          return [notification, ...prev];
+        });
+      };
+    
+      // ✏️ Notification edited
+      const onNotificationEdited = ({ notification }) => {
+        setNotifications(prev =>
+          prev.map(n =>
+            n.id === notification.id ? notification : n
+          )
+        );
+      };
+    
+      // 🗑️ Notification deleted
+      const onNotificationDeleted = ({ id }) => {
+        setNotifications(prev =>
+          prev.filter(n => Number(n.id) !== Number(id))
+        );
+      };
+    
+      socket.on("notification_created", onNotificationCreated);
+      socket.on("notification_edited", onNotificationEdited);
+      socket.on("notification_deleted", onNotificationDeleted);
+    
+      return () => {
+        socket.off("notification_created", onNotificationCreated);
+        socket.off("notification_edited", onNotificationEdited);
+        socket.off("notification_deleted", onNotificationDeleted);
+  };
+}, []);
+  
+    if(loading){
+      return (
+        <div className="fixed inset-0 ">
+          <Loadiing />
+        </div>
+      )
+    }
+
+    const timeAgo = (dateString) => {
+  const now = new Date();
+  const date = new Date(dateString);
+  const seconds = Math.floor((now - date) / 1000);
+
+  const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
+
+  if (seconds < 60) return rtf.format(-seconds, "second");
+
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return rtf.format(-minutes, "minute");
+
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return rtf.format(-hours, "hour");
+
+  const days = Math.floor(hours / 24);
+  if (days < 7) return rtf.format(-days, "day");
+
+  const weeks = Math.floor(days / 7);
+  if (weeks < 4) return rtf.format(-weeks, "week");
+
+  const months = Math.floor(days / 30);
+  if (months < 12) return rtf.format(-months, "month");
+
+  const years = Math.floor(days / 365);
+  return rtf.format(-years, "year");
+};
+
 
   return (
     <div className="min-h-screen bg-white pb-20">
       {/* Header */}
       <div className="bg-white px-5 py-4 border-b border-gray-200 sticky top-0 z-20">
         <div className="flex items-center justify-center relative">
-          <button
-            onClick={() => navigate(-1)}
-            className="absolute left-0 p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <ArrowLeft size={24} className="text-gray-700" />
-          </button>
           <h1 className="text-xl font-semibold text-gray-900">Notifications</h1>
         </div>
       </div>
@@ -74,28 +125,38 @@ const Notifications = () => {
         {notifications.map((notification) => (
           <div
             key={notification.id}
-            onClick={() => handleNotificationClick(notification.id)}
+            onClick={() => {
+              setSelectedNotification(notification)
+              setIsNotificationSheetOpen(true)
+            }}
             className="bg-gray-100 rounded-2xl p-4 flex items-start gap-3 cursor-pointer hover:bg-gray-200 transition-colors"
           >
             {/* Sender Logo */}
-            <div className="w-12 h-12 bg-[#009842] rounded-full flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 bg-[#009842] rounded-full flex items-center justify-center">
               <img
-                src={notification.sender_logo}
-                alt={notification.sender_name}
-                className="w-8 h-8 object-contain brightness-0 invert"
+                src={'/white-logo.png'}
+                className="w-8 h-8 object-contain"
               />
             </div>
 
             {/* Notification Content */}
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-gray-900 text-base mb-1">
-                {notification.sender_name}
-              </h3>
-              <p className="text-sm text-gray-500 mb-2 truncate">
+              <div className="flex justify-between items-center">
+                <h3 className="font-semibold text-gray-900 text-base mb-1">
+                  {notification.title}
+                </h3>
+                <div 
+                onClick={(e)=>{
+                  e.stopPropagation()
+                  deleteNotification(notification?.id , user?.accountType , setError , setNotifications)
+                }}
+                className="p-1.5"><X size={16}/></div>
+              </div>
+              <p className="text-sm whitespace-pre-wrap text-gray-500 mb-2 line-clamp-2">
                 {notification.message}
               </p>
               <span className="text-xs text-gray-400">
-                {notification.time}
+                {timeAgo(notification.created_at)}
               </span>
             </div>
           </div>
@@ -113,6 +174,15 @@ const Notifications = () => {
           <p className="text-gray-500 text-center">No notifications yet</p>
         </div>
       )}
+      {isNotificationSheetOpen && selectedNotification?.id&&(
+        <NotificationBottomSheet
+        isOpen={isNotificationSheetOpen}
+        onClose={() => {
+          setIsNotificationSheetOpen(false)
+          setSelectedNotification(null)
+        }}
+        notificationId={selectedNotification?.id}
+      />)}
     </div>
   );
 };

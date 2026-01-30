@@ -1,85 +1,58 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ArrowLeft, Search, Star } from 'lucide-react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { getBusinessesOfCategory, getSubCategoriesOfCategory } from '../../../api/cleints';
+import Loadiing from '../../../components/Loadiing/Loadiing';
 
 const C_Business_Of_Category = () => {
   const navigate = useNavigate();
-  const { categoryId } = useParams();
+  const {mainCategoryId, subCategoryName , subCategoryId } = useParams();
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedSubCategory, setSelectedSubCategory] = useState(null);
+  const [businesses , setBusinesses]=useState([])
+  const [loading , setLoading]=useState(false)
+  const [error , setError]=useState('')
+  const [selectedCategory , setSelectedCategory]=useState(null)
+  const [categories , setCategories]=useState([])
 
-  // Fake subcategories data (these are child categories)
-  const subCategories = [
-    { id: 1, name: 'Lorem Ipsum', icon: '🍔', parent_id: categoryId },
-    { id: 2, name: 'Lorem Ipsum', icon: '🍕', parent_id: categoryId },
-    { id: 3, name: 'Lorem Ipsum', icon: '🍜', parent_id: categoryId },
-  ];
 
-  // Fake businesses data based on schema
-  const businesses = [
-    {
-      id: 1,
-      name: 'Brand Name',
-      email: 'brand1@domain.com',
-      category: 'Food',
-      logo: '/logo1.jpg',
-      description: 'Lorem ipsum dolor sit amet, ultrices sed lorem in, dapibus c',
-      addresses: 'Cairo, Egypt',
-      number: '+20 123 456 789',
-      rating: 5,
-      created_at: '2024-01-15'
-    },
-    {
-      id: 2,
-      name: 'Brand Name',
-      email: 'brand2@domain.com',
-      category: 'Food',
-      logo: '/logo2.jpg',
-      description: 'Lorem ipsum dolor sit amet, ultrices sed lorem in, dapibus c',
-      addresses: 'Alexandria, Egypt',
-      number: '+20 123 456 790',
-      rating: 4.5,
-      created_at: '2024-01-14'
-    },
-    {
-      id: 3,
-      name: 'Brand Name',
-      email: 'brand3@domain.com',
-      category: 'Food',
-      logo: '/logo3.jpg',
-      description: 'Lorem ipsum dolor sit amet, ultrices sed lorem in, dapibus c',
-      addresses: 'Giza, Egypt',
-      number: '+20 123 456 791',
-      rating: 5,
-      created_at: '2024-01-13'
-    },
-    {
-      id: 4,
-      name: 'Brand Name',
-      email: 'brand4@domain.com',
-      category: 'Food',
-      logo: '/logo4.jpg',
-      description: 'Lorem ipsum dolor sit amet, ultrices sed lorem in, dapibus c',
-      addresses: 'Mansoura, Egypt',
-      number: '+20 123 456 792',
-      rating: 4,
-      created_at: '2024-01-12'
-    },
-  ];
+  useEffect(()=>{
+    const get = async ()=>{
+      try{
+        setLoading(true)
+        await getSubCategoriesOfCategory(setError , setCategories , mainCategoryId)
+        await getBusinessesOfCategory(setError , setBusinesses , subCategoryId)
+      }catch(error){
+        setError(error)
+      }finally{
+        setLoading(false)
+      }
+    }
+    get()
+  },[subCategoryId])
+
+  useEffect(() => {
+  if (subCategoryId) {
+    setSelectedCategory(Number(subCategoryId));
+  }
+}, [subCategoryId]);
+
+  if(loading){
+    return (
+      <div className="fixed inset-0">
+        <Loadiing />
+      </div>
+    )
+  }
 
   const filteredBusinesses = businesses.filter(business =>
     business.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const renderStars = (rating) => {
-    return [...Array(5)].map((_, index) => (
-      <Star
-        key={index}
-        size={16}
-        className={index < rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}
-      />
-    ));
-  };
+  const orderedCategories = [...categories].sort((a, b) => {
+  if (a.id === selectedCategory) return -1;
+  if (b.id === selectedCategory) return 1;
+  return 0;
+});
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
@@ -92,7 +65,7 @@ const C_Business_Of_Category = () => {
           >
             <ArrowLeft size={24} className="text-gray-700" />
           </button>
-          <h1 className="text-xl font-semibold text-gray-900">Category Items</h1>
+          <h1 className="text-xl font-semibold  text-gray-900">{subCategoryName} Businesses</h1>
         </div>
 
         {/* Search Bar */}
@@ -110,23 +83,30 @@ const C_Business_Of_Category = () => {
 
       {/* Content */}
       <div className="px-5 py-4">
-        {/* Subcategory Filter Pills */}
+
+        {/* Category Filter Pills */}
         <div className="flex gap-2 mb-5 overflow-x-auto pb-2 hide-scrollbar">
-          {subCategories.map((subCategory, index) => (
-            <button
-              key={subCategory.id}
-              onClick={() => setSelectedSubCategory(subCategory.id)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-full whitespace-nowrap transition-colors ${
-                index === 0 || selectedSubCategory === subCategory.id
+          {orderedCategories.map((category) => (
+            <Link
+            key={category.id}
+            to={`/client/businesses_of_category/${mainCategoryId}/${category.name}/${category.id}`}
+            onClick={()=>{
+              setSelectedCategory(
+                category.id === selectedCategory ? null : category.id
+              );
+            }}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full whitespace-nowrap transition-colors ${
+                category.id === selectedCategory
                   ? 'bg-[#009842] text-white'
                   : 'bg-white text-gray-700 border border-gray-200 hover:border-[#009842]'
               }`}
             >
-              <span className="text-base">{subCategory.icon}</span>
-              <span className="font-medium text-sm">{subCategory.name}</span>
-            </button>
+              <span className="text-base">{category.icon}</span>
+              <span className="font-medium text-sm">{category.name}</span>
+            </Link>
           ))}
         </div>
+
 
         {/* Businesses List */}
         <div className="space-y-3">
@@ -134,11 +114,11 @@ const C_Business_Of_Category = () => {
             <div
               key={business.id}
               className="bg-gradient-to-br from-[#009842] to-[#007a36] rounded-2xl p-4 flex items-center gap-4 shadow-lg cursor-pointer hover:shadow-xl transition-shadow"
-              onClick={() => navigate(`/client/business/${business.id}`)}
+              onClick={() => navigate(`/client/business_page/${business.id}`)}
             >
               {/* Business Logo */}
-              <div className="w-24 h-24 bg-white rounded-2xl flex items-center justify-center flex-shrink-0">
-                <span className="text-gray-400 text-xs font-medium">logo</span>
+              <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center flex-shrink-0">
+                <img src={business.logo} className='w-full h-full object-contain' alt="" />
               </div>
 
               {/* Business Info */}
@@ -147,11 +127,6 @@ const C_Business_Of_Category = () => {
                 <p className="text-sm opacity-90 mb-2 line-clamp-2">
                   {business.description}
                 </p>
-                
-                {/* Rating Stars */}
-                <div className="flex gap-1">
-                  {renderStars(business.rating)}
-                </div>
               </div>
             </div>
           ))}

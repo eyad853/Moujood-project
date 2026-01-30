@@ -6,6 +6,7 @@ import { getBusinessOffers } from '../../../api/business';
 import Loading from '../../../components/Loadiing/Loadiing';
 import { deleteOffer } from '../../../api/offers';
 import { useOffer } from '../../../context/offerContext';
+import OfferDetailSheet from '../../../components/OfferDetailSheet/OfferDetailSheet';
 
 
 const Business_offers = () => {
@@ -17,11 +18,13 @@ const Business_offers = () => {
   const [loading , setLoading]=useState(false)
   const [categories , setCategories]=useState([])
   const [offers , setOffers]=useState([])
+  const [isOfferDetailsOpen , setIsOffersDetailsOpen]=useState(false)
+  
   
   const filteredOffers = offers
   .filter(o => {
     // 1️⃣ Category filter
-    if (selectedCategoy && o.category !== selectedCategoy.id) return false;
+    if (selectedCategoy && o.category !== selectedCategoy) return false;
 
     // 2️⃣ Search query filter
     if (searchQuery && !o.title.toLowerCase().includes(searchQuery.toLowerCase())) return false;
@@ -47,12 +50,6 @@ const Business_offers = () => {
     <div className="min-h-screen bg-gray-50 pb-24">
       {/* Header */}
       <div className="bg-white px-5 py-4 flex items-center justify-center relative border-b border-gray-200">
-        <button
-          onClick={() => navigate(-1)}
-          className="absolute left-5 p-2 hover:bg-gray-100 rounded-lg transition-colors"
-        >
-          <ArrowLeft size={24} className="text-gray-700" />
-        </button>
         <h1 className="text-xl font-semibold text-gray-900">Offers</h1>
       </div>
 
@@ -76,10 +73,12 @@ const Business_offers = () => {
             <button
               key={category.id}
               onClick={()=>{
-                setSelectedCategory(category)
+                setSelectedCategory(
+                  category.id === selectedCategoy ? null : category.id
+                );
               }}
               className={`flex items-center h-10 gap-2 px-4 py-2.5 rounded-full whitespace-nowrap transition-colors ${
-                selectedCategoy === category
+                selectedCategoy === category.id
                   ? 'bg-[#009842] text-white'
                   : 'bg-white text-gray-700 border border-gray-200 hover:border-[#009842]'
               }`}
@@ -98,6 +97,10 @@ const Business_offers = () => {
     {filteredOffers.map((offer) => (
       <div
         key={offer?.offer_id}
+        onClick={()=>{
+          setSelectedOffer(offer)
+          setIsOffersDetailsOpen(true)
+        }}
         className="bg-[#00863A] rounded-xl p-4 flex items-center gap-4 shadow-lg"
       >
         {/* Offer Image/Thumbnail */}
@@ -108,17 +111,18 @@ const Business_offers = () => {
 
         {/* Offer Info */}
         <div className="flex-1 text-white">
-          <h3 className="text-lg font-semibold mb-1">{offer?.title}</h3>
-          <div className="flex items-center gap-2">
-            <QrCode size={18} />
-            <span className="text-xl mb-0.5 font-bold">{offer?.scans}</span>
+          <h3 className="text-2xl line-clamp-1 font-semibold mb-1">{offer?.title}</h3>
+          <div className="flex items-center whitespace-pre-wrap text-xs line-clamp-2">
+            {offer?.description}
           </div>
         </div>
 
         {/* Actions */}
         <div className="flex gap-2">
           <button
-            onClick={() => deleteOffer(setError , setOffers,offer?.offer_id , setCategories)}
+            onClick={(e) => {
+              e.stopPropagation()
+              deleteOffer(setError , setOffers, offer?.offer_id , setCategories)}}
             className="p-2.5 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
           >
             <Trash2 size={20} className="text-white" />
@@ -161,13 +165,25 @@ const Business_offers = () => {
           <span>Add New Offer</span>
         </button>
       </div>
-      <OfferSheet
+      {isOfferSheetOpen&&(
+        <OfferSheet
       isOpen={isOfferSheetOpen}
       onClose={() => setIsOfferSheetOpen(false)}
-      offerData={selectedOffer}
+      offerId={selectedOffer?.offer_id}
       setOffers={setOffers}
       setFuncUsedCategories={setCategories}
-      />
+      />)}
+
+      {isOfferDetailsOpen && selectedOffer?.offer_id&& (
+        <OfferDetailSheet 
+          isOpen={isOfferDetailsOpen} 
+          onClose={() => {
+            setIsOffersDetailsOpen(false);
+            setSelectedOffer(null)
+          }}
+          offerId={selectedOffer?.offer_id}
+        /> 
+      )}
     </div>
   );
 };

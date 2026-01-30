@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Upload, Share2 } from 'lucide-react';
-import { addOffer , editOffer } from '../../api/offers';
+import { addOffer , editOffer, getOfferSheet } from '../../api/offers';
 import { getAllSubCategories } from '../../api/categories';
 import { useUser } from '../../context/userContext';
 import { useOffer } from '../../context/offerContext';
+import Loadiing from '../Loadiing/Loadiing'
 
-const OfferSheet = ({ isOpen, onClose, offerData = null ,setOffers , setTotalOffers , setFuncUsedCategories}) => {
+
+const OfferSheet = ({ isOpen, onClose, offerId ,setOffers , setTotalOffers , setFuncUsedCategories}) => {
   const [imagePreview, setImagePreview] = useState(null);
   const {user} = useUser()
   const [error , setError]=useState(false)
@@ -15,6 +17,7 @@ const OfferSheet = ({ isOpen, onClose, offerData = null ,setOffers , setTotalOff
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [categories, setCategories] = useState([]);
   const {setIsOfferSheetOpen,setSelectedOffer}=useOffer()
+  const [offer , setOffer]=useState(null)
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -24,39 +27,56 @@ const OfferSheet = ({ isOpen, onClose, offerData = null ,setOffers , setTotalOff
     category:'',
   });
 
+  useEffect(() => {
+  const getAndSet = async () => {
+    try {
+      setLoading(true);
+      if (offerId) {
+        await getOfferSheet(offerId, setOffer, null, setError);
+      }
+      await getAllSubCategories(setError, setCategories);
+    } catch (err) {
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (isOpen) getAndSet();
+}, [offerId, isOpen]);
+
   // Populate form when editing
   useEffect(() => {
-    if (offerData) {
-      setFormData({
-        title: offerData.title || '',
-        description: offerData.description || '',
-        image: null,
-        category:offerData.category,
-        priceBeforeOffer: offerData.offer_price_before || '',
-        priceAfterOffer: offerData.offer_price_after || '',
-      });
-      setImagePreview(offerData.image || null);
-      // Determine price type based on data
-    if (offerData.offer_price_after) {
-      setPriceType('offer'); // If priceAfterOffer exists, it's an offer
-    } else {
-      setPriceType('single'); // Otherwise it's single price
-    }
-    } else {
-      // Reset form for new offer
-      setFormData({
-        title: '',
-        description: '',
-        image: null,
-        category:'',
-        priceBeforeOffer: '',
-        priceAfterOffer: ''
-      });
-      setImagePreview(null);
-      setPriceType('single');
-    }
-    getAllSubCategories(setError , setCategories)
-  }, [offerData, isOpen]);
+        if (offer) {
+        setFormData({
+          title: offer.title || '',
+          description: offer.description || '',
+          image: null,
+          category:offer.category,
+          priceBeforeOffer: offer.offer_price_before || '',
+          priceAfterOffer: offer.offer_price_after || '',
+        });
+        setImagePreview(offer.image || null);
+        // Determine price type based on data
+      if (offer.offer_price_after) {
+        setPriceType('offer'); // If priceAfterOffer exists, it's an offer
+      } else {
+        setPriceType('single'); // Otherwise it's single price
+      }
+      } else {
+        // Reset form for new offer
+        setFormData({
+          title: '',
+          description: '',
+          image: null,
+          category:'',
+          priceBeforeOffer: '',
+          priceAfterOffer: ''
+        });
+        setImagePreview(null);
+        setPriceType('single');
+      }
+      } ,[offer, isOpen]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -80,6 +100,10 @@ const OfferSheet = ({ isOpen, onClose, offerData = null ,setOffers , setTotalOff
     }
   };
 
+  const selectedCat = categories.find(cat => 
+  cat.id === (formData.category?.id ?? formData.category)
+);
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -99,8 +123,11 @@ const OfferSheet = ({ isOpen, onClose, offerData = null ,setOffers , setTotalOff
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl z-50 max-h-[90vh] overflow-y-auto"
+            className="fixed bottom-0 z-50 bg-white rounded-t-3xl h-[90vh] overflow-y-auto hide-scrollbar w-full left-0 right-0 md:w-[390px] md:right-30 md:left-auto"
           >
+            {loading?(
+              <Loadiing />
+            ):(<>
             {/* Header */}
             <div className="sticky top-0 z-20 bg-white border-b border-gray-200 px-5 py-4 flex items-center justify-between rounded-t-3xl">
               <button
@@ -110,7 +137,7 @@ const OfferSheet = ({ isOpen, onClose, offerData = null ,setOffers , setTotalOff
                 <X size={24} className="text-gray-700" />
               </button>
               <h2 className="text-xl font-semibold text-gray-900">
-                {offerData ? 'Edit Offer' : 'Add New Offer'}
+                {offer ? 'Edit Offer' : 'Add New Offer'}
               </h2>
               <div className="w-10"></div> {/* Spacer for centering */}
             </div>
@@ -161,16 +188,16 @@ const OfferSheet = ({ isOpen, onClose, offerData = null ,setOffers , setTotalOff
                       className="w-full px-4 py-4 border border-gray-200 rounded-xl bg-gray-50 hover:bg-gray-100 transition-all flex items-center justify-between"
                     >
                       <div className="flex items-center gap-3">
-                        {formData.category ? (
+                        {selectedCat ? (
                           <>
                             <div className="w-10 h-10 rounded-xl bg-[#009842] flex items-center justify-center overflow-hidden">
                               <img 
-                                src={categories.find(cat => cat.id === formData.category.id)?.image} 
+                                src={selectedCat?.image} 
                                 className="w-full h-full object-contain"
                               />
                             </div>
                             <span className="text-gray-900 font-medium text-base">
-                              {categories.find(cat => cat.id === formData.category.id)?.name}
+                              {selectedCat.name}
                             </span>
                           </>
                         ) : (
@@ -209,25 +236,25 @@ const OfferSheet = ({ isOpen, onClose, offerData = null ,setOffers , setTotalOff
                                   setShowCategoryDropdown(false);
                                 }}
                                 className={`w-full px-4 py-3 rounded-xl text-left flex items-center gap-3 transition-all mb-1 last:mb-0 ${
-                                  formData.category === category.id 
+                                  formData.category?.id === category.id 
                                     ? 'bg-[#009842] text-white shadow-md' 
                                     : 'hover:bg-gray-50 text-gray-900'
                                 }`}
                               >
                                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden ${
-                                  formData.category === category.id ? 'bg-white/20' : 'bg-[#009842]'
+                                  formData.category?.id === category.id ? 'bg-white/20' : 'bg-[#009842]'
                                 }`}>
                                   <img 
-                                    src={category.image} 
+                                    src={category?.image} 
                                     className="w-full h-full object-contain"
                                   />
                                 </div>
                                 <span className={`font-medium text-base ${
-                                  formData.category === category.id ? 'text-white' : 'text-gray-900'
+                                  formData.category?.id === category.id ? 'text-white' : 'text-gray-900'
                                 }`}>
-                                  {category.name}
+                                  {category?.name}
                                 </span>
-                                {formData.category === category.id && (
+                                {formData.category?.id === category.id && (
                                   <svg className="ml-auto" width="20" height="20" viewBox="0 0 20 20" fill="none">
                                     <path d="M7 10L9 12L13 8" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                                   </svg>
@@ -253,7 +280,7 @@ const OfferSheet = ({ isOpen, onClose, offerData = null ,setOffers , setTotalOff
                     <img
                       src={imagePreview}
                       alt="Offer Preview"
-                      className="w-full h-48 object-cover rounded-xl border border-gray-200"
+                      className="w-full h-auto object-cover rounded-xl border border-gray-200"
                     />
                     <button
                       onClick={() => {
@@ -362,8 +389,8 @@ const OfferSheet = ({ isOpen, onClose, offerData = null ,setOffers , setTotalOff
               {/* Share Offer Button */}
               <button
                 onClick={()=>{
-                  offerData?
-                  editOffer(setError , offerData.offer_id , setOffers , formData , imagePreview , setFuncUsedCategories)
+                  offer?
+                  editOffer(setError , offer.offer_id , setOffers , formData , imagePreview , setFuncUsedCategories)
                   :
                   addOffer(setError , setOffers , formData , imagePreview , setTotalOffers , setFuncUsedCategories)
                   setIsOfferSheetOpen(false)
@@ -372,9 +399,10 @@ const OfferSheet = ({ isOpen, onClose, offerData = null ,setOffers , setTotalOff
                 className="w-full bg-[#009842] text-white py-4 font-semibold rounded-2xl flex items-center justify-center gap-2 hover:bg-[#007a36] transition-colors shadow-lg"
               >
                 <Share2 size={20} />
-                <span>{offerData ? 'Update Offer' : 'Share Offer'}</span>
+                <span>{offer ? 'Update Offer' : 'Add Offer'}</span>
               </button>
             </div>
+            </>)}
           </motion.div>
         </>
       )}

@@ -1,30 +1,36 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Upload, Eye, EyeOff } from 'lucide-react';
+import { X, Upload, Eye, EyeOff, MapPin } from 'lucide-react';
 import { useUser } from '../../context/userContext';
+import {getAllCategories} from '../../api/categories.js'
+import { editAccount } from '../../api/auth.js';
+import { useMapProvider } from '../../context/mapContext.jsx';
+import MapModal from '../modals/MapModal/MapModal.jsx';
+import { LuImageMinus } from 'react-icons/lu';
 
 const EditProfileSheet = ({ isOpen, onClose }) => {
-    const [showPassword, setShowPassword] = useState(false);
-    const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
-    const [showGenderDropdown, setShowGenderDropdown] = useState(false);
-    const [showGovernorateDropdown, setShowGovernorateDropdown] = useState(false);
-    const [logoPreview, setLogoPreview] = useState(null);
-    const [categories, setCategories] = useState([]);
-    const [error, setError] = useState('');
-    const {user} = useUser() 
-    const [formData, setFormData] = useState({
+  const [showPassword, setShowPassword] = useState(false);
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+  const [showGenderDropdown, setShowGenderDropdown] = useState(false);
+  const [showGovernorateDropdown, setShowGovernorateDropdown] = useState(false);
+  const [logoPreview, setLogoPreview] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [error, setError] = useState('');
+  const [loading , setLoading]=useState(false)
+  const { user , setUser } = useUser();
+  const {showMapModal,setShowMapModal,markers,setMarkers , userLocation, setUserLocation}=useMapProvider()
+  const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
     gender: '',
     governorate: '',
     category: '',
-    logo: null,
+    image: null,
     description: '',
-    addresses: '',
-    locations: '',
-    phone: ''
-    });
+    locations: [],
+    number: ''
+  });
 
   const genderOptions = [
     { value: 'male', label: 'Male' },
@@ -61,6 +67,93 @@ const EditProfileSheet = ({ isOpen, onClose }) => {
     { value: 'South Sinai', label: 'South Sinai' }
   ];
 
+  const getDistance = (lat1, lng1, lat2, lng2) => {
+    const toRad = (value) => (value * Math.PI) / 180;
+    const R = 6371; // Earth radius in km
+    const dLat = toRad(lat2 - lat1);
+    const dLng = toRad(lng2 - lng1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRad(lat1)) *
+        Math.cos(toRad(lat2)) *
+        Math.sin(dLng / 2) *
+        Math.sin(dLng / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  };
+  
+  // Find nearest marker to given user coordinates
+  const findNearestMarker = (markers, userLocation) => {
+    if (!markers || markers.length === 0) return null;
+    if (!userLocation) return markers[0]; // fallback if no userLocation yet
+  
+    let nearest = markers[0];
+    let minDistance = getDistance(
+      userLocation.lat,
+      userLocation.lng,
+      nearest.lat,
+      nearest.lng
+    );
+  
+    for (let i = 1; i < markers.length; i++) {
+      const marker = markers[i];
+      const distance = getDistance(
+        userLocation.lat,
+        userLocation.lng,
+        marker.lat,
+        marker.lng
+      );
+      if (distance < minDistance) {
+        nearest = marker;
+        minDistance = distance;
+      }
+    }
+  
+    return nearest;
+  };
+
+  useEffect(()=>{
+    setTimeout(()=>{
+      setError('')
+    },5000)
+  },[error])
+  
+    useEffect(() => {
+            const setLocation = (lat, lng) => {
+                setUserLocation({ lat, lng });
+            };
+    
+            // 2️⃣ Try browser geolocation
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    setLocation(
+                    position.coords.latitude,
+                    position.coords.longitude
+                    );
+                },
+                () => {
+                    // 3️⃣ Geolocation failed → use nearest marker if exists
+                    if (markers?.length > 0) {
+                    const nearest = findNearestMarker(markers);
+                    setLocation(nearest.lat, nearest.lng);
+                    } else {
+                    // 4️⃣ Final fallback → Cairo
+                    setLocation(30.0444, 31.2357);
+                    }
+                }
+                );
+            } else {
+                // 3️⃣ No geolocation support
+                if (markers?.length > 0) {
+                const nearest = findNearestMarker(markers);
+                setLocation(nearest.lat, nearest.lng);
+                } else {
+                setLocation(30.0444, 31.2357);
+                }
+            }
+    }, [user, markers]);
+
   // Populate form when opening
   useEffect(() => {
     if (isOpen && user) {
@@ -71,20 +164,19 @@ const EditProfileSheet = ({ isOpen, onClose }) => {
         gender: user.gender || '',
         governorate: user.governorate || '',
         category: user.category || '',
-        logo: null,
+        image: null,
         description: user.description || '',
-        addresses: user.addresses || '',
-        locations: user.locations || '',
-        phone: user.phone || user.number || ''
+        locations: user.locations || [],
+        number: user.number || ''
       });
       setLogoPreview(user.logo || null);
     }
     // Fetch categories if business
     if (isOpen && user?.accountType === 'business') {
       // Call your API to get categories
-      // getAllCategories(setError, setCategories);
+      getAllCategories(setError, setCategories);
     }
-  }, [isOpen, user, user?.accountType]);
+  }, [isOpen, user]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -97,7 +189,7 @@ const EditProfileSheet = ({ isOpen, onClose }) => {
   const handleLogoUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setFormData(prev => ({ ...prev, logo: file }));
+      setFormData(prev => ({ ...prev, image: file }));
       const reader = new FileReader();
       reader.onloadend = () => {
         setLogoPreview(reader.result);
@@ -106,11 +198,51 @@ const EditProfileSheet = ({ isOpen, onClose }) => {
     }
   };
 
-  const handleSave = () => {
-    // Handle save logic here
-    console.log('Saving profile:', formData);
-    onClose();
+    const handleOpenMap = () => {
+    setMarkers(formData.locations);
+    setShowMapModal(true);
   };
+
+  const handleSaveLocations = () => {
+    setFormData(prev => ({ ...prev, locations: markers }));
+    setShowMapModal(false);
+  };
+
+  const handleAddMarker = (location) => {
+    setMarkers(prev => [...prev, location]);
+  };
+
+  const handleRemoveMarker = (index) => {
+    setMarkers(markers.filter((_, i) => i !== index));
+  };
+
+  const handleEditAccount = async ()=>{
+    try{
+      // Filter out invalid locations
+    const validLocations = (formData.locations || [])
+      .map(loc => ({
+        lat: Number(loc.lat),
+        lng: Number(loc.lng)
+      }))
+      .filter(loc => !isNaN(loc.lat) && !isNaN(loc.lng));
+      
+      const payload = {
+        ...formData,
+        locations: JSON.stringify(validLocations)
+      };
+      console.log(payload);
+      await editAccount(payload , setLoading , setError , setUser , user) 
+      onClose()
+    }catch(err){
+       if (err.response?.data?.message) {
+      setError(err.response.data.message);
+    } else if (err.message) {
+      setError(err.message);
+    } else {
+      setError("Something went wrong");
+    }
+    }
+  }
 
   return (
     <AnimatePresence>
@@ -122,7 +254,7 @@ const EditProfileSheet = ({ isOpen, onClose }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/50 z-40"
+            className="fixed inset-0 bg-black/30 z-40"
           />
 
           {/* Bottom Sheet */}
@@ -149,15 +281,46 @@ const EditProfileSheet = ({ isOpen, onClose }) => {
 
             {/* Form Content */}
             <div className="px-5 py-6 pb-8">
+              {/* Logo Circle */}
+              <div className="flex justify-center mb-6">
+                <div className="relative">
+                  <div className="w-32 h-32 rounded-full border-4 border-gray-200 overflow-hidden bg-gray-100 flex items-center justify-center">
+                    {logoPreview ? (
+                      <img 
+                        src={logoPreview} 
+                        alt="Profile" 
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <Upload size={40} className="text-gray-400" />
+                    )}
+                  </div>
+                  <input
+                    type="file"
+                    id='logoUpload'
+                    accept="image/*"
+                    onChange={handleLogoUpload}
+                    className="hidden"
+                    name='image'
+                  />
+                  <label
+                    htmlFor="logoUpload"
+                    className="absolute bottom-0 right-0 w-10 h-10 bg-[#009842] rounded-full flex items-center justify-center cursor-pointer hover:bg-[#007a36] transition-colors shadow-lg"
+                  >
+                    <Upload size={20} className="text-white" />
+                  </label>
+                </div>
+              </div>
+
               {/* Name */}
               <div className="mb-5">
                 <label className="block text-sm font-semibold text-gray-900 mb-2">
-                  Name <span className="text-red-500">*</span>
+                  {user?.accountType === 'business' ? 'Business Name' : 'Name'} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   name="name"
-                  placeholder="Name"
+                  placeholder={user?.accountType === 'business' ? 'Business Name' : 'Name'}
                   value={formData.name}
                   onChange={handleInputChange}
                   className="w-full px-4 py-3.5 text-base border border-gray-200 rounded-xl outline-none bg-gray-50 focus:border-[#009842] focus:ring-1 focus:ring-[#009842] transition-colors"
@@ -203,80 +366,30 @@ const EditProfileSheet = ({ isOpen, onClose }) => {
                 </div>
               </div>
 
-              {/* USER SPECIFIC FIELDS */}
+              {/* CLIENT SPECIFIC FIELDS */}
               {user?.accountType === 'user' && (
                 <>
-                  {/* Gender */}
-                  <div className="mb-5">
-                    <label className="block text-sm font-semibold text-gray-900 mb-2">
-                      Gender
-                    </label>
-                    
-                    <div className="relative">
-                      <button
-                        type="button"
-                        onClick={() => setShowGenderDropdown(!showGenderDropdown)}
-                        className="w-full px-4 py-3.5 text-base border border-gray-200 rounded-xl bg-gray-50 text-left flex items-center justify-between focus:border-[#00875A] focus:ring-1 focus:ring-[#00875A] transition-colors"
-                      >
-                        <span className={formData.gender ? 'text-gray-900' : 'text-gray-400'}>
-                          {genderOptions.find(opt => opt.value === formData.gender)?.label || 'Select your gender'}
-                        </span>
-                        <svg 
-                          width="16" 
-                          height="16" 
-                          viewBox="0 0 16 16" 
-                          fill="none"
-                          className={`transition-transform ${showGenderDropdown ? 'rotate-180' : 'rotate-0'}`}
-                        >
-                          <path d="M4 6L8 10L12 6" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                      </button>
-                      
-                      {showGenderDropdown && (
-                        <>
-                          <div 
-                            className="fixed inset-0 z-10" 
-                            onClick={() => setShowGenderDropdown(false)}
-                          />
-                          
-                          <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-lg z-20 overflow-hidden">
-                            {genderOptions.map((option) => (
-                              <button
-                                key={option.value}
-                                type="button"
-                                onClick={() => {
-                                  setFormData(prev => ({ ...prev, gender: option.value }));
-                                  setShowGenderDropdown(false);
-                                }}
-                                className={`w-full px-4 py-3.5 text-left text-base transition-colors border-b border-gray-100 last:border-b-0 ${
-                                  formData.gender === option.value 
-                                    ? 'bg-[#00875A] text-white font-medium' 
-                                    : 'hover:bg-gray-50 text-gray-900'
-                                }`}
-                              >
-                                {option.label}
-                              </button>
-                            ))}
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  </div>
-
                   {/* Governorate */}
                   <div className="mb-5">
                     <label className="block text-sm font-semibold text-gray-900 mb-2">
-                      Governorate
+                      Your Governorate
                     </label>
                     
                     <div className="relative">
                       <button
                         type="button"
                         onClick={() => setShowGovernorateDropdown(!showGovernorateDropdown)}
-                        className="w-full px-4 py-3.5 text-base border border-gray-200 rounded-xl bg-gray-50 text-left flex items-center justify-between focus:border-[#00875A] focus:ring-1 focus:ring-[#00875A] transition-colors"
+                        className="w-full px-4 py-3.5 text-base border border-gray-200 rounded-xl bg-gray-50 text-left flex items-center justify-between focus:border-[#009842] focus:ring-1 focus:ring-[#009842] transition-colors"
                       >
-                        <span className={formData.governorate ? 'text-gray-900' : 'text-gray-400'}>
-                          {governorateOptions.find(opt => opt.value === formData.governorate)?.label || 'Select your governorate'}
+                        <span className={formData.governorate ? 'text-gray-900 flex items-center gap-2' : 'text-gray-400'}>
+                          {formData.governorate ? (
+                            <>
+                              <span>{governorateOptions.find(opt => opt.value === formData.governorate)?.icon}</span>
+                              <span>{governorateOptions.find(opt => opt.value === formData.governorate)?.label}</span>
+                            </>
+                          ) : (
+                            'Select your governorate'
+                          )}
                         </span>
                         <svg 
                           width="16" 
@@ -305,13 +418,77 @@ const EditProfileSheet = ({ isOpen, onClose }) => {
                                   setFormData(prev => ({ ...prev, governorate: option.value }));
                                   setShowGovernorateDropdown(false);
                                 }}
-                                className={`w-full px-4 py-3.5 text-left text-base transition-colors border-b border-gray-100 last:border-b-0 ${
+                                className={`w-full px-4 py-3.5 text-left text-base transition-colors border-b border-gray-100 last:border-b-0 flex items-center gap-2 ${
                                   formData.governorate === option.value 
-                                    ? 'bg-[#00875A] text-white font-medium' 
+                                    ? 'bg-[#009842] text-white font-medium' 
                                     : 'hover:bg-gray-50 text-gray-900'
                                 }`}
                               >
-                                {option.label}
+                                <span>{option.icon}</span>
+                                <span>{option.label}</span>
+                              </button>
+                            ))}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Gender */}
+                  <div className="mb-5">
+                    <label className="block text-sm font-semibold text-gray-900 mb-2">
+                      Gender
+                    </label>
+                    
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => setShowGenderDropdown(!showGenderDropdown)}
+                        className="w-full px-4 py-3.5 text-base border border-gray-200 rounded-xl bg-gray-50 text-left flex items-center justify-between focus:border-[#009842] focus:ring-1 focus:ring-[#009842] transition-colors"
+                      >
+                        <span className={formData.gender ? 'text-gray-900 flex items-center gap-2' : 'text-gray-400'}>
+                          {formData.gender ? (
+                            <>
+                              <span>{genderOptions.find(opt => opt.value === formData.gender)?.label}</span>
+                            </>
+                          ) : (
+                            'Select your gender'
+                          )}
+                        </span>
+                        <svg 
+                          width="16" 
+                          height="16" 
+                          viewBox="0 0 16 16" 
+                          fill="none"
+                          className={`transition-transform ${showGenderDropdown ? 'rotate-180' : 'rotate-0'}`}
+                        >
+                          <path d="M4 6L8 10L12 6" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </button>
+                      
+                      {showGenderDropdown && (
+                        <>
+                          <div 
+                            className="fixed inset-0 z-10" 
+                            onClick={() => setShowGenderDropdown(false)}
+                          />
+                          
+                          <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-lg z-20 overflow-hidden">
+                            {genderOptions.map((option) => (
+                              <button
+                                key={option.value}
+                                type="button"
+                                onClick={() => {
+                                  setFormData(prev => ({ ...prev, gender: option.value }));
+                                  setShowGenderDropdown(false);
+                                }}
+                                className={`w-full px-4 py-3.5 text-left text-base transition-colors border-b border-gray-100 last:border-b-0 flex items-center gap-2 ${
+                                  formData.gender === option.value 
+                                    ? 'bg-[#009842] text-white font-medium' 
+                                    : 'hover:bg-gray-50 text-gray-900'
+                                }`}
+                              >
+                                <span>{option.label}</span>
                               </button>
                             ))}
                           </div>
@@ -328,14 +505,14 @@ const EditProfileSheet = ({ isOpen, onClose }) => {
                   {/* Business Category */}
                   <div className="mb-5">
                     <label className="block text-sm font-semibold mb-2 text-gray-900">
-                      Business category
+                      Business Category
                     </label>
                     
                     <div className="relative">
                       <button
                         type="button"
                         onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
-                        className="w-full px-4 py-4 border border-gray-200 rounded-2xl bg-[#fafafa] hover:bg-gray-50 transition-all shadow-sm hover:shadow-md flex items-center justify-between group"
+                        className="w-full px-4 py-4 border border-gray-200 rounded-2xl bg-gray-50 hover:bg-gray-100 transition-all flex items-center justify-between group"
                       >
                         <div className="flex items-center gap-3">
                           {formData.category ? (
@@ -347,12 +524,12 @@ const EditProfileSheet = ({ isOpen, onClose }) => {
                                   className="w-full h-full object-contain"
                                 />
                               </div>
-                              <span className="text-gray-900 font-medium text-[15px]">
+                              <span className="text-gray-900 font-medium text-base">
                                 {categories.find(cat => cat.id === formData.category)?.name}
                               </span>
                             </>
                           ) : (
-                            <span className="text-gray-400 text-[15px]">Choose from the categories</span>
+                            <span className="text-gray-400 text-base">Choose from the categories</span>
                           )}
                         </div>
                         <svg 
@@ -398,7 +575,7 @@ const EditProfileSheet = ({ isOpen, onClose }) => {
                                       className="w-full h-full object-contain"
                                     />
                                   </div>
-                                  <span className={`font-medium text-[15px] ${
+                                  <span className={`font-medium text-base ${
                                     formData.category === category.id ? 'text-white' : 'text-gray-900'
                                   }`}>
                                     {category.name}
@@ -417,40 +594,6 @@ const EditProfileSheet = ({ isOpen, onClose }) => {
                     </div>
                   </div>
 
-                  {/* Business Logo */}
-                  <div className="mb-5">
-                    <label className="block text-sm font-semibold text-gray-900 mb-2">
-                      Business logo
-                    </label>
-                    
-                    {logoPreview && (
-                      <div className="mb-3">
-                        <img 
-                          src={logoPreview} 
-                          alt="Logo Preview" 
-                          className="w-24 h-24 object-contain rounded-lg border border-gray-200"
-                        />
-                      </div>
-                    )}
-                    
-                    <input
-                      type="file"
-                      id="logoUpload"
-                      accept="image/*"
-                      onChange={handleLogoUpload}
-                      className="hidden"
-                    />
-                    <label
-                      htmlFor="logoUpload"
-                      className="flex items-center justify-between w-full px-4 py-3.5 text-base border border-gray-200 rounded-xl bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors"
-                    >
-                      <span className="text-gray-400">
-                        {formData.logo ? formData.logo.name : 'Upload Your Logo'}
-                      </span>
-                      <Upload size={20} className="text-gray-600" />
-                    </label>
-                  </div>
-
                   {/* Business Description */}
                   <div className="mb-5">
                     <label className="block text-sm font-semibold text-gray-900 mb-2">
@@ -466,34 +609,29 @@ const EditProfileSheet = ({ isOpen, onClose }) => {
                     />
                   </div>
 
-                  {/* Business Addresses */}
+                  {/* Business Locations Map */}
                   <div className="mb-5">
-                    <label className="block text-sm font-semibold text-gray-900 mb-2">
-                      Business Address/es
-                    </label>
-                    <textarea
-                      name="addresses"
-                      placeholder="Enter your business addresses"
-                      value={formData.addresses}
-                      onChange={handleInputChange}
-                      rows="3"
-                      className="w-full px-4 py-3.5 text-base border border-gray-200 rounded-xl outline-none bg-gray-50 focus:border-[#009842] focus:ring-1 focus:ring-[#009842] transition-colors resize-none"
-                    />
-                  </div>
-
-                  {/* Business Locations */}
-                  <div className="mb-5">
-                    <label className="block text-sm font-semibold text-gray-900 mb-2">
-                      Business Locations
-                    </label>
-                    <input
-                      type="text"
-                      name="locations"
-                      placeholder="Business locations"
-                      value={formData.locations}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3.5 text-base border border-gray-200 rounded-xl outline-none bg-gray-50 focus:border-[#009842] focus:ring-1 focus:ring-[#009842] transition-colors"
-                    />
+                    <div className="flex justify-between items-center mb-2">
+                      <label className="text-sm font-semibold text-gray-900">
+                        Business Locations
+                      </label>
+                      <span className="text-sm text-[#009842] font-semibold">
+                        {formData.locations.length} location{formData.locations.length !== 1 ? 's' : ''} selected
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleOpenMap}
+                      className="w-full h-44 rounded-xl bg-[#f0f9f4] border-2 border-dashed border-[#009842] flex flex-col items-center justify-center gap-2 hover:bg-[#e6f5ed] transition-colors"
+                    >
+                      <MapPin size={40} className="text-[#009842]" />
+                      <span className="text-[#009842] font-semibold text-base">
+                        Click to Select Locations on Map
+                      </span>
+                      <span className="text-gray-600 text-sm">
+                        You can add multiple business locations
+                      </span>
+                    </button>
                   </div>
 
                   {/* Business Phone */}
@@ -504,7 +642,7 @@ const EditProfileSheet = ({ isOpen, onClose }) => {
                     <input
                       type="tel"
                       name="phone"
-                      placeholder="Enter you Business phone Number"
+                      placeholder="Enter your Business phone Number"
                       value={formData.phone}
                       onChange={handleInputChange}
                       className="w-full px-4 py-3.5 text-base border border-gray-200 rounded-xl outline-none bg-gray-50 focus:border-[#009842] focus:ring-1 focus:ring-[#009842] transition-colors"
@@ -522,7 +660,9 @@ const EditProfileSheet = ({ isOpen, onClose }) => {
 
               {/* Save Button */}
               <button
-                onClick={handleSave}
+                onClick={()=>{
+                  handleEditAccount()
+                }}
                 className="w-full bg-[#009842] text-white py-4 font-semibold rounded-2xl flex items-center justify-center gap-2 hover:bg-[#007a36] transition-colors shadow-lg"
               >
                 Save Changes
@@ -531,6 +671,17 @@ const EditProfileSheet = ({ isOpen, onClose }) => {
           </motion.div>
         </>
       )}
+      {showMapModal&&user?.accountType==='business'&&(
+        <MapModal 
+        showMapModal={showMapModal} 
+        setShowMapModal={setShowMapModal}
+        userLocation={userLocation}
+        markers={markers}
+        setMarkers={setMarkers}
+        handleSaveLocations={handleSaveLocations}
+        handleAddMarker={handleAddMarker}
+        handleRemoveMarker={handleRemoveMarker}
+      />)}
     </AnimatePresence>
   );
 };

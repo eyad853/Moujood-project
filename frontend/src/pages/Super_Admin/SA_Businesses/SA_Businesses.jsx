@@ -1,95 +1,26 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Search, Filter, RotateCcw, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import {editBusinessActivity , getBusinessPageData} from '../../../api/super_admin_data' 
+import Loadiing from '../../../components/Loadiing/Loadiing'
+import { getAllCategories } from '../../../api/categories';
+import socket from '../../../Socket';
+import BusinessSheet from '../../../components/BusinessSheet/BusinessSheet';
 
 const SA_Businesses = () => {
   const [activeTab, setActiveTab] = useState('Overview');
   const [searchQuery, setSearchQuery] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
   const [filterBy, setFilterBy] = useState('');
   const [category, setCategory] = useState('');
   const [subCategory, setSubCategory] = useState('');
   const [orderStatus, setOrderStatus] = useState('');
+  const [loading ,setLoading]=useState(false)
+  const [error , setError]=useState('')
+  const [businesses , setBusinesses]=useState([])
+  const [categories , setCategories]=useState([])
+  const [selectedBusiness , setSelectedBusiness] = useState(null)
+  const [isBusinessSheetOpen , setIsBusinessSheetOpen]=useState(false)
 
-  const tabs = ['Overview', 'New Businesses', 'Offers', 'Segment', 'Custom'];
-
-  // Fake businesses data
-  const businesses = [
-    {
-      id: 1,
-      logo: '/logo.svg',
-      name: 'Christine Brooks',
-      email: 'christine@business.com',
-      category: 'Kutch Green Apt.',
-      addresses: 'Cairo, Egypt',
-      number: '+20 123 456 789',
-      offers_scanned: '10k',
-      status: 'not_active',
-      created_at: '2024-01-15'
-    },
-    {
-      id: 2,
-      logo: '/logo.svg',
-      name: 'Rosie Pearson',
-      email: 'rosie@business.com',
-      category: 'Immanuel Ferry Suite',
-      addresses: 'Alexandria, Egypt',
-      number: '+20 123 456 790',
-      offers_scanned: '10k',
-      status: 'active',
-      created_at: '2024-01-14'
-    },
-    {
-      id: 3,
-      logo: '/logo.svg',
-      name: 'Darrell Caldwell',
-      email: 'darrell@business.com',
-      category: 'Frida Ports',
-      addresses: 'Giza, Egypt',
-      number: '+20 123 456 791',
-      offers_scanned: '10k',
-      status: 'active',
-      created_at: '2024-01-13'
-    },
-    {
-      id: 4,
-      logo: '/logo.svg',
-      name: 'Gilbert Johnston',
-      email: 'gilbert@business.com',
-      category: 'Destiny Lake Suite',
-      addresses: 'Mansoura, Egypt',
-      number: '+20 123 456 792',
-      offers_scanned: '10k',
-      status: 'active',
-      created_at: '2024-01-12'
-    },
-    {
-      id: 5,
-      logo: '/logo.svg',
-      name: 'Alan Cain',
-      email: 'alan@business.com',
-      category: 'Mylene Throughway',
-      addresses: 'Tanta, Egypt',
-      number: '+20 123 456 793',
-      offers_scanned: '10k',
-      status: 'active',
-      created_at: '2024-01-11'
-    },
-    {
-      id: 6,
-      logo: '/logo.svg',
-      name: 'Alan Cain',
-      email: 'alan2@business.com',
-      category: 'Mylene Throughway',
-      addresses: 'Aswan, Egypt',
-      number: '+20 123 456 794',
-      offers_scanned: '10k',
-      status: 'active',
-      created_at: '2024-01-10'
-    },
-  ];
-
-  const totalPages = 78;
-  const itemsPerPage = 9;
+  const tabs = ['Overview'];
 
   const handleResetFilters = () => {
     setFilterBy('');
@@ -99,15 +30,72 @@ const SA_Businesses = () => {
     setSearchQuery('');
   };
 
-  const handleActivate = (businessId) => {
-    console.log('Activate business:', businessId);
-    // Add activation logic here
+  useEffect(()=>{
+    const get=async()=>{
+        try{
+            setLoading(true)
+            await getBusinessPageData(setError , setBusinesses)
+            await getAllCategories(setError , setCategories)
+        }catch(error){
+            setError(error)
+        }finally{
+            setLoading(false)
+        }
+    }
+    get()
+  },[])
+
+  useEffect(() => {
+  const onNewBusiness = (newBusiness) => {
+    setBusinesses(prev => [newBusiness, ...prev]);
   };
 
-  const handleDeactivate = (businessId) => {
-    console.log('Deactivate business:', businessId);
-    // Add deactivation logic here
+  const onBusinessUpdated = (updatedBusiness) => {
+    setBusinesses(prev =>
+      prev.map(business => {
+        if (business.id !== updatedBusiness.id) return business;
+
+        return {
+          ...business,
+          name: updatedBusiness.name,
+          logo: updatedBusiness.logo,
+          category: updatedBusiness.category_name,
+        };
+      })
+    );
   };
+
+  socket.on("newBusiness", onNewBusiness);
+  socket.on('business_updated', onBusinessUpdated);
+
+  return () => {
+    socket.off("newBusiness", onNewBusiness);
+    socket.off('business_updated', onBusinessUpdated);
+  };
+}, []);
+
+  if(loading){
+    return(
+        <Loadiing />
+    )
+  }
+
+  const filteredBusinesses = businesses.filter((business) => {
+    // Filter by search query (name)
+    const matchesSearch = business.name
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
+    
+    // Filter by category
+    const matchesCategory = category ? business.category === category : true;
+    
+    // Filter by status
+    const matchesStatus = orderStatus
+      ? (orderStatus === 'active' ? business.active : !business.active)
+      : true;
+    
+    return matchesSearch && matchesCategory && matchesStatus;
+});
 
   return (
     <div className="w-full max-w-full overflow-hidden">
@@ -138,22 +126,8 @@ const SA_Businesses = () => {
 
       {/* Filters and Search */}
       <div className="bg-white rounded-xl shadow-sm p-4 mb-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
-          {/* Filter By */}
-          <div className="relative">
-            <Filter size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <select
-              value={filterBy}
-              onChange={(e) => setFilterBy(e.target.value)}
-              className="w-full pl-10 pr-10 py-2.5 border border-gray-200 rounded-lg outline-none focus:border-[#009842] focus:ring-1 focus:ring-[#009842] appearance-none bg-white text-sm"
-            >
-              <option value="">Filter By</option>
-              <option value="name">Name</option>
-              <option value="category">Category</option>
-              <option value="status">Status</option>
-            </select>
-            <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-          </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+          
 
           {/* Category */}
           <div className="relative">
@@ -163,25 +137,13 @@ const SA_Businesses = () => {
               className="w-full px-4 pr-10 py-2.5 border border-gray-200 rounded-lg outline-none focus:border-[#009842] focus:ring-1 focus:ring-[#009842] appearance-none bg-white text-sm"
             >
               <option value="">Category</option>
-              <option value="food">Food & Dining</option>
-              <option value="retail">Retail</option>
-              <option value="services">Services</option>
-              <option value="healthcare">Healthcare</option>
-            </select>
-            <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-          </div>
-
-          {/* Sub Category */}
-          <div className="relative">
-            <select
-              value={subCategory}
-              onChange={(e) => setSubCategory(e.target.value)}
-              className="w-full px-4 pr-10 py-2.5 border border-gray-200 rounded-lg outline-none focus:border-[#009842] focus:ring-1 focus:ring-[#009842] appearance-none bg-white text-sm"
-            >
-              <option value="">Sub category</option>
-              <option value="fast-food">Fast Food</option>
-              <option value="restaurants">Restaurants</option>
-              <option value="cafes">Cafes</option>
+              {categories.length>0?(
+                categories.map(category=>(
+                  <option key={category.id} value={category.name}>{category.name}</option>
+                ))
+              ):(
+                <div className=""></div>
+              )}
             </select>
             <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
           </div>
@@ -196,7 +158,6 @@ const SA_Businesses = () => {
               <option value="">Order Status</option>
               <option value="active">Active</option>
               <option value="inactive">Inactive</option>
-              <option value="pending">Pending</option>
             </select>
             <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
           </div>
@@ -227,84 +188,65 @@ const SA_Businesses = () => {
       {/* Businesses List */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
         {/* Header */}
-        <div className="grid grid-cols-11 gap-4 px-4 sm:px-6 py-4 bg-gray-50 border-b border-gray-200">
+        {businesses.length>0&&(<div className="grid grid-cols-11 gap-4 px-4 sm:px-6 py-4 bg-gray-50 border-b border-gray-200">
           <div className="col-span-1 text-sm font-semibold text-gray-700">Logo</div>
-          <div className="col-span-3 text-sm font-semibold text-gray-700">Business Name</div>
+          <div className="col-span-5 text-sm font-semibold text-gray-700">Business Name</div>
           <div className="col-span-3 text-sm font-semibold text-gray-700">Category</div>
-          <div className="col-span-2 text-sm font-semibold text-gray-700">Offers Scaned</div>
           <div className="col-span-2 text-sm font-semibold text-gray-700">STATUS</div>
-        </div>
+        </div>)}
 
         {/* Businesses Items */}
         <div className="divide-y divide-gray-200">
-          {businesses.map((business) => (
+          {filteredBusinesses.map((business) => (
             <div
+            onClick={()=>{
+              setSelectedBusiness(business)
+              setIsBusinessSheetOpen(true)
+            }}
               key={business.id}
               className="grid grid-cols-11 gap-4 px-4 sm:px-6 py-4 hover:bg-gray-50 transition-colors items-center"
             >
               {/* Logo */}
               <div className="col-span-1">
-                <div className="w-12 h-12 bg-[#009842] rounded-xl flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 bg-[#009842] rounded-xl flex items-center justify-center ">
                   <img
                     src={business.logo}
-                    alt={business.name}
-                    className="w-8 h-8 object-contain brightness-0 invert"
+                    className="w-full h-full object-contain"
                   />
                 </div>
               </div>
 
               {/* Business Name */}
-              <div className="col-span-3">
+              <div className="col-span-5">
                 <span className="font-medium text-gray-900 text-sm">{business.name}</span>
               </div>
 
               {/* Category */}
-              <div className="col-span-3">
-                <span className="text-sm text-gray-600">{business.category}</span>
-              </div>
-
-              {/* Offers Scanned */}
-              <div className="col-span-2">
-                <span className="text-sm text-gray-900 font-medium">{business.offers_scanned}</span>
+              <div className="col-span-3 font-semibold">
+                <span className="text-sm">{business.category}</span>
               </div>
 
               {/* Status */}
-              <div className="col-span-2">
-                <span className={`inline-block px-4 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap ${
-                  business.status === 'active' 
+              <div 
+              onClick={()=>{
+                editBusinessActivity(setError , businesses , business , setBusinesses)
+              }}
+              className="col-span-2">
+                <span className={`inline-block cursor-pointer px-4 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap ${
+                  business.active
                     ? 'bg-green-100 text-green-700' 
                     : 'bg-red-100 text-red-700'
                 }`}>
-                  {business.status === 'active' ? 'Active' : 'Not Active'}
+                  {business.active ? 'Active' : 'Not Active'}
                 </span>
               </div>
             </div>
           ))}
         </div>
-
-        {/* Pagination */}
-        <div className="px-4 sm:px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <span className="text-sm text-gray-600 text-center sm:text-left">
-            Showing 1-09 of {totalPages}
-          </span>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-              disabled={currentPage === 1}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <ChevronLeft size={20} className="text-gray-600" />
-            </button>
-            <button
-              onClick={() => setCurrentPage(Math.min(Math.ceil(totalPages / itemsPerPage), currentPage + 1))}
-              disabled={currentPage === Math.ceil(totalPages / itemsPerPage)}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <ChevronRight size={20} className="text-gray-600" />
-            </button>
-          </div>
-        </div>
       </div>
+      {isBusinessSheetOpen&&selectedBusiness?.id&&(
+        <BusinessSheet isOpen={isBusinessSheetOpen} onClose={()=>setIsBusinessSheetOpen(false)} businessId={selectedBusiness.id}/>
+        )}
     </div>
   );
 };

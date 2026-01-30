@@ -17,7 +17,7 @@ const B_SA =  async (req, res, next) => {
   const offer = result.rows[0];
 
   // SUPER ADMIN CAN EDIT ANYTHING
-  if (user.user_type === 'super_admin') {
+  if (user.accountType === 'super_admin') {
     return next();
   }
 

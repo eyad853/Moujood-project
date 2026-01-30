@@ -1,9 +1,13 @@
 import axios from 'axios'
 
-const getFeedPageData = async (setError)=>{
+export const getFeedPageData = async (setError , setOffers , setCategories , setAds)=>{
     try{
-        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/clients/getFeedPageData`)
-    }catch(error){
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/clients/getFeedPageData` , {withCredentials:true})
+        setOffers(response.data.offers)
+        setCategories(response.data.categories)
+        setAds(response.data.ads)
+        console.log(response.data);
+    }catch(err){
         if (err.response?.data?.message) {
             setError(err.response.data.message)
         } else if (err.message) {
@@ -14,10 +18,11 @@ const getFeedPageData = async (setError)=>{
     }
 }
 
-const getSubCategoriesOfCategory = async (setError)=>{
+export const getSubCategoriesOfCategory = async (setError , setCategories , categoryId)=>{
     try{
-        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/clients/getSubCategoriesOfCategory`)
-    }catch(error){
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/clients/getSubCategoriesOfCategory/${categoryId}`)
+        setCategories(response.data.subCategories)
+    }catch(err){
         if (err.response?.data?.message) {
             setError(err.response.data.message)
         } else if (err.message) {
@@ -28,10 +33,13 @@ const getSubCategoriesOfCategory = async (setError)=>{
     }
 }
 
-const getBusinessesOfCategoryData = async (setError)=>{
+export const getBusinessesOfCategory = async (setError , setBusinesses , categoryId)=>{
     try{
-        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/clients/getbusinessesOfCategoryData`)
-    }catch(error){
+        console.log('started');
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/clients/getbusinessesOfCategory/${categoryId}`)
+        console.log(response.data);
+        setBusinesses(response.data.businesses)
+    }catch(err){
         if (err.response?.data?.message) {
             setError(err.response.data.message)
         } else if (err.message) {
@@ -42,10 +50,15 @@ const getBusinessesOfCategoryData = async (setError)=>{
     }
 }
 
-const getBusinessPageData = async (setError)=>{
+export const getBusinessPageData = async (setError , setBusiness , setCategories , setOffers , business_id , businessId , setMarkers)=>{
+    const usedId = businessId?businessId:business_id
     try{
-        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/clients/getBusinessPageData`)
-    }catch(error){
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/clients/getBusinessPageData/${usedId}`)
+        setCategories(response.data.subCategories)
+        setBusiness(response.data.business)
+        setOffers(response.data.offers)
+        setMarkers(response.data.locations)
+    }catch(err){
         if (err.response?.data?.message) {
             setError(err.response.data.message)
         } else if (err.message) {
@@ -59,7 +72,7 @@ const getBusinessPageData = async (setError)=>{
 const getProfileData = async (setError)=>{
     try{
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/clients/getprofileData`)
-    }catch(error){
+    }catch(err){
         if (err.response?.data?.message) {
             setError(err.response.data.message)
         } else if (err.message) {
@@ -69,3 +82,22 @@ const getProfileData = async (setError)=>{
         }
     }
 }
+
+export const getUserPoints = async (setPoints, setError) => {
+  try {
+    const res = await axios.get(
+      `${import.meta.env.VITE_BACKEND_URL}/clients/getUserPoints`,
+      { withCredentials: true }
+    );
+
+    setPoints(res.data.total_points);
+  } catch (err) {
+    if (err.response?.data?.message) {
+      setError(err.response.data.message);
+    } else if (err.message) {
+      setError(err.message);
+    } else {
+      setError("Something went wrong");
+    }
+  }
+};

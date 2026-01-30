@@ -3,14 +3,16 @@ import { Eye, EyeOff } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { handleGoogleAuth , handleFacebookAuth } from '../../../api/auth';
 import { localAuth } from '../../../api/auth';
-import Loading from '../../../components/Loadiing/Loadiing';
+import Loadiing from '../../../components/Loadiing/Loadiing';
+import { useUser } from '../../../context/userContext';
 
 const ClientSignup = () => {
   const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading , setLoading]=useState(false)
-  const [error , setError]=useState()
+  const [error , setError]=useState('')
+  const [fieldErrors, setFieldErrors] = useState({})
   const [showGenderDropdown, setShowGenderDropdown] = useState(false);
   const [showCityDropdown, setShowCityDropdown] = useState(false);
   const [formData, setFormData] = useState({
@@ -22,6 +24,7 @@ const ClientSignup = () => {
     gender:'',
     governorate:''
   });
+  const {setUser} = useUser()
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -29,6 +32,11 @@ const ClientSignup = () => {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
+
+    setFieldErrors(prev => ({
+    ...prev,
+    [name]: false
+  }));
   };
 
   const genderOptions = [
@@ -36,7 +44,7 @@ const ClientSignup = () => {
   { value: 'female', label: 'Female', icon: '👩' }
 ];
 
-const cityOptions = [
+const governorateOptions = [
   { value: 'Cairo', label: 'Cairo', icon: '🏙️' },
   { value: 'Alexandria', label: 'Alexandria', icon: '🌊' },
   { value: 'Giza', label: 'Giza', icon: '🏛️' },
@@ -66,11 +74,13 @@ const cityOptions = [
   { value: 'South Sinai', label: 'South Sinai', icon: '⛰️' }
 ];
 
+
   if(loading){
-    return 
-    (<div className="fixed inset-0">
-      <Loading />
-    </div>)
+    return (
+    <div className="fixed inset-0">
+      <Loadiing />
+    </div>
+    )
   }
 
   return (
@@ -90,7 +100,7 @@ const cityOptions = [
         {/* Social Login Buttons */}
         <div className="flex gap-3 mb-6">
           <button
-            onClick={handleGoogleAuth}
+            onClick={()=>{handleGoogleAuth()}}
             className="flex-1 bg-[#009842] text-white py-3.5 px-4 rounded-xl font-semibold flex items-center justify-center gap-2 text-base"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="white">
@@ -102,7 +112,7 @@ const cityOptions = [
             Google
           </button>
           <button
-            onClick={handleFacebookAuth}
+            onClick={()=>{handleFacebookAuth()}}
             className="flex-1 bg-[#009842] text-white py-3.5 px-4 rounded-xl font-semibold flex items-center justify-center gap-2 text-base"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="white">
@@ -132,7 +142,10 @@ const cityOptions = [
               placeholder="Name"
               value={formData.name}
               onChange={handleInputChange}
-              className="w-full px-4 py-3.5 text-base border border-gray-200 rounded-xl outline-none bg-gray-50 focus:border-[#00875A] focus:ring-1 focus:ring-[#00875A] transition-colors"
+              className={`w-full px-4 py-3.5 text-base border ${fieldErrors.name 
+              ? 'border-2 border-red-500 focus:ring-red-500 focus:border-red-500'
+              : 'border-2 border-gray-200 focus:border-[#00875A] focus:ring-[#00875A]'} 
+              rounded-xl outline-none bg-gray-50 transition-colors`}
             />
           </div>
 
@@ -147,7 +160,9 @@ const cityOptions = [
               placeholder="Enter your email"
               value={formData.email}
               onChange={handleInputChange}
-              className="w-full px-4 py-3.5 text-base border border-gray-200 rounded-xl outline-none bg-gray-50 focus:border-[#00875A] focus:ring-1 focus:ring-[#00875A] transition-colors"
+              className={`w-full px-4 py-3.5 text-base border rounded-xl  ${fieldErrors.email 
+              ? 'border-2 border-red-500 focus:ring-red-500 focus:border-red-500'
+              : 'border-2 border-gray-200 focus:border-[#00875A] focus:ring-[#00875A]'}  outline-none bg-gray-50 transition-colors`}
             />
           </div>
 
@@ -163,7 +178,9 @@ const cityOptions = [
                 placeholder="Enter your password"
                 value={formData.password}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3.5 pr-12 text-base border border-gray-200 rounded-xl outline-none bg-gray-50 focus:border-[#00875A] focus:ring-1 focus:ring-[#00875A] transition-colors"
+                className={`w-full px-4 py-3.5 pr-12 text-base border rounded-xl outline-none bg-gray-50 ${fieldErrors.password 
+              ? 'border-2 border-red-500 focus:ring-red-500 focus:border-red-500'
+              : 'border-2 border-gray-200 focus:border-[#00875A] focus:ring-[#00875A]'} transition-colors`}
               />
               <button
                 type="button"
@@ -187,7 +204,9 @@ const cityOptions = [
                 placeholder="Enter your password"
                 value={formData.confirm_password}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3.5 pr-12 text-base border border-gray-200 rounded-xl outline-none bg-gray-50 focus:border-[#00875A] focus:ring-1 focus:ring-[#00875A] transition-colors"
+                className={`w-full px-4 py-3.5 pr-12 text-base border ${fieldErrors.confirm_password 
+              ? 'border-2 border-red-500 focus:ring-red-500 focus:border-red-500'
+              : 'border-2 border-gray-200 focus:border-[#00875A] focus:ring-[#00875A]'} rounded-xl outline-none bg-gray-50 transition-colors`}
               />
               <button
                 type="button"
@@ -209,7 +228,9 @@ const cityOptions = [
               <button
                 type="button"
                 onClick={() => setShowGenderDropdown(!showGenderDropdown)}
-                className="w-full px-4 py-3.5 text-base border border-gray-200 rounded-xl bg-gray-50 text-left flex items-center justify-between focus:border-[#00875A] focus:ring-1 focus:ring-[#00875A] transition-colors"
+                className={`w-full px-4 py-3.5 text-base border rounded-xl bg-gray-50 text-left flex items-center justify-between ${fieldErrors.gender 
+              ? 'border-2 border-red-500 focus:ring-red-500 focus:border-red-500'
+              : 'border-2 border-gray-200 focus:border-[#00875A] focus:ring-[#00875A]'} transition-colors`}
               >
                 <span className={formData.gender ? 'text-gray-900' : 'text-gray-400'}>
                   {genderOptions.find(opt => opt.value === formData.gender)?.label || 'Select your gender'}
@@ -239,6 +260,7 @@ const cityOptions = [
                         type="button"
                         onClick={() => {
                           setFormData(prev => ({ ...prev, gender: option.value }));
+                          setFieldErrors({})
                           setShowGenderDropdown(false);
                         }}
                         className={`w-full px-4 py-3.5 text-left text-base transition-colors border-b border-gray-100 last:border-b-0 ${
@@ -266,10 +288,12 @@ const cityOptions = [
               <button
                 type="button"
                 onClick={() => setShowCityDropdown(!showCityDropdown)}
-                className="w-full px-4 py-3.5 text-base border border-gray-200 rounded-xl bg-gray-50 text-left flex items-center justify-between focus:border-[#00875A] focus:ring-1 focus:ring-[#00875A] transition-colors"
+                className={`w-full px-4 py-3.5 text-base border rounded-xl bg-gray-50 text-left flex items-center justify-between ${fieldErrors.governorate 
+              ? 'border-2 border-red-500 focus:ring-red-500 focus:border-red-500'
+              : 'border-2 border-gray-200 focus:border-[#00875A] focus:ring-[#00875A]'} transition-colors`}
               >
-                <span className={formData.city ? 'text-gray-900' : 'text-gray-400'}>
-                  {cityOptions.find(opt => opt.value === formData.governorate)?.label || 'Select your city'}
+                <span className={formData.governorate ? 'text-gray-900' : 'text-gray-400'}>
+                  {governorateOptions.find(opt => opt.value === formData.governorate)?.label || 'Select your city'}
                 </span>
                 <svg 
                   width="16" 
@@ -290,12 +314,13 @@ const cityOptions = [
                   />
                   
                   <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-lg z-20 overflow-hidden max-h-60 overflow-y-auto">
-                    {cityOptions.map((option) => (
+                    {governorateOptions.map((option) => (
                       <button
                         key={option.value}
                         type="button"
                         onClick={() => {
                           setFormData(prev => ({ ...prev, governorate: option.value }));
+                          setFieldErrors({})
                           setShowCityDropdown(false);
                         }}
                         className={`w-full px-4 py-3.5 text-left text-base transition-colors border-b border-gray-100 last:border-b-0 ${
@@ -336,7 +361,7 @@ const cityOptions = [
           </div>
 
           {error&&(
-          <div className="flex justify-center items-center text-red-600 font-semibold">
+          <div className="flex text-xs mb-5 justify-center items-center text-red-600 font-semibold">
             {error}
           </div>
         )}
@@ -344,7 +369,7 @@ const cityOptions = [
           {/* Submit Button */}
           <button
             onClick={()=>{
-              localAuth(setError , formData,navigate , setLoading)
+              localAuth(setError , formData,navigate , setLoading , false , setUser , setFieldErrors)
             }}
             className="w-full py-4 text-base font-semibold text-white bg-[#0A4D3C] rounded-full hover:bg-[#083d30] transition-colors mb-4"
           >

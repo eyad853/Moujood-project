@@ -1,100 +1,109 @@
 import React, { useState } from 'react';
-import { Search, Filter, RotateCcw, ChevronDown, ChevronLeft, ChevronRight, TrendingUp, Users as UsersIcon, UserCheck, UserX } from 'lucide-react';
+import { Search, Filter, RotateCcw, ChevronDown, ChevronLeft, ChevronRight, TrendingUp, Users, UserCheck, X, TrendingDown } from 'lucide-react';
+import { useEffect } from 'react';
+import Loadiing from '../../../components/Loadiing/Loadiing'
+import { getUserPageData } from '../../../api/super_admin_data';
+import { FaUser } from "react-icons/fa";
+import socket from '../../../Socket';
+
 
 const SA_Users = () => {
   const [activeTab, setActiveTab] = useState('Overview');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [filterBy, setFilterBy] = useState('');
+  const [filterType, setFilterType] = useState('');
+  const [filterValue, setFilterValue] = useState('');
+  const [users , setUsers]=useState([])
+  const [loading ,setLoading]=useState(false)
+  const [error , setError]=useState('')
+  const [totalPercantage , setTotalPercantage]=useState(0)
+  const [malePercantage , setMalePercantage]=useState(0)
+  const [femalePercantage , setFemalePercantage]=useState(0)
 
-  const tabs = ['Overview', 'Add New Notification', 'Offers', 'Segment', 'Custom'];
+  const tabs = ['Overview'];
 
-  // Fake users data
-  const users = [
-    {
-      id: 1,
-      user_id: '012343',
-      name: 'User Name',
-      email: 'User@gmail.com',
-      gender: 'male',
-      city: 'Cairo',
-      scans: 200,
-      location: 'Cairo',
-      avatar: 'https://ui-avatars.com/api/?name=User+Name&background=random'
-    },
-    {
-      id: 2,
-      user_id: '012343',
-      name: 'User Name',
-      email: 'User@gmail.com',
-      gender: 'female',
-      city: 'Cairo',
-      scans: 200,
-      location: 'Cairo',
-      avatar: 'https://ui-avatars.com/api/?name=User+Name&background=random'
-    },
-    {
-      id: 3,
-      user_id: '012343',
-      name: 'User Name',
-      email: 'User@gmail.com',
-      gender: 'male',
-      city: 'Cairo',
-      scans: 200,
-      location: 'Cairo',
-      avatar: 'https://ui-avatars.com/api/?name=User+Name&background=random'
-    },
-    {
-      id: 4,
-      user_id: '012343',
-      name: 'User Name',
-      email: 'User@gmail.com',
-      gender: 'female',
-      city: 'Cairo',
-      scans: 200,
-      location: 'Cairo',
-      avatar: 'https://ui-avatars.com/api/?name=User+Name&background=random'
-    },
-    {
-      id: 5,
-      user_id: '012343',
-      name: 'User Name',
-      email: 'User@gmail.com',
-      gender: 'male',
-      city: 'Cairo',
-      scans: 200,
-      location: 'Cairo',
-      avatar: 'https://ui-avatars.com/api/?name=User+Name&background=random'
-    },
-    {
-      id: 6,
-      user_id: '012343',
-      name: 'User Name',
-      email: 'User@gmail.com',
-      gender: 'female',
-      city: 'Cairo',
-      scans: 200,
-      location: 'Cairo',
-      avatar: 'https://ui-avatars.com/api/?name=User+Name&background=random'
-    },
+  const maleUsers = users.filter(user=>user.gender==='male')
+  const femaleUsers = users.filter(user=>user.gender==='female')
+
+  
+  // Egypt Governorates
+  const egyptGovernates = [
+    'Cairo', 'Alexandria', 'Giza', 'Qalyubia', 'Port Said', 'Suez', 
+    'Luxor', 'Aswan', 'Asyut', 'Beheira', 'Beni Suef', 'Dakahlia',
+    'Damietta', 'Faiyum', 'Gharbia', 'Ismailia', 'Kafr El Sheikh',
+    'Matrouh', 'Minya', 'Monufia', 'New Valley', 'North Sinai',
+    'Qena', 'Red Sea', 'Sharqia', 'Sohag', 'South Sinai'
   ];
+
+  useEffect(()=>{
+    const get=async()=>{
+        try{
+            setLoading(true)
+            await getUserPageData(setError , setUsers , setTotalPercantage , setMalePercantage , setFemalePercantage)
+        }catch(error){
+            setError(error)
+        }finally{
+            setLoading(false)
+        }
+    }
+    get()
+  },[])
+
+  useEffect(() => {
+  const onNewUser = (newUser) => {
+    setUsers(prev =>[newUser, ...prev]);
+  };
+
+  socket.on("newUser", onNewUser);
+
+  return () => {
+    socket.off("newUser", onNewUser);
+  };
+}, []);
+
+  if(loading){
+    return(
+        <Loadiing />
+    )
+  }
+
+  // Filter users based on search and filters
+  const filteredUsers = users.filter(user => {
+    // Search filter
+    const matchesSearch = 
+      user?.name.toLowerCase()?.includes(searchQuery.toLowerCase()) ||
+      user?.email.toLowerCase()?.includes(searchQuery.toLowerCase())
+    // Type filter
+    let matchesFilter = true;
+    if (filterType && filterValue) {
+      if (filterType === 'gender') {
+        matchesFilter = user.gender === filterValue;
+      } else if (filterType === 'governorate') {
+        matchesFilter = user.governorate === filterValue;
+      }
+    }
+
+    return matchesSearch && matchesFilter;
+  });
 
   // Statistics data
   const statistics = [
     {
       id: 1,
       title: 'Total User',
-      value: '40,689',
-      change: '8.5% Up from last Week',
-      icon: UsersIcon,
+      value: users.length,
+      change: Number(totalPercantage),
+      message: Number(totalPercantage)>0?'Up From Last Week':'Down From Last Week',
+      icon: Users,
       bgColor: 'bg-green-50',
       iconColor: 'text-green-600'
     },
     {
       id: 2,
       title: 'Total Women User',
-      value: '40,689',
-      change: '8.5% Up from last Week',
+      value: femaleUsers.length,
+      change: Number(femalePercantage),
+      message: Number(femalePercantage)>0?'Up From Last Week':'Down From Last Week',
       icon: UserCheck,
       bgColor: 'bg-pink-50',
       iconColor: 'text-pink-600'
@@ -102,19 +111,18 @@ const SA_Users = () => {
     {
       id: 3,
       title: 'Total Men User',
-      value: '40,689',
-      change: '8.5% Up from last Week',
+      value: maleUsers.length,
+      change: Number(malePercantage),
+      message: Number(malePercantage)>0?'Up From Last Week':'Down From Last Week',
       icon: UserCheck,
       bgColor: 'bg-blue-50',
       iconColor: 'text-blue-600'
     },
   ];
 
-  const totalPages = 78;
-  const itemsPerPage = 9;
-
   const handleResetFilters = () => {
-    setFilterBy('');
+    setFilterType('');
+    setFilterValue('');
     setSearchQuery('');
   };
 
@@ -148,21 +156,50 @@ const SA_Users = () => {
       {/* Filters and Search */}
       <div className="bg-white rounded-xl shadow-sm p-4 mb-6">
         <div className="flex flex-col sm:flex-row gap-4 mb-4">
-          {/* Filter By */}
+          {/* Filter Type Selection */}
           <div className="relative flex-1">
             <Filter size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <select
-              value={filterBy}
-              onChange={(e) => setFilterBy(e.target.value)}
+              value={filterType}
+              onChange={(e) => {
+                setFilterType(e.target.value);
+                setFilterValue('');
+              }}
               className="w-full pl-10 pr-10 py-2.5 border border-gray-200 rounded-lg outline-none focus:border-[#009842] focus:ring-1 focus:ring-[#009842] appearance-none bg-white text-sm"
             >
               <option value="">Filter By</option>
               <option value="gender">Gender</option>
-              <option value="location">Location</option>
-              <option value="scans">Scans</option>
+              <option value="governorate">Governorate</option>
             </select>
             <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
           </div>
+
+          {/* Filter Value Selection (appears after selecting filter type) */}
+          {filterType && (
+            <div className="relative flex-1">
+              <select
+                value={filterValue}
+                onChange={(e) => setFilterValue(e.target.value)}
+                className="w-full px-4 pr-10 py-2.5 border border-gray-200 rounded-lg outline-none focus:border-[#009842] focus:ring-1 focus:ring-[#009842] appearance-none bg-white text-sm"
+              >
+                <option value="">Select {filterType}</option>
+                
+                {/* Gender options */}
+                {filterType === 'gender' && (
+                  <>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                  </>
+                )}
+
+                {/* Governorate options */}
+                {filterType === 'governorate' && egyptGovernates.map(gov => (
+                  <option key={gov} value={gov}>{gov}</option>
+                ))}
+              </select>
+              <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+            </div>
+          )}
 
           {/* Reset Filter */}
           <button
@@ -174,12 +211,31 @@ const SA_Users = () => {
           </button>
         </div>
 
+        {/* Active Filters Display */}
+        {(filterType && filterValue) && (
+          <div className="flex flex-wrap gap-2 mb-4">
+            <div className="flex items-center gap-2 bg-[#009842] text-white px-3 py-1.5 rounded-full text-sm">
+              <span className="font-medium capitalize">{filterType}:</span>
+              <span>{filterValue}</span>
+              <button
+                onClick={() => {
+                  setFilterType('');
+                  setFilterValue('');
+                }}
+                className="hover:bg-white/20 rounded-full p-0.5 transition-colors"
+              >
+                <X size={14} />
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Search */}
         <div className="relative">
           <Search size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
-            placeholder="Search"
+            placeholder="Search by name, email, or ID"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg outline-none focus:border-[#009842] focus:ring-1 focus:ring-[#009842] text-sm"
@@ -187,7 +243,7 @@ const SA_Users = () => {
         </div>
       </div>
 
-      <div className="flex flex-col xl:flex-row gap-6">
+      <div className="flex  xl:flex-row gap-6">
         {/* Users List */}
         <div className="flex-1">
           <div className="bg-white rounded-xl shadow-sm overflow-hidden">
@@ -195,80 +251,63 @@ const SA_Users = () => {
             <div className="grid grid-cols-12 gap-4 px-4 sm:px-6 py-4 bg-gray-50 border-b border-gray-200">
               <div className="col-span-3 text-sm font-semibold text-gray-700">User</div>
               <div className="col-span-2 text-sm font-semibold text-gray-700">User ID</div>
-              <div className="col-span-2 text-sm font-semibold text-gray-700">Scans</div>
-              <div className="col-span-2 text-sm font-semibold text-gray-700">Location</div>
-              <div className="col-span-3 text-sm font-semibold text-gray-700">Email</div>
+              <div className="col-span-3 text-sm font-semibold text-gray-700">Location</div>
+              <div className="col-span-4 text-sm font-semibold text-gray-700">Email</div>
             </div>
 
             {/* Users Items */}
             <div className="divide-y divide-gray-200">
-              {users.map((user) => (
-                <div
-                  key={user.id}
-                  className="grid grid-cols-12 gap-4 px-4 sm:px-6 py-4 hover:bg-gray-50 transition-colors items-center"
-                >
-                  {/* User */}
-                  <div className="col-span-3">
-                    <div className="flex items-center gap-2 sm:gap-3">
-                      <img
-                        src={user.avatar}
-                        alt={user.name}
-                        className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex-shrink-0"
-                      />
-                      <span className="font-medium text-gray-900 text-sm truncate">{user.name}</span>
+              {filteredUsers.length > 0 ? (
+                filteredUsers.map((user) => (
+                  <div
+                    key={user.id}
+                    className="grid grid-cols-12 gap-4 px-4 sm:px-6 py-4 hover:bg-gray-50 transition-colors items-center"
+                  >
+                    {/* User */}
+                    <div className="col-span-3">
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="w-10 overflow-hidden h-10 rounded-full border border-neutral-300">
+                          {user.avatar?(
+                            <img
+                            src={user.avatar}
+                            className="w-full h-full rounded-full "
+                          />):(
+                            <div className="w-full overflow-hidden h-full flex justify-center items-end">
+                              <FaUser size={30}/>
+                            </div>
+                          )}
+                        </div>
+                        <span className="font-medium text-gray-900 text-sm truncate">{user.name}</span>
+                      </div>
+                    </div>
+
+                    {/* User ID */}
+                    <div className="col-span-2">
+                      <span className="text-sm text-gray-600">ID: {user.id}</span>
+                    </div>
+
+                    {/* Location */}
+                    <div className="col-span-3">
+                      <span className="text-sm text-gray-600">{user.governorate}</span>
+                    </div>
+
+                    {/* Email */}
+                    <div className="col-span-4">
+                      <span className="text-sm text-gray-600 ">{user.email}</span>
                     </div>
                   </div>
-
-                  {/* User ID */}
-                  <div className="col-span-2">
-                    <span className="text-sm text-gray-600">ID: {user.user_id}</span>
-                  </div>
-
-                  {/* Scans */}
-                  <div className="col-span-2">
-                    <span className="text-sm text-gray-900 font-medium">{user.scans}</span>
-                  </div>
-
-                  {/* Location */}
-                  <div className="col-span-2">
-                    <span className="text-sm text-gray-600">{user.location}</span>
-                  </div>
-
-                  {/* Email */}
-                  <div className="col-span-3">
-                    <span className="text-sm text-gray-600 truncate">{user.email}</span>
-                  </div>
+                ))
+              ) : (
+                <div className="px-6 py-12 text-center">
+                  <p className="text-gray-500 text-sm">No users found matching your criteria</p>
                 </div>
-              ))}
-            </div>
-
-            {/* Pagination */}
-            <div className="px-4 sm:px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4">
-              <span className="text-sm text-gray-600 text-center sm:text-left">
-                Showing 1-09 of {totalPages}
-              </span>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                  disabled={currentPage === 1}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <ChevronLeft size={20} className="text-gray-600" />
-                </button>
-                <button
-                  onClick={() => setCurrentPage(Math.min(Math.ceil(totalPages / itemsPerPage), currentPage + 1))}
-                  disabled={currentPage === Math.ceil(totalPages / itemsPerPage)}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <ChevronRight size={20} className="text-gray-600" />
-                </button>
-              </div>
+              )}
             </div>
           </div>
         </div>
 
         {/* Statistics Cards */}
-        <div className="w-full xl:w-80 flex flex-col gap-4">
+        <div className="w-50 xl:w-80 flex flex-col gap-4">
           {statistics.map((stat) => {
             const Icon = stat.icon;
             return (
@@ -280,10 +319,10 @@ const SA_Users = () => {
                   </div>
                 </div>
                 <p className="text-3xl font-bold text-gray-900 mb-2">{stat.value}</p>
-                <div className="flex items-center gap-1 text-sm text-green-600">
-                  <TrendingUp size={16} />
-                  <span>{stat.change}</span>
-                </div>
+                {stat.change!=0&&(<div className={`flex items-center gap-1 text-sm ${stat.change > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {stat.change>0?<TrendingUp size={16} />:<TrendingDown size={16}/>}
+                  <span>{stat.change}%</span>
+                </div>)}
               </div>
             );
           })}

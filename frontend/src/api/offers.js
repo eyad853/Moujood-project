@@ -16,15 +16,20 @@ export const addOffer = async (setError, setOffers, formData, imagePreview , set
     };
 
     setOffers(prev => [...prev, tempOffer]);
-    setTotalOffers?.(prev=>prev+1)
+    if(setTotalOffers){
+        setTotalOffers(prev=>prev+1)
+    }
 
-    setCategories(prev => {
-        const exists = prev.some(cat => Number(cat.id) === selectedCategory.id);
-        if (!exists) {
-            return [...prev, selectedCategory];
-        }
-        return prev;
-    });
+    if(setCategories){
+        setCategories(prev => {
+            const exists = prev.some(cat => Number(cat.id) === Number(selectedCategory.id));
+            if (!exists) {
+                return [...prev, selectedCategory];
+            }
+            return prev;
+        });
+    }
+
 
     // Build FormData for backend
     const fd = new FormData();
@@ -60,7 +65,7 @@ export const addOffer = async (setError, setOffers, formData, imagePreview , set
         setTotalOffers?.(prev=>prev-1)
 
         setCategories(prev => {
-            const wasNew = !prev.some(cat => Number(cat.id) === selectedCategory.id);
+            const wasNew = !prev.some(cat => Number(cat.id) === Number(selectedCategory.id));
             if (wasNew) {
                 return prev.filter(cat => cat.id !== selectedCategory.id);
             }
@@ -80,10 +85,13 @@ export const editOffer = async (setError, offerId, setOffers, formData, imagePre
     let oldCategories;
     const selectedCategory = formData.category;
 
-    setCategories(prev => {
-            oldCategories = [...prev];
-            return prev;
-    });
+    if(setCategories){
+        setCategories(prev => {
+                oldCategories = [...prev];
+                return prev;
+        });
+    }
+
 
     // TEMP optimistic UI
     setOffers(prev => {
@@ -97,7 +105,7 @@ export const editOffer = async (setError, offerId, setOffers, formData, imagePre
                     description: formData.description,
                     offer_price_before: formData.priceBeforeOffer,
                     offer_price_after: formData.priceAfterOffer,
-                    category: formData.category,
+                    category: formData.category.id,
                     image: imagePreview ? imagePreview : o.image
                 };
             }
@@ -107,14 +115,14 @@ export const editOffer = async (setError, offerId, setOffers, formData, imagePre
         // Update categories based on the updated offers
         if (setCategories && oldOffer && oldOffer.category !== formData.category) {
             const oldCategoryId = oldOffer.category;
-            const newCategoryId = formData.category;
+            const newCategoryId = formData.category.id;
 
             setCategories(prevCats => {
                 let cats = [...prevCats];
 
                 // Add new category if it doesn't exist
-                if (selectedCategoryData && !cats.some(cat => cat.id === newCategoryId)) {
-                    cats.push(selectedCategoryData);
+                if (selectedCategory && !cats.some(cat => cat.id === newCategoryId)) {
+                    cats.push(selectedCategory);
                 }
 
                 // Check if old category is still used by other offers
@@ -141,7 +149,7 @@ export const editOffer = async (setError, offerId, setOffers, formData, imagePre
     fd.append("description", formData.description);
     fd.append("offer_price_before", Number(formData.priceBeforeOffer));
     fd.append("offer_price_after", Number(formData.priceAfterOffer));
-    fd.append("category", formData.category.id);
+    fd.append("category", formData.category?.id ?? formData.category);
     if (formData.image) {
         fd.append("image", formData.image);
     }
@@ -157,10 +165,24 @@ export const editOffer = async (setError, offerId, setOffers, formData, imagePre
 
         // Replace temp with real
         setOffers(prev =>
-            prev.map(o =>
-                o.offer_id === offerId ? response.data : o
-            )
-        );
+  prev.map(o => {
+    if (o.offer_id === offerId) {
+      // Only keep the fields your frontend expects
+      const updatedOffer = response.data;
+      return {
+        ...o,
+        offer_id: updatedOffer.offer_id,
+        title: updatedOffer.title,
+        description: updatedOffer.description,
+        image: updatedOffer.image,
+        offer_price_before: updatedOffer.offer_price_before,
+        offer_price_after: updatedOffer.offer_price_after,
+        category: updatedOffer?.category
+      };
+    }
+    return o;
+  })
+);
 
     } catch (err) {
         // rollback
@@ -249,6 +271,27 @@ export const deleteOffer = async (setError, setOffers, offerId , setCategories) 
         else if (err.message) setError(err.message);
         else setError("Something went wrong");
     }
+};
+
+export const getOfferSheet = async (offer_id, setOffer , setMarkers , setError) => {
+  try {
+
+    const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/offers/getOfferSheet/${offer_id}`);
+    console.log(data);
+
+    setOffer(data.offer); // assuming your API returns { offer: {...} }
+    if(setMarkers){
+        setMarkers(data.markers)
+    }
+  } catch (err) {
+    if (err.response?.data?.message) {
+      setError(err.response.data.message);
+    } else if (err.message) {
+      setError(err.message);
+    } else {
+      setError("Something went wrong");
+    }
+  }
 };
 
 

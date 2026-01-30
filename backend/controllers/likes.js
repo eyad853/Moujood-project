@@ -1,7 +1,6 @@
 import { pool } from "../index.js";
 
 export const createLike = async (req, res) => {
-  const io = req.app.get("io");
   const user_id = req.user.id;
   const { offer_id } = req.params;
 
@@ -24,13 +23,6 @@ export const createLike = async (req, res) => {
 
     const newLike = result.rows[0];
 
-    // Emit to sockets
-    io.emit("offer_like", {
-        type: "like_added",
-        offer_id,
-        user_id,
-    });
-
     res.status(201).json({ message: "like_added", like: newLike });
 
   } catch (err) {
@@ -40,9 +32,8 @@ export const createLike = async (req, res) => {
 };
 
 export const deleteLike = async (req, res) => {
-  const io = req.app.get("io");
   const user_id = req.user.id;
-  const { offer_id } = req.body;
+  const { offer_id } = req.params;
 
   try {
     const result = await pool.query(
@@ -57,13 +48,6 @@ export const deleteLike = async (req, res) => {
     if (result.rowCount === 0) {
       return res.status(404).json({ message: "not_liked_yet" });
     }
-
-    // Emit socket event
-    io.to(`offer_${offer_id}`).emit("offer_like", {
-      type: "like_removed",
-      offer_id,
-      user_id,
-    });
 
     res.status(200).json({ message: "like_removed" });
 

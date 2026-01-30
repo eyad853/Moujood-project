@@ -7,16 +7,8 @@ import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import MapModal from '../../../components/modals/MapModal/MapModal';
-
-// Custom green marker icon
-const greenIcon = new L.Icon({
-  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
-});
+import { useMapProvider } from '../../../context/mapContext';
+import { useUser } from '../../../context/userContext';
 
 const BusinessSignup = () => {
   const navigate = useNavigate();
@@ -24,51 +16,71 @@ const BusinessSignup = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({})
   const [logoPreview, setLogoPreview] = useState(null);
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [categories, setCategories] = useState([]);
-  const [showMapModal, setShowMapModal] = useState(false);
-  const [userLocation, setUserLocation] = useState(null);
-  const [markers, setMarkers] = useState([]);
-  
+  const {showMapModal,setShowMapModal,markers,setMarkers , userLocation, setUserLocation}=useMapProvider()
+  const {setUser} = useUser()
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
     confirm_password: '',
-    businessCategory: '',
-    businessLogo: null,
-    businessDescription: '',
-    addressOne: '',
-    addressTwo: '',
-    businessPhone: '',
+    category: '',
+    logo: null,
+    description: '',
+    number: '',
     acceptTerms: false,
     locations: [] // Array of {lat, lng}
   });
 
-  useEffect(() => {
-    getAllCategories(setError, setCategories);
-  }, []);
 
-  // Get user's current location
   useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setUserLocation({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-          });
-        },
-        (error) => {
-          console.error('Error getting location:', error);
-          setUserLocation({ lat: 30.0444, lng: 31.2357 }); // Default to Cairo
-        }
-      );
+  const setLocation = (lat, lng) => {
+    setUserLocation({ lat, lng });
+  };
+
+  const DEFAULT_LOCATION = { lat: 30.0444, lng: 31.2357 };
+
+  if (!navigator.geolocation) {
+    if (markers?.length > 0) {
+      setLocation(markers[0].lat, markers[0].lng);
     } else {
-      setUserLocation({ lat: 30.0444, lng: 31.2357 }); // Default to Cairo
+      setLocation(DEFAULT_LOCATION.lat, DEFAULT_LOCATION.lng);
     }
-  }, []);
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      setLocation(
+        position.coords.latitude,
+        position.coords.longitude
+      );
+    },
+    () => {
+      // Geolocation denied / failed
+      if (markers?.length > 0) {
+        setLocation(markers[0].lat, markers[0].lng);
+      } else {
+        setLocation(DEFAULT_LOCATION.lat, DEFAULT_LOCATION.lng);
+      }
+    }
+  );
+}, [markers]);
+
+
+  useEffect(()=>{
+    const get= async()=>{
+    try{
+      await getAllCategories(setError , setCategories)
+    }catch(error){
+      setError(error)
+    }}
+
+    get()
+  }, [])
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -76,16 +88,22 @@ const BusinessSignup = () => {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
+
+    setFieldErrors(prev => ({
+    ...prev,
+    [name]: false
+  }));
   };
 
   const handleLogoUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setFormData(prev => ({ ...prev, businessLogo: file }));
-      const previewUrl = URL.createObjectURL(file);
-      setLogoPreview(previewUrl);
-    }
-  };
+  const file = e.target.files[0];
+  if (file) {
+    setFormData(prev => ({ ...prev, logo: file }));
+    setFieldErrors(prev => ({ ...prev, logo: false })); // <-- clear error
+    const previewUrl = URL.createObjectURL(file);
+    setLogoPreview(previewUrl);
+  }
+};
 
   const handleOpenMap = () => {
     setMarkers(formData.locations);
@@ -151,12 +169,14 @@ const BusinessSignup = () => {
               width: '100%',
               padding: '14px 16px',
               fontSize: '15px',
-              border: '1px solid #e0e0e0',
               borderRadius: '12px',
               outline: 'none',
               boxSizing: 'border-box',
               backgroundColor: '#fafafa'
             }}
+            className={`${fieldErrors.name 
+              ? 'border-2 border-red-500 focus:ring-red-500 focus:border-red-500'
+              : 'border-2 border-gray-200 focus:border-[#00875A] focus:ring-[#00875A]'}`}
           />
         </div>
 
@@ -181,12 +201,14 @@ const BusinessSignup = () => {
               width: '100%',
               padding: '14px 16px',
               fontSize: '15px',
-              border: '1px solid #e0e0e0',
               borderRadius: '12px',
               outline: 'none',
               boxSizing: 'border-box',
               backgroundColor: '#fafafa'
             }}
+            className={`${fieldErrors.email 
+              ? 'border-2 border-red-500 focus:ring-red-500 focus:border-red-500'
+              : 'border-2 border-gray-200 focus:border-[#00875A] focus:ring-[#00875A]'}`}
           />
         </div>
 
@@ -212,12 +234,14 @@ const BusinessSignup = () => {
                 width: '100%',
                 padding: '14px 50px 14px 16px',
                 fontSize: '15px',
-                border: '1px solid #e0e0e0',
                 borderRadius: '12px',
                 outline: 'none',
                 boxSizing: 'border-box',
                 backgroundColor: '#fafafa'
               }}
+              className={`${fieldErrors.password 
+              ? 'border-2 border-red-500 focus:ring-red-500 focus:border-red-500'
+              : 'border-2 border-gray-200 focus:border-[#00875A] focus:ring-[#00875A]'}`}
             />
             <button
               type="button"
@@ -263,12 +287,14 @@ const BusinessSignup = () => {
                 width: '100%',
                 padding: '14px 50px 14px 16px',
                 fontSize: '15px',
-                border: '1px solid #e0e0e0',
                 borderRadius: '12px',
                 outline: 'none',
                 boxSizing: 'border-box',
                 backgroundColor: '#fafafa'
               }}
+              className={`${fieldErrors.confirm_password 
+              ? 'border-2 border-red-500 focus:ring-red-500 focus:border-red-500'
+              : 'border-2 border-gray-200 focus:border-[#00875A] focus:ring-[#00875A]'}`}
             />
             <button
               type="button"
@@ -303,19 +329,22 @@ const BusinessSignup = () => {
             <button
               type="button"
               onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
-              className="w-full px-4 py-4 border border-gray-200 rounded-2xl bg-[#fafafa] hover:bg-gray-50 transition-all shadow-sm hover:shadow-md flex items-center justify-between group"
+              className={`w-full px-4 py-4 border ${fieldErrors.category 
+              ? 'border-2 border-red-500 focus:ring-red-500 focus:border-red-500'
+              : 'border-2 border-gray-200 focus:border-[#00875A] focus:ring-[#00875A]'} 
+              rounded-2xl bg-[#fafafa] hover:bg-gray-50 transition-all shadow-sm hover:shadow-md flex items-center justify-between group`}
             >
               <div className="flex items-center gap-3">
-                {formData.businessCategory ? (
+                {formData.category ? (
                   <>
                     <div className="w-10 h-10 rounded-xl bg-[#009842] flex items-center justify-center overflow-hidden">
                       <img 
-                        src={categories.find(cat => cat.id === formData.businessCategory)?.image} 
+                        src={categories.find(cat => cat.id === formData.category)?.image} 
                         className="w-full h-full object-contain"
                       />
                     </div>
                     <span className="text-gray-900 font-medium text-[15px]">
-                      {categories.find(cat => cat.id === formData.businessCategory)?.name}
+                      {categories.find(cat => cat.id === formData.category)?.name}
                     </span>
                   </>
                 ) : (
@@ -350,17 +379,18 @@ const BusinessSignup = () => {
                         key={category.id}
                         type="button"
                         onClick={() => {
-                          setFormData(prev => ({ ...prev, businessCategory: category.id }));
+                          setFormData(prev => ({ ...prev, category: category.id }));
+                          setFieldErrors(prev => ({ ...prev, category: false }));
                           setShowCategoryDropdown(false);
                         }}
                         className={`w-full px-4 py-3.5 rounded-xl text-left flex items-center gap-3 transition-all mb-1 last:mb-0 ${
-                          formData.businessCategory === category.id 
+                          formData.category === category.id 
                             ? 'bg-[#009842] text-white shadow-md scale-[1.02]' 
                             : 'hover:bg-gray-50 text-gray-900 hover:scale-[1.01]'
                         }`}
                       >
                         <div className={`w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden ${
-                          formData.businessCategory === category.id ? 'bg-white/20' : 'bg-[#009842]'
+                          formData.category === category.id ? 'bg-white/20' : 'bg-[#009842]'
                         }`}>
                           <img 
                             src={category.image} 
@@ -369,11 +399,11 @@ const BusinessSignup = () => {
                           />
                         </div>
                         <span className={`font-medium text-[15px] ${
-                          formData.businessCategory === category.id ? 'text-white' : 'text-gray-900'
+                          formData.category === category.id ? 'text-white' : 'text-gray-900'
                         }`}>
                           {category.name}
                         </span>
-                        {formData.businessCategory === category.id && (
+                        {formData.category === category.id && (
                           <svg className="ml-auto" width="20" height="20" viewBox="0 0 20 20" fill="none">
                             <path d="M7 10L9 12L13 8" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                           </svg>
@@ -416,7 +446,7 @@ const BusinessSignup = () => {
                 width: '100%',
                 padding: '14px 16px',
                 fontSize: '15px',
-                border: '1px solid #e0e0e0',
+                border: fieldErrors.logo ? '2px solid red' : '1px solid #e0e0e0',
                 borderRadius: '12px',
                 boxSizing: 'border-box',
                 backgroundColor: '#fafafa',
@@ -424,7 +454,7 @@ const BusinessSignup = () => {
                 color: '#999'
               }}
             >
-              <span>{formData.businessLogo ? formData.businessLogo.name : 'Upload Your Logo'}</span>
+              <span>{formData.logo ? formData.logo.name : 'Upload Your Logo'}</span>
               <Upload size={20} color="#666" />
             </label>
           </div>
@@ -458,16 +488,15 @@ const BusinessSignup = () => {
             Business Description
           </label>
           <textarea
-            name="businessDescription"
+            name="description"
             placeholder="Describe your Business"
-            value={formData.businessDescription}
+            value={formData.description}
             onChange={handleInputChange}
             rows="4"
             style={{
               width: '100%',
               padding: '14px 16px',
               fontSize: '15px',
-              border: '1px solid #e0e0e0',
               borderRadius: '12px',
               outline: 'none',
               boxSizing: 'border-box',
@@ -475,54 +504,9 @@ const BusinessSignup = () => {
               resize: 'vertical',
               fontFamily: 'inherit'
             }}
-          />
-        </div>
-
-        {/* Business Address */}
-        <div style={{ marginBottom: '20px' }}>
-          <label style={{ 
-            display: 'block', 
-            fontSize: '14px', 
-            fontWeight: '600', 
-            marginBottom: '8px',
-            color: '#1a1a1a'
-          }}>
-            Business Address/es
-          </label>
-          <input
-            type="text"
-            name="addressOne"
-            placeholder="-Address One"
-            value={formData.addressOne}
-            onChange={handleInputChange}
-            style={{
-              width: '100%',
-              padding: '14px 16px',
-              fontSize: '15px',
-              border: '1px solid #e0e0e0',
-              borderRadius: '12px',
-              outline: 'none',
-              boxSizing: 'border-box',
-              backgroundColor: '#fafafa',
-              marginBottom: '10px'
-            }}
-          />
-          <input
-            type="text"
-            name="addressTwo"
-            placeholder="-Address Two"
-            value={formData.addressTwo}
-            onChange={handleInputChange}
-            style={{
-              width: '100%',
-              padding: '14px 16px',
-              fontSize: '15px',
-              border: '1px solid #e0e0e0',
-              borderRadius: '12px',
-              outline: 'none',
-              boxSizing: 'border-box',
-              backgroundColor: '#fafafa'
-            }}
+            className={`${fieldErrors.description 
+              ? 'border-2 border-red-500 focus:ring-red-500 focus:border-red-500'
+              : 'border-2 border-gray-200 focus:border-[#00875A] focus:ring-[#00875A]'}`}
           />
         </div>
 
@@ -593,20 +577,22 @@ const BusinessSignup = () => {
           </label>
           <input
             type="tel"
-            name="businessPhone"
+            name="number"
             placeholder="Enter you Business phone Number"
-            value={formData.businessPhone}
+            value={formData.number}
             onChange={handleInputChange}
             style={{
               width: '100%',
               padding: '14px 16px',
               fontSize: '15px',
-              border: '1px solid #e0e0e0',
               borderRadius: '12px',
               outline: 'none',
               boxSizing: 'border-box',
               backgroundColor: '#fafafa'
             }}
+            className={`${fieldErrors.number 
+              ? 'border-2 border-red-500 focus:ring-red-500 focus:border-red-500'
+              : 'border-2 border-gray-200 focus:border-[#00875A] focus:ring-[#00875A]'}`}
           />
         </div>
 
@@ -640,7 +626,7 @@ const BusinessSignup = () => {
         </div>
 
         {error&&(
-          <div className="flex justify-center items-center text-red-600 font-semibold">
+          <div className="flex text-sm mb-5 justify-center items-center text-red-600 font-semibold">
             {error}
           </div>
         )}
@@ -648,7 +634,7 @@ const BusinessSignup = () => {
         {/* Submit Button */}
         <button
           onClick={()=>{
-            businessAuth(setError, formData , navigate , setLoading )
+            businessAuth(setError, formData , navigate , setLoading , setUser , setFieldErrors)
           }}
           style={{
             width: '100%',
@@ -680,16 +666,15 @@ const BusinessSignup = () => {
         </div>
       </div>
 
-      <MapModal 
+      {showMapModal&&(<MapModal 
       showMapModal={showMapModal} 
       setShowMapModal={setShowMapModal}
       userLocation={userLocation}
       markers={markers}
-      setMarkers={setMarkers}
       handleSaveLocations={handleSaveLocations}
       handleAddMarker={handleAddMarker}
       handleRemoveMarker={handleRemoveMarker}
-      />
+      />)}
     </div>
   );
 };

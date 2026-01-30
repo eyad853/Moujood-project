@@ -411,7 +411,7 @@ const SA_Categories = () => {
         
           </>
         ):(
-          <div className=" flex justify-center bg-neutral-50 items-center text-md font-bold text-gray-600">There's Not Any Categories Yet...</div>
+          <div className="flex justify-center items-center  font-bold text-gray-500">There's Not Any Categories Yet...</div>
         )}
       </div>
     </div>

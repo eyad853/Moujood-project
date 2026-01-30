@@ -1,53 +1,136 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Search, Bell, ChevronRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import Loadiing from '../../../components/Loadiing/Loadiing';
+import { getAds } from '../../../api/ads';
+import {getAllCategories} from '../../../api/categories'
+import { fetchNotificationCount } from '../../../api/notifications';
+import { useUser } from '../../../context/userContext';
 
 const C_Categories = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
+  // const [categories , setCategories]=useState([])
+  const [ads , setAds]=useState([])
+  const [loading , setLoading]=useState(false)
+  const [error , setError]=useState('')
+  const [categories , setCategories]=useState([])
+  const [notificationsCount , setNotificationsCount] = useState(0)
+  const {user}=useUser()
+  const [currentSlide, setCurrentSlide] = useState(1);
+  const [sliderElement, setSliderElement] = useState(null);
+  const isJumpingRef = useRef(false)
+  const [isSliderInitialized, setIsSliderInitialized] = useState(false);
 
-  // Fake categories data based on updated schema
-  const categories = [
-    { id: 1, name: 'Transportation', icon: '🚗', parent_id: null },
-    { id: 2, name: 'Healthcare', icon: '⚕️', parent_id: null },
-    { id: 3, name: 'Shopping', icon: '🛍️', parent_id: null },
-    { id: 4, name: 'Services', icon: '🔧', parent_id: null },
-    { id: 5, name: 'Entertainment', icon: '🎬', parent_id: null },
-    { id: 6, name: 'Food ', icon: '🍔', parent_id: null },
-  ];
+const extendedAds = ads.length
+  ? [ads[ads.length - 1], ...ads, ads[0]]
+  : [];
 
-  // Fake brands data - 10 brands
-  const brands = [
-    { id: 1, name: 'Brand Name', category: 'Category', image: '/brand1.jpg' },
-    { id: 2, name: 'Brand Name', category: 'Category', image: '/brand2.jpg' },
-    { id: 3, name: 'Brand Name', category: 'Category', image: '/brand3.jpg' },
-    { id: 4, name: 'Brand Name', category: 'Category', image: '/brand4.jpg' },
-    { id: 5, name: 'Brand Name', category: 'Category', image: '/brand5.jpg' },
-    { id: 6, name: 'Brand Name', category: 'Category', image: '/brand6.jpg' },
-    { id: 7, name: 'Brand Name', category: 'Category', image: '/brand7.jpg' },
-    { id: 8, name: 'Brand Name', category: 'Category', image: '/brand8.jpg' },
-    { id: 9, name: 'Brand Name', category: 'Category', image: '/brand9.jpg' },
-    { id: 10, name: 'Brand Name', category: 'Category', image: '/brand10.jpg' },
-  ];
+  const realIndex =
+  currentSlide === 0
+    ? ads.length - 1
+    : currentSlide === extendedAds.length - 1
+    ? 0
+    : currentSlide - 1;
 
-  // Fake featured offers for slider - 5 slides
-  const featuredOffers = [
-    { id: 1, image: '/featured1.jpg', title: 'Featured Offer 1' },
-    { id: 2, image: '/featured2.jpg', title: 'Featured Offer 2' },
-    { id: 3, image: '/featured3.jpg', title: 'Featured Offer 3' },
-    { id: 4, image: '/featured4.jpg', title: 'Featured Offer 4' },
-    { id: 5, image: '/featured5.jpg', title: 'Featured Offer 5' },
-  ];
+const canAutoScroll = ads.length > 1;
 
-  const [currentSlide, setCurrentSlide] = useState(0);
+  
+  
 
-  // Handle scroll for slider
-  const handleSliderScroll = (e) => {
-    const scrollPosition = e.target.scrollLeft;
-    const slideWidth = e.target.offsetWidth;
-    const newSlide = Math.round(scrollPosition / slideWidth);
-    setCurrentSlide(newSlide);
-  };
+  useEffect(()=>{
+    const get = async ()=>{
+      try{
+        setLoading(true)
+        // await getAllCategories(setError , setCategories)
+        await getAds(setError , setAds)
+        await getAllCategories(setError , setCategories)
+        await fetchNotificationCount(user?.accountType , setNotificationsCount , setError)
+      }catch(error){
+        setError(error)
+      }finally{
+        setLoading(false)
+      }
+    }
+    get()
+  },[user])
+
+useEffect(() => {
+  if (!extendedAds.length || !sliderElement || isSliderInitialized) return;
+
+  console.log('Initializing slider');
+  sliderElement.scrollLeft = sliderElement.offsetWidth;
+  setCurrentSlide(1);
+  setIsSliderInitialized(true);
+}, [extendedAds.length, sliderElement, isSliderInitialized]);
+
+
+
+const handleSliderScroll = () => {
+  if (!sliderElement || isJumpingRef.current) return;
+
+  const slideWidth = sliderElement.offsetWidth;
+  const index = Math.round(sliderElement.scrollLeft / slideWidth);
+
+  if (index === 0) {
+    isJumpingRef.current = true;
+    sliderElement.scrollLeft = slideWidth * (extendedAds.length - 2);
+    setCurrentSlide(extendedAds.length - 2);
+    setTimeout(() => { isJumpingRef.current = false; }, 50);
+    return;
+  }
+
+  if (index === extendedAds.length - 1) {
+    isJumpingRef.current = true;
+    sliderElement.scrollLeft = slideWidth;
+    setCurrentSlide(1);
+    setTimeout(() => { isJumpingRef.current = false; }, 50);
+    return;
+  }
+
+  setCurrentSlide(index);
+};
+
+// Replace your auto-scroll useEffect with this debugged version:
+
+useEffect(() => {
+  if (!extendedAds.length || !sliderElement || !isSliderInitialized || !canAutoScroll) {
+    console.log('Auto-scroll waiting...', { 
+      ads: extendedAds.length, 
+      element: !!sliderElement, 
+      init: isSliderInitialized 
+    });
+    return;
+  }
+
+  console.log('✅ Starting auto-scroll');
+
+  const interval = setInterval(() => {
+    if (isJumpingRef.current || !sliderElement) return;
+
+    console.log('Scrolling from', currentSlide, 'to', currentSlide + 1);
+
+    sliderElement.scrollTo({
+      left: (currentSlide + 1) * sliderElement.offsetWidth,
+      behavior: 'smooth',
+    });
+  }, 3000);
+
+  return () => clearInterval(interval);
+}, [currentSlide, extendedAds.length, isSliderInitialized, sliderElement])
+
+
+  if(loading){
+    return (
+      <div className="fixed inset-0">
+        <Loadiing />
+      </div>
+    )
+  }
+
+   const filteredCategories = categories.filter(category =>
+    category.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
@@ -67,9 +150,10 @@ const C_Categories = () => {
           {/* Notification Bell */}
           <div className="relative">
             <Bell size={24} className="text-gray-700" />
-            <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#009842] text-white text-xs rounded-full flex items-center justify-center">
-              9
-            </span>
+            {notificationsCount>0&&
+            (<span className="absolute -top-1 -right-1 w-5 h-5 bg-[#009842] text-white text-xs rounded-full flex items-center justify-center">
+              {notificationsCount}
+            </span>)}
           </div>
         </div>
 
@@ -91,23 +175,18 @@ const C_Categories = () => {
         {/* Featured Slider */}
         <div className="mb-6 relative">
           <div 
+            ref={setSliderElement}
             className="flex gap-3 overflow-x-auto snap-x snap-mandatory hide-scrollbar scroll-smooth"
             onScroll={handleSliderScroll}
           >
-            {featuredOffers.map((offer) => (
+            {extendedAds.map((ad , index) => (
               <div
-                key={offer.id}
+                key={`${ad.id}-${index}`}
                 className="flex-shrink-0 w-full snap-center"
               >
-                <div className="bg-gradient-to-br from-[#009842] to-[#007a36] rounded-2xl h-52 flex items-center justify-center overflow-hidden">
+                <div className="bg-gradient-to-br from-[#009842] to-[#007a36] rounded-2xl aspect-square flex items-center justify-center overflow-hidden">
                   {/* Placeholder for featured content */}
-                  <div className="text-white text-center">
-                    <div className="w-20 h-20 bg-white/20 rounded-2xl mx-auto mb-3 flex items-center justify-center">
-                      <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                  </div>
+                  <img src={ad.image} className='w-full h-full object-cover'/>
                 </div>
               </div>
             ))}
@@ -115,18 +194,20 @@ const C_Categories = () => {
 
           {/* Slider Dots */}
           <div className="flex justify-center gap-2 mt-3">
-            {featuredOffers.map((_, index) => (
+            {ads.map((_, index) => (
               <button
                 key={index}
                 onClick={() => {
-                  setCurrentSlide(index);
-                  document.querySelector('.snap-x').scrollTo({
-                    left: index * document.querySelector('.snap-x').offsetWidth,
+                  if (!sliderElement) return;
+                  const slideIndex = index + 1;
+                  setCurrentSlide(slideIndex);
+                  sliderElement.scrollTo({
+                    left: slideIndex * sliderElement.offsetWidth,
                     behavior: 'smooth'
                   });
                 }}
                 className={`w-2 h-2 rounded-full transition-all ${
-                  index === currentSlide ? 'bg-[#009842] w-6' : 'bg-gray-300'
+                  index === realIndex ? 'bg-[#009842] w-6' : 'bg-gray-300'
                 }`}
               />
             ))}
@@ -147,52 +228,61 @@ const C_Categories = () => {
           </div>
 
           {/* Categories Grid - Show only 6 */}
-          <div className="grid grid-cols-3 gap-3">
-            {categories.slice(0, 6).map((category) => (
-              <button
+          {filteredCategories.length>0?(
+            <div className="grid grid-cols-3 grid-rows-2 gap-3">
+              {filteredCategories.slice(0, 6).map((category) => (
+              <Link
                 key={category.id}
-                className="bg-[#009842] rounded-2xl p-6 flex flex-col items-center justify-center hover:bg-[#007a36] transition-colors aspect-square"
+                to={`/client/sub_categories/${category.name}/${category.id}`}
+                className="bg-[#009842] w-27 h-30 rounded-2xl p-6 flex flex-col items-center justify-center hover:bg-[#007a36] transition-colors aspect-square"
               >
-                <div className="text-4xl mb-2">{category.icon}</div>
+                <img src={category?.image} />
                 <span className="text-white text-xs font-medium text-center">
                   {category.name}
                 </span>
-              </button>
+              </Link>
             ))}
           </div>
+        ):(
+          <div className="flex justify-center items-center text-gray-500">No Categories</div>
+        )}
         </div>
 
         {/* Brands Section */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-bold text-gray-900">Brands you may like</h2>
-            <button className="text-sm text-gray-600 hover:text-[#009842] transition-colors flex items-center gap-1">
+            <button 
+            onClick={() => navigate('/client/all_categories')}
+            className="text-sm text-gray-600 hover:text-[#009842] transition-colors flex items-center gap-1">
               See more
               <ChevronRight size={16} />
             </button>
           </div>
 
           {/* Brands Horizontal Scroll */}
-          <div className="flex gap-3 overflow-x-auto pb-2 hide-scrollbar">
-            {brands.map((brand) => (
-              <div key={brand.id} className="flex-shrink-0 w-44 bg-white rounded-2xl overflow-hidden shadow-sm">
-                {/* Brand Image */}
+          {filteredCategories.length>0?(<div className="flex gap-3 overflow-x-auto pb-2 hide-scrollbar">
+            {filteredCategories.slice(0 , 10).map((category) => (
+              <Link 
+              key={category.id} 
+              to={`/client/sub_categories/${category.name}/${category.id}`}
+              className="flex-shrink-0 w-44 bg-white rounded-2xl overflow-hidden shadow-sm">
+                {/* category Image */}
                 <div className="bg-gradient-to-br from-[#009842] to-[#007a36] h-40 flex items-center justify-center">
-                  <div className="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center">
-                    <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
-                    </svg>
+                  <div className="w-30 h-30 bg-white/20 rounded-xl flex items-center justify-center">
+                    <img src={category.image} className='w-full rounded-xl h-full object-cover' alt="" />
                   </div>
                 </div>
 
-                {/* Brand Info */}
+                {/* category Info */}
                 <div className="p-3">
-                  <h3 className="font-semibold text-gray-900 text-sm mb-1">{brand.name}</h3>
-                  <p className="text-xs text-gray-500">{brand.category}</p>
+                  <h3 className="font-semibold text-gray-900 text-sm mb-1">{category.name}</h3>
                 </div>
-              </div>
+              </Link>
             ))}
-          </div>
+          </div>):(
+            <div className="flex justify-center items-center text-gray-500">No Categories</div>
+          )}
         </div>
       </div>
     </div>

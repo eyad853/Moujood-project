@@ -1,125 +1,133 @@
 import React, { useState } from 'react';
-import { Search, Filter, RotateCcw, ChevronDown, ChevronLeft, ChevronRight, Trash2, Edit } from 'lucide-react';
+import { Search, Filter, RotateCcw, ChevronDown, ChevronLeft, ChevronRight, Trash2, Edit, X } from 'lucide-react';
+import { getOffersPageData } from '../../../api/super_admin_data';
+import { getAllCategories } from '../../../api/categories';
+import { editOffer , deleteOffer } from '../../../api/offers';
+import { useEffect } from 'react';
+import Loadiing from '../../../components/Loadiing/Loadiing'
+import OfferDetailSheet from '../../../components/OfferDetailSheet/OfferDetailSheet';
+import OfferSheet from '../../../components/OfferSheet/OfferSheet';
+import { useOffer } from '../../../context/offerContext';
+import socket from '../../../Socket';
+import { useUser } from '../../../context/userContext';
+
 
 const SA_Posts = () => {
   const [activeTab, setActiveTab] = useState('Overview');
   const [searchQuery, setSearchQuery] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [filterBy, setFilterBy] = useState('');
   const [category, setCategory] = useState('');
-  const [subCategory, setSubCategory] = useState('');
   const [businessName, setBusinessName] = useState('');
+  const {isOfferSheetOpen, setIsOfferSheetOpen , selectedOffer, setSelectedOffer} = useOffer();
+  const [isOfferDetailsOpen , setIsOffersDetailsOpen]=useState(false)
+  const [categories , setCategories]=useState([])
+  const [loading ,setLoading]=useState(false)
+  const [error , setError]=useState('')
+  const [offers , setOffers]=useState([])
+  const {user} = useUser()
 
-  const tabs = ['Overview', 'Add New Notification', 'Offers', 'Segment', 'Custom'];
+    useEffect(()=>{
+        const get=async()=>{
+            try{
+                setLoading(true)
+                await getAllCategories(setError , setCategories)
+                await getOffersPageData(setError , setOffers)
+                
+            }catch(error){
+                setError(error)
+            }finally{
+                setLoading(false)
+            }
+        }
+        get()
+      },[])
 
-  // Fake offers data based on schema
-  const offers = [
-    {
-      offer_id: 1,
-      business: {
-        id: 1,
-        name: 'Pizza Paradise',
-        logo: '/logo.svg',
-        category: 'Food & Dining'
-      },
-      title: 'Summer Pizza Special',
-      description: 'Get 50% off on all large pizzas this summer. Limited time offer!',
-      image: '/offer1.jpg',
-      offer_price_before: 150.00,
-      offer_price_after: 75.00,
-      category: 'Fast Food',
-      location: 'Cairo',
-      created_at: '2024-01-15'
-    },
-    {
-      offer_id: 2,
-      business: {
-        id: 2,
-        name: 'Fashion Hub',
-        logo: '/logo.svg',
-        category: 'Retail'
-      },
-      title: 'Weekend Fashion Sale',
-      description: 'Amazing discounts on all clothing items. Don\'t miss out!',
-      image: '/offer2.jpg',
-      offer_price_before: 500.00,
-      offer_price_after: 350.00,
-      category: 'Clothing',
-      location: 'Alexandria',
-      created_at: '2024-01-14'
-    },
-    {
-      offer_id: 3,
-      business: {
-        id: 3,
-        name: 'Health Plus Clinic',
-        logo: '/logo.svg',
-        category: 'Healthcare'
-      },
-      title: 'Free Health Checkup',
-      description: 'Get your complete health checkup absolutely free this month',
-      image: '/offer3.jpg',
-      offer_price_before: 200.00,
-      offer_price_after: 0.00,
-      category: 'Clinics',
-      location: 'Giza',
-      created_at: '2024-01-13'
-    },
-    {
-      offer_id: 4,
-      business: {
-        id: 4,
-        name: 'Coffee Corner',
-        logo: '/logo.svg',
-        category: 'Food & Dining'
-      },
-      title: 'Buy 1 Get 1 Free',
-      description: 'Buy any coffee and get another one free. Valid on all sizes',
-      image: '/offer4.jpg',
-      offer_price_before: 40.00,
-      offer_price_after: 20.00,
-      category: 'Cafes',
-      location: 'Cairo',
-      created_at: '2024-01-12'
-    },
-    {
-      offer_id: 5,
-      business: {
-        id: 5,
-        name: 'Tech Store',
-        logo: '/logo.svg',
-        category: 'Retail'
-      },
-      title: 'Electronics Mega Sale',
-      description: 'Up to 40% off on all electronic gadgets and accessories',
-      image: '/offer5.jpg',
-      offer_price_before: 2000.00,
-      offer_price_after: 1200.00,
-      category: 'Electronics',
-      location: 'Cairo',
-      created_at: '2024-01-11'
-    },
-  ];
+useEffect(() => {
+  const onNewOffer = (offer) => {
+    setOffers(prev => [offer , ...prev]
+    );
+  };
 
-  const totalPages = 78;
-  const itemsPerPage = 9;
+  const onEditOffer = (editedOffer) => {
+    if(user.accountType==='super_admin') return
+    setOffers(prev =>
+      prev.map(o =>
+        o.offer_id === editedOffer.offer_id ? editedOffer : o
+      )
+    );
+  };
+
+  const onDeleteOffer = (offer_id) => {
+    if(user.accountType==='super_admin') return
+    setOffers(prev =>
+      prev.filter(o => Number(o.offer_id) !== Number(offer_id))
+    );
+  };
+
+  const onBusinessUpdated = (updatedBusiness) => {
+    setOffers(prev =>
+      prev.map(offer => {
+        if (offer?.business_id !== updatedBusiness?.id) return offer;
+
+        return {
+          ...offer,
+          business_name: updatedBusiness?.name,
+          business_logo: updatedBusiness?.logo,
+          business_category_name:updatedBusiness?.category_name
+        };
+      })
+    );
+  };
+
+  socket.on('newOffer', onNewOffer);
+  socket.on('offerEdited', onEditOffer);
+  socket.on('offerDeleted', onDeleteOffer);
+  socket.on('business_updated', onBusinessUpdated);
+
+  return () => {
+    socket.off('newOffer', onNewOffer);
+    socket.off('offerEdited', onEditOffer);
+    socket.off('offerDeleted', onDeleteOffer);
+    socket.off('business_updated', onBusinessUpdated);
+  };
+}, []);
+
+    
+      if(loading){
+        return(
+            <Loadiing />
+        )
+      }
+
+  const tabs = ['Overview'];
+
+  // Filter offers based on category, business name, and search query
+  const filteredOffers = offers.filter(offer => {
+    const matchesCategory = !category || offer.business_category_name.toLowerCase().includes(category.toLowerCase());
+    const matchesBusinessName = !businessName || offer.business_name.toLowerCase().includes(businessName.toLowerCase());
+    const matchesSearch = !searchQuery || 
+      offer.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      offer.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      offer.business_name.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    return matchesCategory && matchesBusinessName && matchesSearch;
+  });
 
   const handleResetFilters = () => {
-    setFilterBy('');
     setCategory('');
-    setSubCategory('');
     setBusinessName('');
     setSearchQuery('');
   };
 
-  const handleDeleteOffer = (offerId) => {
-    console.log('Delete offer:', offerId);
-    // Add delete logic here
+  const handleEditOffer = (offer) => {
+    setIsOffersDetailsOpen(false)
+    setSelectedOffer(offer);
+    setIsOfferSheetOpen(true);
   };
 
-  const handleEditOffer = (offerId) => {
-    console.log('Edit offer:', offerId);
-    // Add edit logic here
+  const handleOpenDetail = (offer) => {
+    setIsOfferSheetOpen(false)
+    setSelectedOffer(offer);
+    setIsOffersDetailsOpen(true);
   };
 
   return (
@@ -151,23 +159,7 @@ const SA_Posts = () => {
 
       {/* Filters and Search */}
       <div className="bg-white rounded-xl shadow-sm p-4 mb-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
-          {/* Filter By */}
-          <div className="relative">
-            <Filter size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <select
-              value={filterBy}
-              onChange={(e) => setFilterBy(e.target.value)}
-              className="w-full pl-10 pr-10 py-2.5 border border-gray-200 rounded-lg outline-none focus:border-[#009842] focus:ring-1 focus:ring-[#009842] appearance-none bg-white text-sm"
-            >
-              <option value="">Filter By</option>
-              <option value="category">Category</option>
-              <option value="location">Location</option>
-              <option value="business">Business</option>
-            </select>
-            <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-          </div>
-
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
           {/* Category */}
           <div className="relative">
             <select
@@ -175,25 +167,12 @@ const SA_Posts = () => {
               onChange={(e) => setCategory(e.target.value)}
               className="w-full px-4 pr-10 py-2.5 border border-gray-200 rounded-lg outline-none focus:border-[#009842] focus:ring-1 focus:ring-[#009842] appearance-none bg-white text-sm"
             >
-              <option value="">Category</option>
-              <option value="food">Food & Dining</option>
-              <option value="retail">Retail</option>
-              <option value="healthcare">Healthcare</option>
-            </select>
-            <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-          </div>
-
-          {/* Sub Category */}
-          <div className="relative">
-            <select
-              value={subCategory}
-              onChange={(e) => setSubCategory(e.target.value)}
-              className="w-full px-4 pr-10 py-2.5 border border-gray-200 rounded-lg outline-none focus:border-[#009842] focus:ring-1 focus:ring-[#009842] appearance-none bg-white text-sm"
-            >
-              <option value="">Sub category</option>
-              <option value="fast-food">Fast Food</option>
-              <option value="restaurants">Restaurants</option>
-              <option value="cafes">Cafes</option>
+              <option value="">All Categories</option>
+              {categories.length>0?(
+                categories.map(cat=>(
+                  <option key={cat?.id} value={cat?.name}>{cat?.name}</option>
+                ))
+              ):null}
             </select>
             <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
           </div>
@@ -233,121 +212,114 @@ const SA_Posts = () => {
       {/* Offers List */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
         {/* Header */}
-        <div className="grid grid-cols-12 gap-4 px-4 sm:px-6 py-4 bg-gray-50 border-b border-gray-200">
-          <div className="col-span-3 text-sm font-semibold text-gray-700">Business</div>
-          <div className="col-span-3 text-sm font-semibold text-gray-700">Offer Title</div>
-          <div className="col-span-2 text-sm font-semibold text-gray-700">Location</div>
-          <div className="col-span-3 text-sm font-semibold text-gray-700">Post / Offer</div>
-          <div className="col-span-1 text-sm font-semibold text-gray-700">Actions</div>
-        </div>
+        {offers.length>0&&(<div className="grid grid-cols-12 gap-4 px-4 sm:px-6 py-4 bg-gray-50 border-b border-gray-200">
+          <div className="col-span-4 text-sm font-semibold text-gray-700">Business</div>
+          <div className="col-span-6 text-sm font-semibold text-gray-700">Post / Offer</div>
+          <div className="col-span-2 text-sm font-semibold text-gray-700">Actions</div>
+        </div>)}
 
         {/* Offers Items */}
         <div className="divide-y divide-gray-200">
-          {offers.map((offer) => (
-            <div
-              key={offer.offer_id}
-              className="grid grid-cols-12 gap-4 px-4 sm:px-6 py-4 hover:bg-gray-50 transition-colors items-center"
-            >
-              {/* Business */}
-              <div className="col-span-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-[#009842] rounded-full flex items-center justify-center flex-shrink-0">
-                    <img
-                      src={offer.business.logo}
-                      alt={offer.business.name}
-                      className="w-6 h-6 object-contain brightness-0 invert"
-                    />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="font-medium text-gray-900 text-sm truncate">{offer.business.name}</p>
-                    <p className="text-xs text-gray-500 truncate">{offer.business.category}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Offer Title */}
-              <div className="col-span-3">
-                <p className="font-medium text-gray-900 text-sm mb-1">{offer.title}</p>
-                <p className="text-xs text-gray-600 line-clamp-2">{offer.description}</p>
-              </div>
-
-              {/* Location */}
-              <div className="col-span-2">
-                <p className="text-sm text-gray-600">{offer.location}</p>
-              </div>
-
-              {/* Post/Offer Image */}
-              <div className="col-span-3">
-                <div className="flex items-start gap-3">
-                  {/* Offer Image Thumbnail */}
-                  <div className="w-16 h-16 bg-gradient-to-br from-[#009842] to-[#007a36] rounded-lg overflow-hidden flex-shrink-0">
-                    <img
-                      src={offer.image}
-                      alt={offer.title}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.parentElement.innerHTML = `
-                          <div class="w-full h-full flex items-center justify-center text-white text-2xl">
-                            📢
-                          </div>
-                        `;
-                      }}
-                    />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-medium text-gray-900 text-sm mb-1 truncate">{offer.title}</p>
-                    <p className="text-xs text-gray-600 line-clamp-1">{offer.description}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="col-span-1">
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => handleDeleteOffer(offer.offer_id)}
-                    className="p-2 hover:bg-red-50 rounded-lg transition-colors"
-                    title="Delete offer"
-                  >
-                    <Trash2 size={18} className="text-red-600" />
-                  </button>
-                  <button
-                    onClick={() => handleEditOffer(offer.offer_id)}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                    title="Edit offer"
-                  >
-                    <Edit size={18} className="text-gray-600" />
-                  </button>
-                </div>
-              </div>
+          {filteredOffers.length === 0 ? (
+            <div className="px-4 sm:px-6 py-8 text-center text-gray-500">
+              No offers found matching your filters
             </div>
-          ))}
-        </div>
+          ) : (
+            filteredOffers.map((offer) => (
+              <div
+                key={offer?.offer_id}
+                onClick={()=>{
+                  handleOpenDetail(offer)
+                }}
+                className="grid grid-cols-12 gap-4 px-4 sm:px-6 py-4 hover:bg-gray-50 transition-colors items-center"
+              >
+                {/* Business */}
+                <div className="col-span-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0">
+                      <img
+                        src={offer?.business_logo}
+                        className="w-full h-full object-contain "
+                      />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-medium text-gray-900 text-sm truncate">{offer?.business_name}</p>
+                      <p className="text-xs text-gray-500 truncate">{offer?.business_category_name}</p>
+                    </div>
+                  </div>
+                </div>
 
-        {/* Pagination */}
-        <div className="px-4 sm:px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <span className="text-sm text-gray-600 text-center sm:text-left">
-            Showing 1-09 of {totalPages}
-          </span>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-              disabled={currentPage === 1}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <ChevronLeft size={20} className="text-gray-600" />
-            </button>
-            <button
-              onClick={() => setCurrentPage(Math.min(Math.ceil(totalPages / itemsPerPage), currentPage + 1))}
-              disabled={currentPage === Math.ceil(totalPages / itemsPerPage)}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <ChevronRight size={20} className="text-gray-600" />
-            </button>
-          </div>
+                {/* Post/Offer Image - Clickable */}
+                <div className="col-span-6">
+                  <button className="flex items-start gap-3 w-full text-left hover:opacity-80 transition-opacity">
+                    {/* Offer Image Thumbnail */}
+                    <div className="w-16 h-16 bg-gradient-to-br from-[#009842] to-[#007a36] rounded-lg overflow-hidden flex-shrink-0">
+                      <img
+                        src={offer?.image}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium text-gray-900 text-sm mb-1 truncate">{offer?.title}</p>
+                      <p className="text-xs text-gray-600 line-clamp-2">{offer?.description}</p>
+                    </div>
+                  </button>
+                </div>
+
+                {/* Actions */}
+                <div className="col-span-2">
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        deleteOffer(setError , setOffers , offer?.offer_id , setCategories
+                        )}}
+                      className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                      title="Delete offer"
+                    >
+                      <Trash2 size={18} className="text-red-600" />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleEditOffer(offer)
+                      }}
+                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                      title="Edit offer"
+                    >
+                      <Edit size={18} className="text-gray-600" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
+
+      {/* OfferSheet Modal - Desktop Styled */}
+      {isOfferDetailsOpen && selectedOffer?.offer_id&& (
+        <OfferDetailSheet 
+          isOpen={isOfferDetailsOpen} 
+          onClose={() => {
+            setIsOffersDetailsOpen(false);
+            setSelectedOffer(null)
+          }}
+          offerId={selectedOffer?.offer_id}
+        /> 
+      )}
+
+      {isOfferSheetOpen && selectedOffer?.offer_id&& (
+        <OfferSheet 
+          isOpen={isOfferSheetOpen} 
+          onClose={() => {
+            setIsOfferSheetOpen(false);
+            setSelectedOffer(null)
+          }}
+          offerId={selectedOffer?.offer_id}
+          setOffers={setOffers}
+        /> 
+      )}
     </div>
   );
 };

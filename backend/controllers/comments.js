@@ -1,10 +1,9 @@
 import { pool } from "../index.js";
 
 export const createComment = async (req, res) => {
-  const io = req.app.get("io");
   const user_id = req.user.id;
   const { offer_id } = req.params;
-  const [content] = req.body
+  const {content} = req.body
 
   try {
     const result = await pool.query(
@@ -16,12 +15,17 @@ export const createComment = async (req, res) => {
       [offer_id, user_id, content]
     );
 
-    const newComment = result.rows[0];
+    const commentResult = await pool.query(`
+       SELECT 
+        c.*,
+        u.name AS "userName"
+        FROM comments c
+        LEFT JOIN users u
+        ON c.user_id = u.id
+        WHERE c.id = $1 ` , [result.rows[0].id]
+      )
 
-    io.to(`offer_${offer_id}`).emit("offer_comment", {
-      type: "comment_added",
-      comment: newComment,
-    });
+    const newComment = commentResult.rows[0];
 
     res.status(201).json({
       message: "comment_added",
@@ -36,7 +40,6 @@ export const createComment = async (req, res) => {
 
 
 export const updateComment = async (req, res) => {
-  const io = req.app.get("io");
   const user_id = req.user.id;
   const {content } = req.body;
   const {comment_id} = req.params
@@ -66,12 +69,6 @@ export const updateComment = async (req, res) => {
 
     const updatedComment = result.rows[0];
 
-    // Emit socket event
-    io.to(`offer_${offer_id}`).emit("offer_comment", {
-      type: "comment_updated",
-      comment: updatedComment
-    });
-
     res.status(200).json({
       message: "comment_updated",
       comment: updatedComment
@@ -84,7 +81,6 @@ export const updateComment = async (req, res) => {
 };
 
 export const deleteComment = async (req, res) => {
-  const io = req.app.get("io");
   const user_id = req.user.id;
   const { id } = req.params; // comment id
 
@@ -110,11 +106,6 @@ export const deleteComment = async (req, res) => {
       [id]
     );
 
-    io.to(`offer_${offer_id}`).emit("offer_comment", {
-      type: "comment_removed",
-      comment_id: id
-    });
-
     res.status(200).json({ message: "comment_removed" });
 
   } catch (err) {
@@ -122,3 +113,27 @@ export const deleteComment = async (req, res) => {
     res.status(500).json({ message: "server_error" });
   }
 };
+
+export const getOfferComments = async(req , res)=>{
+  const {id} = req.params
+
+  try{
+
+      const result = await pool.query(`
+        SELECT 
+        c.*,
+        u.name AS "userName"
+        FROM comments c
+        LEFT JOIN users u
+        ON c.user_id = u.id
+        WHERE offer_id = $1 
+        ORDER BY created_at DESC
+        ` , [id])
+      const comments = result.rows
+      return res.status(200).json(comments)
+
+  }catch(error){
+    console.log(error);
+    res.status(500).json({ message: "server_error" });
+  }
+}

@@ -14,16 +14,14 @@ const getProfileData = async (setError)=>{
     }
 
 
-export const getBusinessDashboardData = async (setError ,setOffers,setTotalScans,setTotalSales,setTotalOffers,setTotalLikes , setCategories)=>{
+export const getBusinessDashboardData = async (setError ,setOffers,setTotalOffers,setTotalLikes , setCategories)=>{
     try{
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/businesses/getBusinessDashboardData` , {withCredentials:true})
+        console.log(response.data);
         setOffers(response.data.latest_offers)
-        setTotalScans(response.data.total_scans)
-        setTotalSales(response.data.total_sales)
         setTotalOffers(response.data.total_offers)
         setTotalLikes(response.data.total_likes)
         setCategories(response.data.categories)
-        console.log(response.data.categories);
     }catch(err){
         if (err.response?.data?.message) {
             setError(err.response.data.message)

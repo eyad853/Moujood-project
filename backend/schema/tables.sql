@@ -1,11 +1,13 @@
-CREATE TABLE IF NOT EXISTS users (
+      CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
         name VARCHAR(150) NOT NULL,
         email VARCHAR(150) UNIQUE NOT NULL,
-        password VARCHAR(255) NOT NULL,
+        auth_provider VARCHAR(20)CHECK (auth_provider IN ('local', 'google', 'facebook')),
+        password VARCHAR(255),
+        avatar VARCHAR(500),
         gender VARCHAR(20) CHECK (gender IN ('male', 'female')) DEFAULT 'male',
         governorate VARCHAR(100) DEFAULT 'Cairo',
-        user_type VARCHAR(20) CHECK (user_type IN ('client', 'super_admin')) DEFAULT 'client',
+        user_type VARCHAR(20) CHECK (user_type IN ('user', 'super_admin')) DEFAULT 'user',
         is_verified BOOLEAN DEFAULT FALSE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
@@ -21,17 +23,22 @@ CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
         name VARCHAR(150) NOT NULL,
         email VARCHAR(150) UNIQUE NOT NULL,
-        password VARCHAR(255) NOT NULL,
+        auth_provider VARCHAR(20)CHECK (auth_provider IN ('local', 'google', 'facebook')),
+        password VARCHAR(255),
         category INT REFERENCES categories(id),
-        logo VARCHAR(255),
+        logo VARCHAR(500),
         description TEXT,
-        addresses TEXT,
-        locations TEXT,
         number VARCHAR(50),
-        qr_code VARCHAR(255),
-        active BOOLEAN DEFAULT TRUE,
+        active BOOLEAN DEFAULT FALSE,
         is_verified BOOLEAN DEFAULT FALSE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS business_locations (
+        id SERIAL PRIMARY KEY,
+        business_id INT REFERENCES businesses(id) ON DELETE CASCADE,
+        lat NUMERIC(9,6) NOT NULL,
+        lng NUMERIC(9,6) NOT NULL
       );
 
       CREATE TABLE IF NOT EXISTS offers (
@@ -45,14 +52,6 @@ CREATE TABLE IF NOT EXISTS users (
         category INT REFERENCES categories(id),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (business_id) REFERENCES businesses(id)
-      );
-
-      CREATE TABLE IF NOT EXISTS scans (
-        id SERIAL PRIMARY KEY,
-        user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-        business_id INT REFERENCES businesses(id) ON DELETE CASCADE,
-        offer_id INT REFERENCES offers(offer_id) ON DELETE CASCADE,
-        scanned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
 
       CREATE TABLE IF NOT EXISTS likes (
@@ -71,32 +70,23 @@ CREATE TABLE IF NOT EXISTS users (
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
 
-      CREATE TABLE IF NOT EXISTS sales (
-        id SERIAL PRIMARY KEY,
-        offer_id INTEGER REFERENCES offers(offer_id),
-        business_id INT REFERENCES businesses(id),
-        user_id INTEGER REFERENCES users(id),
-        amount DECIMAL(10,2) NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-
-      CREATE TABLE IF NOT EXISTS notifications(
+      CREATE TABLE IF NOT EXISTS notifications (
         id SERIAL PRIMARY KEY,
         title VARCHAR(100) NOT NULL,
-        receiver_type VARCHAR(20) CHECK (receiver_type IN ('user', 'business')) NOT NULL,
-        receiver_id INTEGER NOT NULL,
-        content TEXT NOT NULL,
+        message TEXT NOT NULL,
+        filter_type VARCHAR(20),
+        filter_value VARCHAR(255),
+        specific_names TEXT[],
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
 
-      CREATE TABLE IF NOT EXISTS user_points (
+      CREATE TABLE IF NOT EXISTS notification_targets (
         id SERIAL PRIMARY KEY,
-        user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-        business_id INT REFERENCES businesses(id),
-        offer_id INT REFERENCES offers(offer_id),
-        points INT NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
+        notification_id INTEGER REFERENCES notifications(id) ON DELETE CASCADE,
+        receiver_type VARCHAR(20) CHECK (receiver_type IN ('user', 'business')) NOT NULL,
+        receiver_id INTEGER NOT NULL,
+        is_read BOOLEAN DEFAULT false
+      );
 
     CREATE TABLE IF NOT EXISTS settings (
       id SERIAL PRIMARY KEY,
@@ -115,4 +105,9 @@ CREATE TABLE IF NOT EXISTS users (
   user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   category_id INT NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
   UNIQUE(user_id, category_id)
+  );
+
+  CREATE TABLE IF NOT EXISTS ads (
+  id SERIAL PRIMARY KEY,
+  image VARCHAR(255) NOT NULL
 );

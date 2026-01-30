@@ -99,6 +99,7 @@ export const deleteCategory = async (setError ,categoryId, setCategories)=>{
 
 export const getAllCategories = async (setError , setCategories)=>{
     try{
+        console.log('هلا');
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/categories/getAllCategories`)
         setCategories(response.data.categories)
         console.log(response.data);
@@ -117,7 +118,7 @@ export const getAllCategories = async (setError , setCategories)=>{
 export const getAllSubCategories = async (setError , setCategories)=>{
     try{
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/categories/getAllSubCategories` , {withCredentials:true})
-        setCategories(response.data)
+        setCategories(response.data.data)
     }catch(error){
         if (error.response?.data?.message) {
             setError(error.response.data.message)
