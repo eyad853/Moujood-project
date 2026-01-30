@@ -1,4 +1,6 @@
 import axios from "axios";
+import { SocialLogin } from '@capgo/capacitor-social-login';
+
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const phoneRegex = /^[0-9]{10,15}$/;
@@ -234,9 +236,14 @@ export const businessAuth = async(setError , data ,navigate , setLoading , setUs
     }
 }
 
-export const handleGoogleAuth = ()=>{
-    window.location.href = `${import.meta.env.VITE_BACKEND_URL}/auth/google`
+export const handleGoogleAuth = async ()=>{
+    const res = await SocialLogin.login({
+    provider: 'google',
+    options: {}
+  })
+  console.log(JSON.stringify(res))
 }
+
 export const handleFacebookAuth = ()=>{
     window.location.href = `${import.meta.env.VITE_BACKEND_URL}/auth/facebook`
 }

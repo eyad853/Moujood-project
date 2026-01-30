@@ -1,5 +1,10 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { App as CapApp } from '@capacitor/app';
+import { PushNotifications } from '@capacitor/push-notifications';
+import { SocialLogin } from '@capgo/capacitor-social-login';
+import { Preferences } from '@capacitor/preferences';
+ 
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { useEffect } from 'react';
 import SignupAs from './pages/SignupAs/SignupAs';
 import ClientSignup from './pages/ClientAuth/ClientSignup/ClientSignup';
 import ClientLogin from './pages/ClientAuth/ClientLogin/ClientLogin';
@@ -221,18 +226,57 @@ const routes = [
 
 const router = createBrowserRouter(routes)
 const App = () => {
-  
-CapApp.addListener("appUrlOpen", (event) => {
-    try {
-      // Example app link: myapp://app/business/home
-      // Extract path after "app"
-      const path = event.url.split("app")[1]; // "/business/home"
-      if (path) {
-        router.navigate(path);
+  useEffect(()=> {
+    SocialLogin.initialize({
+      google: {
+        webClientId: '1052525713737-uvbc9cv2d4ncndl5f198dq2l3qg7qkop.apps.googleusercontent.com',
       }
-    } catch (err) {
-      console.log("Deep link error:", err);
+    })
+
+    PushNotifications.requestPermissions().then((result) => {
+    if (result.receive === 'granted') {
+      // Register with Apple / Google to receive push via APNS/FCM
+      PushNotifications.register();
+    } else {
+      alert("Push notification permission not granted");
     }
+    
+    // On success, we should be able to receive notifications
+    PushNotifications.addListener('registration', async (token) => {
+      const savedToken = await Preferences.get({ key:"pushToken"});
+      if (savedToken.value !== token.value) {
+        //TODO: send token to backend
+        alert(token.value);
+        await Preferences.set({ key: "pushToken", value: token.value});
+      }
+    });
+
+    // Some issue with our setup and push will not work
+    PushNotifications.addListener('registrationError', (error) => {
+      alert('Error on registration: ' + JSON.stringify(error));
+    });
+
+    // Show us the notification payload if the app is open on our device
+    // PushNotifications.addListener('pushNotificationReceived', (notification) => {
+
+    // });
+
+    // Method called when tapping on a notification
+    PushNotifications.addListener('pushNotificationActionPerformed', (notification) => {
+        router.navigate('/notifications');
+      });
+    });
+  }, [])
+  
+  CapApp.addListener("appUrlOpen", (event) => {
+      try {
+        const path = event.url.split("app")[1]; // "/business/home"
+        if (path) {
+          router.navigate(path);
+        }
+      } catch (err) {
+        console.log("Deep link error:", err);
+      }
   });
 
   return (
