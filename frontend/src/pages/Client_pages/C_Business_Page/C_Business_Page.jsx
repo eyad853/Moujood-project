@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ArrowLeft, Heart, Share2, MapPin } from 'lucide-react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { getBusinessPageData } from '../../../api/cleints';
 import Loadiing from '../../../components/Loadiing/Loadiing';
 import OfferDetailSheet from '../../../components/OfferDetailSheet/OfferDetailSheet';
@@ -23,7 +23,7 @@ const C_Business_Page = ({businessId}) => {
   const {showMapModal,setShowMapModal,markers,setMarkers , userLocation, setUserLocation}=useMapProvider()
   const {user} = useUser()
   const location = useLocation();
-  
+
   const fullUrl =
   window.location.origin + location.pathname;
   
