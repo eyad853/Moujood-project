@@ -7,7 +7,6 @@ import OfferDetailSheet from '../../../components/OfferDetailSheet/OfferDetailSh
 import MapModal from '../../../components/modals/MapModal/MapModal';
 import { useMapProvider } from '../../../context/mapContext';
 import { useUser } from '../../../context/userContext';
-import ShareSheet from '../../../components/ShareSheet/ShareSheet'
 
 const C_Business_Page = ({businessId}) => {
   const navigate = useNavigate();
@@ -262,12 +261,6 @@ const filteredOffers = offers.filter(offer => {
           markers={markers}
           userLocation={userLocation}
         />
-
-      {isShareSheetOpen&&(
-        <ShareSheet 
-        isOpen={isShareSheetOpen}
-        onClose={()=>setIsShareSheetOpen(false)}
-      />)}
     </div>
   );
 };

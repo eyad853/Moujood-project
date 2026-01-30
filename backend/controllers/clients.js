@@ -102,14 +102,8 @@ export const getBusinessesOfCategory = async (req, res) => {
         b.name,
         b.email,
         b.logo,
-        b.description,
-        COALESCE(s.scan_count, 0) AS scan_count
+        b.description
       FROM businesses b
-      LEFT JOIN (
-        SELECT business_id, COUNT(*) AS scan_count
-        FROM scans
-        GROUP BY business_id
-      ) s ON b.id = s.business_id
       WHERE EXISTS (
         SELECT 1
         FROM offers o
@@ -117,7 +111,6 @@ export const getBusinessesOfCategory = async (req, res) => {
           AND o.category = $1
       )
       ORDER BY
-        scan_count DESC,
         b.created_at DESC
       `,
       [id]
