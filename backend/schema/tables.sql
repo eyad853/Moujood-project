@@ -133,7 +133,6 @@ CREATE TABLE IF NOT EXISTS device_tokens (
   receiver_type VARCHAR(20) CHECK (receiver_type IN ('user', 'business')) NOT NULL,
   receiver_id INTEGER NOT NULL,
   token TEXT UNIQUE NOT NULL,
-  platform VARCHAR(10) CHECK (platform IN ('ios', 'android')) NOT NULL,
   is_active BOOLEAN DEFAULT true,
   device_id TEXT NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

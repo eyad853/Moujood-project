@@ -6,7 +6,6 @@ import { getDeviceInfo } from "../utils/deviceInfo";
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const phoneRegex = /^[0-9]{10,15}$/;
 const passwordRegex =/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&^#()_\-+=])[A-Za-z\d@$!%*?&^#()_\-+=]{10,64}$/;
-const { deviceToken, deviceId, platform } = await getDeviceInfo();
 
 export const localAuth = async(setError , data ,navigate , setLoading , fromSuperAdminPage , setUser , setFieldErrors)=>{
     try{
@@ -97,6 +96,9 @@ export const login = async (setError, data, navigate , setLoading , setUser , se
     setError('')
     setFieldErrors({});
 
+    const { deviceToken, deviceId } = await getDeviceInfo();
+
+
     if (!data.email || !emailRegex.test(data.email)) {
       setError('Please enter a valid email (example@gmail.com)');
       setFieldErrors({ email: true });
@@ -111,10 +113,7 @@ export const login = async (setError, data, navigate , setLoading , setUser , se
 
     
     const response = await axios.post(
-      `${import.meta.env.VITE_BACKEND_URL}/auth/login`,
-      data,
-      { withCredentials: true }
-    );
+      `${import.meta.env.VITE_BACKEND_URL}/auth/login`,{...data , deviceToken , deviceId},{ withCredentials: true });
 
     // ✅ Extract user from backend response
     const result = response.data;
@@ -525,8 +524,9 @@ export const handleResendEmail = async (setIsResending , setResendSuccess , setC
 
 export const verifyToken = async(setLoading , setUser , setAccountType , setError)=>{
   try{
-      setLoading(true)
-      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/auth/verify-email/${token}` , {withCredentials:true})
+    setLoading(true)
+      const { deviceToken, deviceId } = await getDeviceInfo();
+      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/verify-email/${token}` , {deviceId , deviceToken} , {withCredentials:true})
       if(!response.data.error){
         console.log(response.data.account)
         setUser(response.data.account)

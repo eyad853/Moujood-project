@@ -261,7 +261,7 @@ const App = () => {
       const savedToken = await Preferences.get({ key:"pushToken"});
       if (savedToken.value !== token.value) {
         //TODO: send token to backend
-        alert(token.value);
+        alert(token.value + deviceId.identifier);
         await Preferences.set({ key: "pushToken", value: token.value});
       }
     });

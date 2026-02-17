@@ -7,7 +7,7 @@ import { sendVerificationEmail , sendForgotPasswordEmail } from '../services/ema
 import { OAuth2Client } from 'google-auth-library';
 import Facebook from 'facebook-node-sdk'
 import ERRORS from '../config/errors.js';
-import { registerDeviceToken } from '../utils/device_tokens.js';
+import registerDeviceToken from '../utils/device_tokens.js';
 
 
 export const localSignup = async (req, res, next) => {
@@ -191,7 +191,7 @@ export const businessesSignup = async (req, res, next) => {
 
 export const login = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { email, password , deviceToken, deviceId } = req.body;
 
     let account;
     let accountType;
@@ -283,6 +283,14 @@ export const login = async (req, res, next) => {
     delete account.password;
 
     const fullAccount = { ...account, accountType };
+
+    const {error , message} = await registerDeviceToken(deviceToken , deviceId , fullAccount.id , fullAccount.accountType)
+    if(error){
+      return res.status(500).json({
+        error:true,
+        message
+      })
+    }
 
     // 6️⃣ Login / create session
     req.login(fullAccount, (err) => {
@@ -588,7 +596,7 @@ export const logout = (req, res) => {
 
 export const verifyEmail = async (req, res) => {
   const { token } = req.params;
-  console.log(token);
+  const { deviceToken, deviceId } = req.body
 
   try {
     const result = await pool.query(
@@ -661,6 +669,15 @@ export const verifyEmail = async (req, res) => {
 
     const fullAccount = { ...account, accountType: record.account_type }
 
+    const {error , message} = await registerDeviceToken(deviceToken , deviceId , fullAccount.id , fullAccount.accountType)
+    if(error){
+      return res.status(500).json({
+        error:true,
+        message
+      })
+    }
+
+
     // ⚡ Automatically login session
     req.login(fullAccount, (err) => {
       if (err) return res.status(500).send("Login failed");
@@ -677,7 +694,7 @@ export const verifyEmail = async (req, res) => {
 
   } catch (err) {
     console.error(err);
-    res.status(500).send("Server error");
+    res.status(500).json({error:true,message:err.message});
   }
 };
 

@@ -16,7 +16,7 @@ authRouter.post('/login' , login)
 authRouter.get('/me' ,ensureAuth, getUser)
 authRouter.post('/logout' , logout)
 authRouter.patch('/editAccount' ,uploadFile('logo').single('image'), editAccount)
-authRouter.get("/verify-email/:token", verifyEmail);
+authRouter.post("/verify-email/:token", verifyEmail);
 authRouter.post("/resend-verify-email", resendVerificationEmail);
 authRouter.post("/forgot-password", forgotPassword);
 authRouter.post("/reset-password/:token", resetPassword);
