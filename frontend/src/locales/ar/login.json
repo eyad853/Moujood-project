@@ -1,0 +1,20 @@
+{
+  "form": {
+    "emailLabel": "البريد الإلكتروني",
+    "passwordLabel": "كلمة المرور",
+    "forgotPassword": "نسيت كلمة المرور؟",
+    "submitButton": "تسجيل الدخول",
+    "registerText": "ليس لديك حساب؟",
+    "registerButton": "إنشاء حساب"
+  },
+  "social": {
+    "google": "جوجل",
+    "facebook": "فيسبوك",
+    "divider": "أو تسجيل الدخول عبر البريد الإلكتروني"
+  },
+  "placeholder": {
+    "email": "أدخل بريدك الإلكتروني",
+    "password": "أدخل كلمة المرور"
+  },
+  "title":"تسجيل دخول"
+}

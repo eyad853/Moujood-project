@@ -6,7 +6,7 @@ import { getAllSubCategories } from '../../api/categories';
 import { useUser } from '../../context/userContext';
 import { useOffer } from '../../context/offerContext';
 import Loadiing from '../Loadiing/Loadiing'
-
+import { useTranslation } from 'react-i18next';
 
 const OfferSheet = ({ isOpen, onClose, offerId ,setOffers , setTotalOffers , setFuncUsedCategories}) => {
   const [imagePreview, setImagePreview] = useState(null);
@@ -18,6 +18,8 @@ const OfferSheet = ({ isOpen, onClose, offerId ,setOffers , setTotalOffers , set
   const [categories, setCategories] = useState([]);
   const {setIsOfferSheetOpen,setSelectedOffer}=useOffer()
   const [offer , setOffer]=useState(null)
+  const {t , i18n}=useTranslation('offerSheet')
+  const isRTL = i18n.language==='ar'
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -137,7 +139,7 @@ const OfferSheet = ({ isOpen, onClose, offerId ,setOffers , setTotalOffers , set
                 <X size={24} className="text-gray-700" />
               </button>
               <h2 className="text-xl font-semibold text-gray-900">
-                {offer ? 'Edit Offer' : 'Add New Offer'}
+                {offer ? t('title.edit') : t('title.add')}
               </h2>
               <div className="w-10"></div> {/* Spacer for centering */}
             </div>
@@ -146,13 +148,14 @@ const OfferSheet = ({ isOpen, onClose, offerId ,setOffers , setTotalOffers , set
             <div className="px-5 py-6 pb-8">
               {/* Offer Title */}
               <div className="mb-5">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
-                  Offer Title <span className="text-red-500">*</span>
+                <label className={`block text-sm font-semibold text-gray-900 mb-2 ${isRTL?'text-right':"text-left"}`}>
+                  {t('labels.offerTitle')} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   name="title"
-                  placeholder="Offer Title"
+                  dir={isRTL?"rtl":"ltr"}
+                  placeholder={t('placeholders.offerTitle')}
                   value={formData.title}
                   onChange={handleInputChange}
                   className="w-full px-4 py-3.5 text-base border border-gray-200 rounded-xl outline-none bg-gray-50 focus:border-[#009842] focus:ring-1 focus:ring-[#009842] transition-colors"
@@ -161,12 +164,13 @@ const OfferSheet = ({ isOpen, onClose, offerId ,setOffers , setTotalOffers , set
 
               {/* Offer Description */}
               <div className="mb-5">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
-                  Offer Description <span className="text-red-500">*</span>
+                <label className={`block text-sm font-semibold text-gray-900 mb-2 ${isRTL?'text-right':"text-left"}`}>
+                  {t('labels.offerDescription')} <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   name="description"
-                  placeholder="Offer Description"
+                  dir={isRTL?"rtl":"ltr"}
+                  placeholder={t('placeholders.offerDescription')}
                   value={formData.description}
                   onChange={handleInputChange}
                   rows="4"
@@ -176,8 +180,8 @@ const OfferSheet = ({ isOpen, onClose, offerId ,setOffers , setTotalOffers , set
 
               {/* Category Selection */}
                 <div className="mb-5">
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">
-                    Category <span className="text-red-500">*</span>
+                  <label className={`block text-sm font-semibold text-gray-900 mb-2 ${isRTL?'text-right':"text-left"}`}>
+                    {t('labels.category')} <span className="text-red-500">*</span>
                   </label>
                   
                   {/* Custom Dropdown */}
@@ -185,9 +189,9 @@ const OfferSheet = ({ isOpen, onClose, offerId ,setOffers , setTotalOffers , set
                     <button
                       type="button"
                       onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
-                      className="w-full px-4 py-4 border border-gray-200 rounded-xl bg-gray-50 hover:bg-gray-100 transition-all flex items-center justify-between"
+                      className={`w-full ${isRTL?"flex-row-reverse":"flex-row"} px-4 py-4 border border-gray-200 rounded-xl bg-gray-50 hover:bg-gray-100 transition-all flex items-center justify-between`}
                     >
-                      <div className="flex items-center gap-3">
+                      <div className={`flex items-center gap-3`}>
                         {selectedCat ? (
                           <>
                             <div className="w-10 h-10 rounded-xl bg-[#009842] flex items-center justify-center overflow-hidden">
@@ -201,7 +205,7 @@ const OfferSheet = ({ isOpen, onClose, offerId ,setOffers , setTotalOffers , set
                             </span>
                           </>
                         ) : (
-                          <span className="text-gray-400 text-base">Choose category</span>
+                          <span className="text-gray-400 text-base">{t('placeholders.chooseCategory')}</span>
                         )}
                       </div>
                       <svg 
@@ -270,8 +274,8 @@ const OfferSheet = ({ isOpen, onClose, offerId ,setOffers , setTotalOffers , set
 
               {/* Image Upload */}
               <div className="mb-5">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
-                  Image <span className="text-red-500">*</span>
+                <label className={`block text-sm font-semibold text-gray-900 mb-2 ${isRTL?'text-right':"text-left"}`}>
+                  {t('labels.image')} <span className="text-red-500">*</span>
                 </label>
                 
                 {/* Image Preview */}
@@ -305,10 +309,10 @@ const OfferSheet = ({ isOpen, onClose, offerId ,setOffers , setTotalOffers , set
                 />
                 <label
                   htmlFor="offerImageUpload"
-                  className="flex items-center justify-between w-full px-4 py-3.5 text-base border border-gray-200 rounded-xl bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors"
+                  className={`flex items-center justify-between w-full px-4 py-3.5 text-base border border-gray-200 rounded-xl bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors ${isRTL?"flex-row-reverse":"flex-row"}`}
                 >
                   <span className="text-gray-400">
-                    {formData.image ? formData.image.name : 'Upload offer Image'}
+                    {formData.image ? formData.image.name : t('placeholders.uploadImage')}
                   </span>
                   <Upload size={20} className="text-gray-600" />
                 </label>
@@ -316,8 +320,8 @@ const OfferSheet = ({ isOpen, onClose, offerId ,setOffers , setTotalOffers , set
 
               {/* Price Type Toggle */}
               <div className="mb-5">
-                <label className="block text-sm font-semibold text-gray-900 mb-3">
-                  Price Type <span className="text-red-500">*</span>
+                <label className={`block text-sm font-semibold text-gray-900 mb-3 ${isRTL?'text-right':"text-left"}`}>
+                  {t('labels.priceType')} <span className="text-red-500">*</span>
                 </label>
                 <div className="flex gap-3">
                   <button
@@ -329,7 +333,7 @@ const OfferSheet = ({ isOpen, onClose, offerId ,setOffers , setTotalOffers , set
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
-                    Single Price
+                    {t('buttons.singlePrice')}
                   </button>
                   <button
                     type="button"
@@ -340,7 +344,7 @@ const OfferSheet = ({ isOpen, onClose, offerId ,setOffers , setTotalOffers , set
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
-                    Offer Price
+                    {t('buttons.offerPrice')}
                   </button>
                 </div>
               </div>
@@ -348,13 +352,14 @@ const OfferSheet = ({ isOpen, onClose, offerId ,setOffers , setTotalOffers , set
               {/* Price Input - Conditional based on priceType */}
                 {priceType === 'single' ? (
                   <div className="mb-6">
-                    <label className="block text-sm font-semibold text-gray-900 mb-2">
-                      Price <span className="text-red-500">*</span>
+                    <label className={`block text-sm font-semibold text-gray-900 mb-2 ${isRTL?'text-right':"text-left"}`}>
+                      {t('labels.price')} <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="number"
+                      dir={isRTL?"rtl":"ltr"}
                       name="priceBeforeOffer"
-                      placeholder="Enter price"
+                      placeholder={t('placeholders.price')}
                       value={formData.priceBeforeOffer}
                       onChange={handleInputChange}
                       className="w-full px-4 py-3.5 text-base border border-gray-200 rounded-xl outline-none bg-gray-50 focus:border-[#009842] focus:ring-1 focus:ring-[#009842] transition-colors"
@@ -362,22 +367,24 @@ const OfferSheet = ({ isOpen, onClose, offerId ,setOffers , setTotalOffers , set
                   </div>
                 ) : (
                   <div className="mb-6">
-                    <label className="block text-sm font-semibold text-gray-900 mb-2">
-                      Offer Price <span className="text-red-500">*</span>
+                    <label className={`block text-sm font-semibold text-gray-900 mb-2 ${isRTL?'text-right':"text-left"}`}>
+                      {t('labels.offerPrice')} <span className="text-red-500">*</span>
                     </label>
                     <div className="grid grid-cols-2 gap-3">
                       <input
                         type="number"
+                        dir={isRTL?"rtl":"ltr"}
                         name="priceBeforeOffer"
-                        placeholder="Before offer"
+                        placeholder={t('placeholders.beforeOffer')}
                         value={formData.priceBeforeOffer}
                         onChange={handleInputChange}
                         className="w-full px-4 py-3.5 text-base border border-gray-200 rounded-xl outline-none bg-gray-50 focus:border-[#009842] focus:ring-1 focus:ring-[#009842] transition-colors"
                       />
                       <input
                         type="number"
+                        dir={isRTL?"rtl":"ltr"}
                         name="priceAfterOffer"
-                        placeholder="After offer"
+                        placeholder={t('placeholders.afterOffer')}
                         value={formData.priceAfterOffer}
                         onChange={handleInputChange}
                         className="w-full px-4 py-3.5 text-base border border-gray-200 rounded-xl outline-none bg-gray-50 focus:border-[#009842] focus:ring-1 focus:ring-[#009842] transition-colors"
@@ -399,7 +406,7 @@ const OfferSheet = ({ isOpen, onClose, offerId ,setOffers , setTotalOffers , set
                 className="w-full bg-[#009842] text-white py-4 font-semibold rounded-2xl flex items-center justify-center gap-2 hover:bg-[#007a36] transition-colors shadow-lg"
               >
                 <Share2 size={20} />
-                <span>{offer ? 'Update Offer' : 'Add Offer'}</span>
+                <span>{offer ? t('buttons.updateOffer') : t('buttons.addOffer')}</span>
               </button>
             </div>
             </>)}

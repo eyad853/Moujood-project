@@ -10,6 +10,7 @@ import OfferSheet from '../../../components/OfferSheet/OfferSheet';
 import { useOffer } from '../../../context/offerContext';
 import socket from '../../../Socket';
 import { useUser } from '../../../context/userContext';
+import PageError from '../../../components/PageError/PageError';
 
 
 const SA_Posts = () => {
@@ -24,6 +25,9 @@ const SA_Posts = () => {
   const [error , setError]=useState('')
   const [offers , setOffers]=useState([])
   const {user} = useUser()
+  const [pageError , setPageError]=useState('')
+  const [smallError , setSmallError]=useState('')
+  
 
     useEffect(()=>{
         const get=async()=>{
@@ -132,6 +136,11 @@ useEffect(() => {
 
   return (
     <div className="w-full max-w-full overflow-hidden">
+      {pageError?(
+        <div className="w-full h-full">
+          <PageError />
+        </div>
+      ):(<>
       {/* Page Title */}
       <h1 className="text-3xl font-bold text-gray-900 mb-6">Posts</h1>
 
@@ -320,6 +329,7 @@ useEffect(() => {
           setOffers={setOffers}
         /> 
       )}
+      </>)}
     </div>
   );
 };

@@ -2,7 +2,6 @@ import { App as CapApp } from '@capacitor/app';
 import { PushNotifications } from '@capacitor/push-notifications';
 import { SocialLogin } from '@capgo/capacitor-social-login';
 import { Preferences } from '@capacitor/preferences';
- 
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { useEffect } from 'react';
 import SignupAs from './pages/SignupAs/SignupAs';
@@ -37,6 +36,10 @@ import Profile from './pages/Profile/Profile';
 import { NotificationProvider } from './context/notificationContext';
 import SuperAdminAuth from './pages/SuperAdmin_Login/SuperAdmin_Login';
 import RootRedirect from './utils/RootRedirect';
+import VerifyEmail from './pages/VerifyEmail/VerifyEmail'
+import ForgotPassword from './pages/ForgotPassword/ForgotPassword';
+import { useState } from 'react';
+import { checkForAppUpdate } from './utils/check_version';
 
 
 const handleBackButton = () => {
@@ -75,6 +78,14 @@ const routes = [
   {
     path:'/super_admin_login',
     element:<SuperAdminAuth />
+  },
+  {
+    path:'/verify_email',
+    element:<VerifyEmail />
+  },
+  {
+    path:'/forgot-password',
+    element:<ForgotPassword />
   },
   {
     path:'/business_sign_up',
@@ -223,9 +234,13 @@ const routes = [
 
 ]
 
-
 const router = createBrowserRouter(routes)
+
 const App = () => {
+    const [updateInfo, setUpdateInfo] = useState(null);
+    const [showUpdateModal, setShowUpdateModal] = useState(false);
+
+
   useEffect(()=> {
     SocialLogin.initialize({
       google: {
@@ -266,7 +281,21 @@ const App = () => {
         router.navigate('/notifications');
       });
     });
+
+    const initApp = async () => {
+      console.log('start the update check');
+    // ⭐ check update first
+    const result = await checkForAppUpdate();
+
+    if (result.update) {
+      setUpdateInfo(result);
+      setShowUpdateModal(true);
+    }
+  };
+
+  initApp();
   }, [])
+
   
   CapApp.addListener("appUrlOpen", (event) => {
       try {
@@ -279,8 +308,19 @@ const App = () => {
       }
   });
 
+
+
   return (
+    <>
       <RouterProvider router={router}/>
+
+      {showUpdateModal && (
+        <UpdateModal
+          ioOpen={showUpdateModal}
+          onClose={() => setShowUpdateModal(false)}
+        />
+      )}
+    </>
   )
 }
 

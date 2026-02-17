@@ -1,0 +1,69 @@
+{
+  "title": "تعديل الملف الشخصي",
+  "labels": {
+    "name": "الاسم",
+    "businessName": "اسم النشاط التجاري",
+    "email": "البريد الإلكتروني",
+    "gender": "الجنس",
+    "governorate": "المحافظة",
+    "category": "فئة النشاط التجاري",
+    "description": "وصف النشاط التجاري",
+    "locations": "مواقع النشاط التجاري",
+    "phone": "هاتف النشاط التجاري"
+  },
+  "placeholders": {
+    "name": "أدخل اسمك",
+    "businessName": "اسم النشاط التجاري",
+    "email": "أدخل بريدك الإلكتروني",
+    "description": "صف نشاطك التجاري",
+    "phone": "أدخل رقم هاتف النشاط التجاري",
+    "governorate": "اختر محافظتك",
+    "gender": "اختر جنسك",
+    "category": "اختر من الفئات"
+  },
+  "genders": {
+    "male": "ذكر",
+    "female": "أنثى"
+  },
+  "governorates": {
+    "Cairo": "القاهرة",
+    "Alexandria": "الإسكندرية",
+    "Giza": "الجيزة",
+    "Qalyubia": "القليوبية",
+    "Port Said": "بورسعيد",
+    "Suez": "السويس",
+    "Luxor": "الأقصر",
+    "Aswan": "أسوان",
+    "Asyut": "أسيوط",
+    "Beheira": "البحيرة",
+    "Beni Suef": "بني سويف",
+    "Dakahlia": "الدقهلية",
+    "Damietta": "دمياط",
+    "Faiyum": "الفيوم",
+    "Gharbia": "الغربية",
+    "Ismailia": "الإسماعيلية",
+    "Kafr El Sheikh": "كفر الشيخ",
+    "Matrouh": "مرسى مطروح",
+    "Minya": "المنيا",
+    "Monufia": "المنوفية",
+    "New Valley": "الوادي الجديد",
+    "North Sinai": "شمال سيناء",
+    "Qena": "قنا",
+    "Red Sea": "البحر الأحمر",
+    "Sharqia": "الشرقية",
+    "Sohag": "سوهاج",
+    "South Sinai": "جنوب سيناء"
+  },
+  "messages": {
+    "success": "تم تحديث الملف الشخصي بنجاح",
+    "loading": "جارٍ التحميل...",
+    "locationsSelected": "تم اختيار {{count}} موقع",
+    "selectGovernorate":"اختر محافظتك",
+    "selectGender":"اختر جنسك",
+    "multipleLocations": "يمكنك إضافة عدة مواقع للنشاط التجاري"
+  },
+  "buttons": {
+    "saveChanges": "حفظ التغييرات",
+    "selectLocations": "انقر لتحديد المواقع على الخريطة"
+  }
+}

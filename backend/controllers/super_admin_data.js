@@ -1,6 +1,6 @@
 import { pool } from "../index.js"
 
-// 1️⃣ Get all businesses with total scans per business
+// 1️⃣ Get all businesses with total per business
 export const getBusinessPageData = async (req, res) => {
   try {
     const result = await pool.query(`
@@ -87,11 +87,8 @@ export const getUserPageData = async (req, res) => {
       u.email ,
       u.gender ,
       u.avatar,
-      u.governorate ,
-      COUNT(s.*) scans
-      FROM users u
-      LEFT JOIN scans s 
-      ON u.id = s.user_id
+      u.governorate 
+      FROM users AS u
       WHERE u.email != $1
       AND user_type != 'super_admin'
       GROUP BY u.id
@@ -137,7 +134,7 @@ export const getUserPageData = async (req, res) => {
   }
 };
 
-// 3️⃣ Get dashboard data with last month comparison for users, scans, businesses, sales
+// 3️⃣ Get dashboard data with last month comparison for users, businesses, sales
 export const getDashboardPageData = async (req, res) => {
   try {
     const now = new Date();
@@ -148,13 +145,6 @@ export const getDashboardPageData = async (req, res) => {
     const totalUsersRes = await pool.query(`SELECT COUNT(*) FROM users`);
     const lastMonthUsersRes = await pool.query(
       `SELECT COUNT(*) FROM users WHERE created_at >= $1 AND created_at < $2`,
-      [lastMonth, now]
-    );
-
-    // Total scans
-    const totalScansRes = await pool.query(`SELECT COUNT(*) FROM scans`);
-    const lastMonthScansRes = await pool.query(
-      `SELECT COUNT(*) FROM scans WHERE scanned_at >= $1 AND scanned_at < $2`,
       [lastMonth, now]
     );
 
@@ -186,25 +176,9 @@ export const getDashboardPageData = async (req, res) => {
 
     const data = {
       users: calcPercentage(parseInt(totalUsersRes.rows[0].count), parseInt(lastMonthUsersRes.rows[0].count)),
-      scans: calcPercentage(parseInt(totalScansRes.rows[0].count), parseInt(lastMonthScansRes.rows[0].count)),
       businesses: calcPercentage(parseInt(totalBusinessesRes.rows[0].count), parseInt(lastMonthBusinessesRes.rows[0].count)),
       sales: calcPercentage(parseFloat(totalSalesRes.rows[0].total), parseFloat(lastMonthSalesRes.rows[0].total))
     };
-
-    // Also prepare sales details for visualization (daily sales last 30 days)
-    const salesChartRes = await pool.query(`
-      SELECT 
-        DATE_TRUNC('month', created_at) AS month,
-        COALESCE(SUM(amount), 0) AS total
-      FROM sales
-      GROUP BY DATE_TRUNC('month', created_at)
-      ORDER BY DATE_TRUNC('month', created_at)
-    `);
-
-    const salesChartData = salesChartRes.rows.map(row => ({
-      date: row.month.toISOString().slice(0, 7), // YYYY-MM
-      total: parseFloat(row.total)
-    }));
 
     res.json({ 
       error:false,
@@ -212,8 +186,6 @@ export const getDashboardPageData = async (req, res) => {
       salesChartData ,
       totalUsers:totalUsersRes.rows[0],
       totalBusinesses:totalBusinessesRes.rows[0],
-      totalScans:totalScansRes.rows[0],
-      totalSales:totalSalesRes.rows[0]
     });
 
   } catch (err) {

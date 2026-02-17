@@ -1,0 +1,30 @@
+{
+  "title": {
+    "add": "إضافة عرض جديد",
+    "edit": "تعديل العرض"
+  },
+  "labels": {
+    "offerTitle": "عنوان العرض",
+    "offerDescription": "وصف العرض",
+    "category": "التصنيف",
+    "image": "الصورة",
+    "priceType": "نوع السعر",
+    "price": "السعر",
+    "offerPrice": "سعر العرض"
+  },
+  "placeholders": {
+    "offerTitle": "أدخل عنوان العرض",
+    "offerDescription": "أدخل وصف العرض",
+    "chooseCategory": "اختر التصنيف",
+    "uploadImage": "رفع صورة العرض",
+    "price": "أدخل السعر",
+    "beforeOffer": "قبل العرض",
+    "afterOffer": "بعد العرض"
+  },
+  "buttons": {
+    "singlePrice": "سعر فردي",
+    "offerPrice": "سعر العرض",
+    "addOffer": "إضافة العرض",
+    "updateOffer": "تحديث العرض"
+  }
+}

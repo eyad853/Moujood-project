@@ -7,6 +7,10 @@ import Loading from '../../../components/Loadiing/Loadiing';
 import { deleteOffer } from '../../../api/offers';
 import { useOffer } from '../../../context/offerContext';
 import OfferDetailSheet from '../../../components/OfferDetailSheet/OfferDetailSheet';
+import PageError from '../../../components/PageError/PageError'
+import SmallError from '../../../components/SmallError/SmallError';
+import { useTranslation } from 'react-i18next'
+
 
 
 const Business_offers = () => {
@@ -19,6 +23,11 @@ const Business_offers = () => {
   const [categories , setCategories]=useState([])
   const [offers , setOffers]=useState([])
   const [isOfferDetailsOpen , setIsOffersDetailsOpen]=useState(false)
+  const [pageError , setPageError]=useState('')
+  const [smallError , setSmallError]=useState('')
+  const { t , i18n} = useTranslation("businessOffers")
+  const isRTL = i18n.language === "ar"; // true if Arabic
+
   
   
   const filteredOffers = offers
@@ -48,6 +57,9 @@ const Business_offers = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
+      {pageError?(
+        <PageError />
+      ):(<>
       {/* Header */}
       <div className="bg-white px-5 py-4 flex items-center justify-center relative border-b border-gray-200">
         <h1 className="text-xl font-semibold text-gray-900">Offers</h1>
@@ -56,19 +68,19 @@ const Business_offers = () => {
       {/* Content */}
       <div className="px-2 py-6">
         {/* Search Bar */}
-        <div className="relative mb-5">
-          <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+        <div className={`relative flex `}>
+          <Search size={18} className={`absolute ${isRTL ? "right-3" : "left-3"} top-1/2 -translate-y-1/2 text-gray-400`} />
           <input
             type="text"
-            placeholder="Search"
+            placeholder={t('search')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-12 pr-4 py-3.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-[#009842] focus:ring-1 focus:ring-[#009842] transition-colors"
+            className={`w-full ${isRTL ? "pr-10 pl-4 text-right" : "pl-10 pr-4 text-left"} py-3.5 bg-white border border-neutral-200 rounded-lg outline-none focus:ring-2 focus:ring-[#009842] transition-all text-sm`}
           />
         </div>
 
         {/* Category Filter Pills */}
-        <div className="flex gap-2 mb-5 overflow-x-auto pb-2 hide-scrollbar">
+        <div className="flex gap-2 my-5 overflow-x-auto pb-2 hide-scrollbar">
           {categories.map((category, index) => (
             <button
               key={category.id}
@@ -92,66 +104,66 @@ const Business_offers = () => {
         </div>
 
         {/* Offers List */}
-{offers?.length > 0 ? (
-  <div className="space-y-3 mb-12">
-    {filteredOffers.map((offer) => (
-      <div
-        key={offer?.offer_id}
-        onClick={()=>{
-          setSelectedOffer(offer)
-          setIsOffersDetailsOpen(true)
-        }}
-        className="bg-[#00863A] rounded-xl p-4 flex items-center gap-4 shadow-lg"
-      >
-        {/* Offer Image/Thumbnail */}
-        <div className="relative border-2 border-white w-24 h-24 bg-[#00863A] rounded-xl overflow-hidden">
-          {/* Logo watermark */}
-          <img src={offer?.image} className='w-full h-full object-cover' />
+      {offers?.length > 0 ? (
+        <div className="space-y-3 mb-12">
+          {filteredOffers.map((offer) => (
+            <div
+              key={offer?.offer_id}
+              onClick={()=>{
+                setSelectedOffer(offer)
+                setIsOffersDetailsOpen(true)
+              }}
+              className="bg-[#00863A] rounded-xl p-4 flex items-center gap-4 shadow-lg"
+            >
+              {/* Offer Image/Thumbnail */}
+              <div className="relative border-2 border-white w-24 h-24 bg-[#00863A] rounded-xl overflow-hidden">
+                {/* Logo watermark */}
+                <img src={offer?.image} className='w-full h-full object-cover' />
+              </div>
+            
+              {/* Offer Info */}
+              <div className="flex-1 text-white">
+                <h3 className="text-2xl line-clamp-1 font-semibold mb-1">{offer?.title}</h3>
+                <div className="flex items-center whitespace-pre-wrap text-xs line-clamp-2">
+                  {offer?.description}
+                </div>
+              </div>
+            
+              {/* Actions */}
+              <div className="flex gap-2">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    deleteOffer(setError , setOffers, offer?.offer_id , setCategories)}}
+                  className="p-2.5 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
+                >
+                  <Trash2 size={20} className="text-white" />
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedOffer(offer)
+                    setIsOfferSheetOpen(true);
+                  }}
+                  className="p-2.5 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
+                >
+                  <Edit size={20} className="text-white" />
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
-
-        {/* Offer Info */}
-        <div className="flex-1 text-white">
-          <h3 className="text-2xl line-clamp-1 font-semibold mb-1">{offer?.title}</h3>
-          <div className="flex items-center whitespace-pre-wrap text-xs line-clamp-2">
-            {offer?.description}
-          </div>
+      ) : (
+      <div className="flex flex-col items-center justify-center ">
+        <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mb-4">
+          <QrCode size={48} className="text-gray-400" />
         </div>
-
-        {/* Actions */}
-        <div className="flex gap-2">
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-              deleteOffer(setError , setOffers, offer?.offer_id , setCategories)}}
-            className="p-2.5 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
-          >
-            <Trash2 size={20} className="text-white" />
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setSelectedOffer(offer)
-              setIsOfferSheetOpen(true);
-            }}
-            className="p-2.5 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
-          >
-            <Edit size={20} className="text-white" />
-          </button>
-        </div>
+        <h3 className="text-xl font-semibold text-gray-700 mb-2">{t('noOffers')}</h3>
+        <p className="text-gray-500 text-center px-8">
+          {t("noMessage")}
+        </p>
       </div>
-    ))}
-  </div>
-) : (
-  <div className="flex flex-col items-center justify-center ">
-    <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mb-4">
-      <QrCode size={48} className="text-gray-400" />
-    </div>
-    <h3 className="text-xl font-semibold text-gray-700 mb-2">No Offers Yet</h3>
-    <p className="text-gray-500 text-center px-8">
-      Start creating your first offer to attract more customers
-    </p>
-  </div>
-)}
+      )}
 
         {/* Add New Offer Button */}
         <button 
@@ -162,7 +174,7 @@ const Business_offers = () => {
           className="fixed bottom-20 left-3 right-3 bg-[#009842] text-white py-4 font-semibold rounded-md flex items-center justify-center gap-2 hover:bg-[#007a36] transition-colors shadow-xl z-30"
         >
           <span className="text-2xl">+</span>
-          <span>Add New Offer</span>
+          <span>{t('addBtn')}</span>
         </button>
       </div>
       {isOfferSheetOpen&&(
@@ -184,6 +196,12 @@ const Business_offers = () => {
           offerId={selectedOffer?.offer_id}
         /> 
       )}
+      </>)}
+
+      {smallError&&(
+        <SmallError message={smallError} onClose={()=>{setSmallError('')}}/>
+      )
+      }
     </div>
   );
 };

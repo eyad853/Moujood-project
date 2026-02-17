@@ -1,0 +1,49 @@
+{
+  "form": {
+    "businessName": "Business Name",
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "confirmPasswordLabel": "Confirm Password",
+    "categoryLabel": "Business Category",
+    "logoLabel": "Business Logo",
+    "descriptionLabel": "Business Description",
+    "locationsLabel": "Business Locations",
+    "selectedLocation":"locations selected",
+    "phoneLabel": "Business Phone",
+    "acceptTerms": "I accept and agree to comply with Maujood's Terms and Conditions and Privacy Policy",
+    "submitButton": "Sign Up",
+    "loginText": "Have an account?",
+    "loginButton": "Log In"
+  },
+  "placeholder": {
+    "businessName": "Enter your business name",
+    "email": "Enter your email",
+    "password": "Enter your password",
+    "confirmPassword": "Confirm your password",
+    "category": "Choose from the categories",
+    "description": "Describe your business",
+    "phone": "Enter your business phone number",
+    "logo": "Upload Your Logo"
+  },
+
+  "terms": {
+    "prefix": "I accept and agree to comply with Maujood's",
+    "termsLink": "Terms and Conditions",
+    "and":"and",
+    "privacyLink": "Privacy policy"
+  },
+
+  "submitBtn": "Sign Up",
+  "haveAccount": "Have an account?",
+  "login": "Log In",
+
+  "map": {
+    "selectLocations": "Click to select locations on map",
+    "locationsInfo": "You can add multiple business locations"
+  },
+  "errors": {
+    "required": "This field is required",
+    "passwordMismatch": "Passwords do not match",
+    "invalidEmail": "Invalid email address"
+  }
+}

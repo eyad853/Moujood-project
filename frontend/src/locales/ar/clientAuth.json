@@ -1,0 +1,73 @@
+{
+  "title": "إنشاء حساب",
+
+  "social": {
+    "google": "جوجل",
+    "facebook": "فيسبوك",
+    "orEmail": "أو التسجيل بالبريد الإلكتروني"
+  },
+
+  "form": {
+    "nameLabel": "الاسم",
+    "emailLabel": "البريد الإلكتروني",
+    "passwordLabel": "كلمة المرور",
+    "confirmPasswordLabel": "تأكيد كلمة المرور",
+    "genderLabel": "الجنس",
+    "governorateLabel": "المحافظة"
+  },
+
+  "placeholder": {
+    "name": "الاسم",
+    "email": "أدخل بريدك الإلكتروني",
+    "password": "أدخل كلمة المرور",
+    "gender": "اختر الجنس",
+    "governorate": "اختر مدينتك"
+  },
+
+  "gender": {
+    "male": "ذكر",
+    "female": "أنثى"
+  },
+
+  "terms": {
+    "prefix": "أوافق وأتعهد بالالتزام بـ",
+    "termsLink": "الشروط والأحكام",
+    "and":"و",
+    "privacyLink": "سياسة الخصوصية"
+  },
+
+  "submitBtn": "إنشاء حساب",
+  "haveAccount": "لديك حساب؟",
+  "login": "تسجيل الدخول",
+
+  "governorates":{
+    "Cairo": "القاهرة",
+    "Alexandria": "الإسكندرية",
+    "Giza": "الجيزة",
+    "Qalyubia": "القليوبية",
+    "Port Said": "بورسعيد",
+    "Suez": "السويس",
+    "Luxor": "الأقصر",
+    "Aswan": "أسوان",
+    "Asyut": "أسيوط",
+    "Beheira": "البحيرة",
+    "Beni Suef": "بني سويف",
+    "Dakahlia": "الدقهلية",
+    "Damietta": "دمياط",
+    "Faiyum": "الفيوم",
+    "Gharbia": "الغربية",
+    "Ismailia": "الإسماعيلية",
+    "Kafr El Sheikh": "كفر الشيخ",
+    "Matrouh": "مطروح",
+    "Minya": "المنيا",
+    "Monufia": "المنوفية",
+    "New Valley": "الوادي الجديد",
+    "North Sinai": "شمال سيناء",
+    "Qena": "قنا",
+    "Red Sea": "البحر الأحمر",
+    "Sharqia": "الشرقية",
+    "Sohag": "سوهاج",
+    "South Sinai": "جنوب سيناء"
+}
+
+}

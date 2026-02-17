@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Plus, Edit2, Trash2, X, Upload, Image } from 'lucide-react';
 import { addAd , getAds ,editAd , deleteAd } from '../../../api/ads';
 import Loadiing from '../../../components/Loadiing/Loadiing'
+import PageError from '../../../components/PageError/PageError';
 
 const SA_Ads = () => {
   const [ads, setAds] = useState([]);
@@ -11,6 +12,8 @@ const SA_Ads = () => {
   const [editingAd, setEditingAd] = useState(null);
   const [error ,setError]=useState('')
   const [loading , setLoading]=useState(false)
+  const [pageError , setPageError]=useState('')
+  const [smallError , setSmallError]=useState('')
   const [selectedAd , setSelectedAd]=useState({})
 
   const handleFileSelect = (e) => {
@@ -62,6 +65,11 @@ const SA_Ads = () => {
 
   return (
     <div className="max-w-7xl mx-auto">
+      {pageError?(
+        <div className="w-full h-full">
+          <PageError />
+        </div>
+      ):(<>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -251,6 +259,7 @@ const SA_Ads = () => {
           </div>
         </div>
       )}
+      </>)}
     </div>
   );
 };

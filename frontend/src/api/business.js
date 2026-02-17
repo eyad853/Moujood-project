@@ -1,19 +1,5 @@
 import axios from 'axios'
 
-const getProfileData = async (setError)=>{
-    try{
-        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/businesses/getProfileData` , {withCredentials:true})
-    }catch(error){
-        if (err.response?.data?.message) {
-            setError(err.response.data.message)
-        } else if (err.message) {
-            setError(err.message)
-        } else 
-            setError('Something went wrong')
-        }
-    }
-
-
 export const getBusinessDashboardData = async (setError ,setOffers,setTotalOffers,setTotalLikes , setCategories)=>{
     try{
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/businesses/getBusinessDashboardData` , {withCredentials:true})
@@ -36,7 +22,7 @@ export const getBusinessDashboardData = async (setError ,setOffers,setTotalOffer
 export const editProfileData = async (setError)=>{
     try{
         const response = await axios.patch(`${import.meta.env.VITE_BACKEND_URL}/businesses/editProfileData` , {withCredentials:true})
-    }catch(error){
+    }catch(err){
         if (err.response?.data?.message) {
             setError(err.response.data.message)
         } else if (err.message) {
@@ -53,7 +39,7 @@ export const getBusinessOffers = async (setError , setLoading , setOffers , setC
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/businesses/getBusinessOffers` , {withCredentials:true})
         setOffers(response.data.offers)
         setCategories(response.data.categories)
-    }catch(error){
+    }catch(err){
         if (err.response?.data?.message) {
             setError(err.response.data.message)
         } else if (err.message) {

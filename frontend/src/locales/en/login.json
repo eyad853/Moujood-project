@@ -1,0 +1,19 @@
+{
+  "form": {
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "forgotPassword": "Forgot password?",
+    "submitButton": "Log In",
+    "registerText": "Don't have an account?",
+    "registerButton": "Register"
+  },
+  "social": {
+    "google": "Google",
+    "facebook": "Facebook",
+    "divider": "Or Log In with Email"
+  },
+  "placeholder": {
+    "email": "Enter your email",
+    "password": "Enter your password"
+  }
+}

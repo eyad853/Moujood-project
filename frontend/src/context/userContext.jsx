@@ -11,7 +11,7 @@ export const AccountProvider = ({ children }) => {
 
   // Fetch user once when app loads
   useEffect(() => {
-    getUser(setLoading , setError)
+    getUser(setLoading , setUser , setError)
   }, []);
 
   return (

@@ -4,6 +4,7 @@ import { X, Send, Trash2, Edit2, Check } from 'lucide-react';
 import Loadiing from '../Loadiing/Loadiing'
 import { getOfferComments , createComment , updateComment , deleteComment } from '../../api/comments';
 import { useUser } from '../../context/userContext';
+import { useTranslation } from 'react-i18next';
 
 
 const CommentSheet = ({ isOpen, onClose, offerId , setOffers }) => {
@@ -14,6 +15,8 @@ const CommentSheet = ({ isOpen, onClose, offerId , setOffers }) => {
     const [loading , setLoading]=useState(false)
     const [comments, setComments] = useState([]);
     const {user} = useUser() 
+    const {t , i18n}=useTranslation('commentsSheet')
+    const isRTL = i18n.language==='ar'
 
   useEffect(()=>{
     const get = async ()=>{
@@ -89,7 +92,7 @@ const CommentSheet = ({ isOpen, onClose, offerId , setOffers }) => {
             {/* Header */}
             <div className="sticky top-0 z-20 bg-white border-b border-gray-200 px-5 py-4 flex items-center justify-between rounded-t-3xl">
               <h2 className="text-xl font-semibold text-gray-900">
-                Comments ({comments.length})
+                {t('title')} ({comments.length})
               </h2>
               <button
                 onClick={onClose}
@@ -223,8 +226,9 @@ const CommentSheet = ({ isOpen, onClose, offerId , setOffers }) => {
                         setContent('')
                       }
                     }}
-                    placeholder="Write a comment..."
+                    placeholder={t("placeholder")}
                     rows="1"
+                    dir={isRTL?"rtl":"ltr"}
                     className="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:border-[#009842] focus:ring-1 focus:ring-[#009842] resize-none text-sm"
                     style={{ minHeight: '44px', maxHeight: '120px' }}
                   />

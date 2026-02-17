@@ -1,9 +1,12 @@
 import axios from "axios";
 import { SocialLogin } from '@capgo/capacitor-social-login';
+import { getDeviceInfo } from "../utils/deviceInfo";
 
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const phoneRegex = /^[0-9]{10,15}$/;
+const passwordRegex =/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&^#()_\-+=])[A-Za-z\d@$!%*?&^#()_\-+=]{10,64}$/;
+const { deviceToken, deviceId, platform } = await getDeviceInfo();
 
 export const localAuth = async(setError , data ,navigate , setLoading , fromSuperAdminPage , setUser , setFieldErrors)=>{
     try{
@@ -66,11 +69,14 @@ export const localAuth = async(setError , data ,navigate , setLoading , fromSupe
     }
 
         const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/local` , data , {withCredentials:true})
-        setUser(response.data.account)
-        if(response.data.account.accountType==='user'){
-            navigate(`/client/feed`)
-        }else{
-          navigate('/super_admin/dashboard')
+        
+        if(!response.error){
+            navigate(`/verify_email`, {
+              state:{
+                email:data.email,
+                accountType:'user'
+              }
+            })
         }
     }catch(err){
         if (err.response?.data?.message) {
@@ -219,9 +225,13 @@ export const businessAuth = async(setError , data ,navigate , setLoading , setUs
           withCredentials:true,
           headers:{"Content-Type":"multipart/form-data"}
         })
-        if(response.status===201){
-          setUser(response.data.account)
-          navigate(`/business/dashboard`)
+        if(!response.error){
+          navigate(`/verify_email`, {
+              state:{
+                email:data.email,
+                accountType:'business'
+              }
+            })
         }
     }catch(err){
         if (err.response?.data?.message) {
@@ -236,63 +246,182 @@ export const businessAuth = async(setError , data ,navigate , setLoading , setUs
     }
 }
 
-export const handleGoogleAuth = async ()=>{
+export const handleGoogleAuth = async (navigate , setUser)=>{
+  try{
     const res = await SocialLogin.login({
-    provider: 'google',
-    options: {}
-  })
-  console.log(JSON.stringify(res))
+      provider: 'google',
+      options: {}
+    })
+    const idToken = res.result.idToken
+
+    const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/google` , idToken)
+    if(!response.data.error){
+      setUser(response.data.account)
+      navigate('/client/feed')
+    }
+  }catch(error){
+    console.log(error);
+  }
 }
 
-export const handleFacebookAuth = ()=>{
-    window.location.href = `${import.meta.env.VITE_BACKEND_URL}/auth/facebook`
+export const handleFacebookAuth =async (navigate , setUser)=>{
+    try{
+    const res = await SocialLogin.login({
+      provider: 'facebook',
+      options: {}
+    })
+    const accessToken = res.result.accessToken
+
+    const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/facebook` , accessToken)
+    if(!response.data.error){
+      setUser(response.data.account)
+      navigate('/client/feed')
+    }
+  }catch(error){
+    console.log(error);
+  }
 }
 
-export const getUser = async(setLoading , setUser)=>{
+export const getUser = async(setLoading , setUser , setError)=>{
   try {
     setLoading(true)
-    const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/auth/me`,{ withCredentials: true });
-    setUser(response.data); 
-    console.log(response.data);
-  } catch (error) {
-    if (error.response && error.response.status === 401) {
-      setUser(null); 
-  }
+    setError('')
 
+    const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/auth/me`,{
+      withCredentials: true 
+    });
+
+    setUser(response.data); 
+
+    console.log(response.data);
+  } catch (err) {
       setUser(null);
+
+    if (err.response?.data?.message) {
+        setError(err.response.data.message)
+    } else if (err.message) {
+        setError(err.message)
+    } else {
+        setError('Something went wrong')
+    }
+    
       } finally{
         setLoading(false)
       }
     }
 
-export const editAccount = async (formData, setLoading, setError , setUser , user) => {
+export const editAccount = async (formData, setLoading, setError , setUser , user , setFieldErrors , setFullError , isFromProfile) => {
   try {
-    setLoading(true);
+    setLoading(true)
+    setError('')
+    setFullError('')
+    setFieldErrors({});
+
+    // --- General Validations ---
+    if (isFromProfile&&!formData.name) {
+      setError('Name is required');
+      setFieldErrors(prev=>({...prev , name:true}))
+      return;
+    }
+
+    if (isFromProfile&&!formData.email || !emailRegex.test(formData.email)) {
+      setError('Email is required');
+      setFieldErrors(prev=>({...prev , email:true}))
+      return;
+    }
+
+      if (!isFromProfile&&!formData.password) {
+        setError('Current password is required to change password');
+        setFieldErrors(prev=>({...prev , password:true}))
+        return;
+      }
+      if (!isFromProfile&&!formData.newPassword) {
+        setError('New password is required');
+        setFieldErrors(prev=>({...prev , newPassword:true}))
+        return;
+      }
+      if (!isFromProfile&&!formData.confirmPassword) {
+        setError('Please confirm your new password');
+        setFieldErrors(prev=>({...prev , confirmPassword:true}))
+        return;
+      }
+      if (formData.newPassword !== formData.confirmPassword) {
+        setError('Confirm password does not match the new password');
+        return;
+      }
+
+    // --- Account Type Specific Validations ---
+    if (isFromProfile&&user?.accountType === 'user') {
+      if (!formData.gender) {
+        setError('Gender is required');
+        setFieldErrors(prev=>({...prev , gender:true}))
+        return;
+      }
+      if (!formData.governorate) {
+        setError('Governorate is required');
+        setFieldErrors(prev=>({...prev , governorate:true}))
+        return;
+      }
+    } else if (isFromProfile&&user?.accountType === 'business') {
+      if (!formData.category) {
+        setError('Category is required');
+        setFieldErrors(prev=>({...prev , category:true}))
+        return;
+      }
+      if (!formData.description) {
+        setError('Description is required');
+        setFieldErrors(prev=>({...prev , description:true}))
+        return;
+      }
+      if (!formData.number) {
+        setError('Number is required');
+        setFieldErrors(prev=>({...prev , number:true}))
+        return;
+      }
+    }
+
     const fm = new FormData()
+    if(formData.name){
+      fm.append('name' , formData.name)
+    }
+    if(formData.email){
+      fm.append('email' , formData.email)
+    }
+
+    if (formData.password) {
+      fm.append('password', formData.password);
+      fm.append('newPassword', formData.newPassword);
+    }
+    
+    if (formData.image) {
+      fm.append('image', formData.image);
+    }
+
     if(user?.accountType==='user'){
-      fm.append('name' , formData.name)
-      fm.append('email' , formData.email)
-      if (formData.password) {
-        fm.append('password', formData.password);
+      if(formData.gender){
+        fm.append('gender' , formData.gender)
       }
-      if (formData.image) {
-        fm.append('image', formData.image);
+
+      if(formData.governorate){
+        fm.append('governorate' , formData.governorate)
       }
-      fm.append('gender' , formData.gender)
-      fm.append('governorate' , formData.governorate)
+      
     } else if (user?.accountType==="business"){
-      fm.append('name' , formData.name)
-      fm.append('email' , formData.email)
-      if (formData.password) {
-        fm.append('password', formData.password);
+      if(formData.category){
+        fm.append('category' , Number(formData.category))
       }
-      if (formData.image) {
-        fm.append('image', formData.image);
+      
+      if(formData.description){
+        fm.append('description' , formData.description)
       }
-      fm.append('category' , Number(formData.category))
-      fm.append('description' , formData.description)
+
+      if(formData.locations){
       fm.append('locations' , formData.locations)
+      }
+
+      if(formData.number){
       fm.append('number' , formData.number)
+      }
     }
 
     const response = await axios.patch(
@@ -304,8 +433,12 @@ export const editAccount = async (formData, setLoading, setError , setUser , use
       }
 
     );
-    if(!response.error){
+    if(response.data.error){
+      setError(response.data.message)
+      return { success: false }
+    }else{
       setUser(response.data.account)
+      return { success: true, message: response.data.message }
     }
 
     console.log(response);
@@ -313,12 +446,13 @@ export const editAccount = async (formData, setLoading, setError , setUser , use
     
   } catch (err) {
     if (err.response?.data?.message) {
-      setError(err.response.data.message);
+      setFullError(err.response.data.message);
     } else if (err.message) {
-      setError(err.message);
+      setFullError(err.message);
     } else {
-      setError("Something went wrong");
+      setFullError("Something went wrong");
     }
+    return { success: false };
   } finally {
     setLoading(false);
   }
@@ -356,3 +490,52 @@ export const logout = async (
     setLoading(false);
   }
 };
+
+export const handleResendEmail = async (setIsResending , setResendSuccess , setCountdown , setError) => {
+  setIsResending(true);
+
+  try {
+    const response = await axios.post(
+      `${import.meta.env.VITE_BACKEND_URL}/auth/resend-verify-email`,
+      {
+        email,
+        accountType, // "user" or "business"
+      }
+    );
+
+    if (!response.error) {
+        setIsResending(false);
+
+        setResendSuccess(true);
+        setCountdown(60); // reset countdown for resend button
+
+        // Hide success after 3 seconds
+        setTimeout(() => setResendSuccess(false), 3000);
+    }
+
+  } catch (err) {
+    console.error(err);
+    if (err.response?.data?.message) {
+      setError(error.response?.data?.message || 'Verification failed. The link may be invalid or expired.');
+    } else {
+      setError(error.response?.message || 'Verification failed. The link may be invalid or expired.');
+    }
+  }
+};
+
+export const verifyToken = async(setLoading , setUser , setAccountType , setError)=>{
+  try{
+      setLoading(true)
+      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/auth/verify-email/${token}` , {withCredentials:true})
+      if(!response.data.error){
+        console.log(response.data.account)
+        setUser(response.data.account)
+        setAccountType(response.data.account.accountType)
+      }
+    }catch(error){
+      console.log(error);
+      setError(error.response?.data?.message || 'Verification failed. The link may be invalid or expired.');
+    }finally{
+      setLoading(false)
+    }
+  }

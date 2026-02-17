@@ -1,0 +1,72 @@
+{
+  "title": "Sign up",
+
+  "social": {
+    "google": "Google",
+    "facebook": "Facebook",
+    "orEmail": "Or Register with Email"
+  },
+
+  "form": {
+    "nameLabel": "Name",
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "confirmPasswordLabel": "Confirm Password",
+    "genderLabel": "Gender",
+    "governorateLabel": "Your governorate"
+  },
+
+  "placeholder": {
+    "name": "Name",
+    "email": "Enter your email",
+    "password": "Enter your password",
+    "gender": "Select your gender",
+    "governorate": "Select your city"
+  },
+
+  "gender": {
+    "male": "Male",
+    "female": "Female"
+  },
+
+  "terms": {
+    "prefix": "I accept and agree to comply with Maujood's",
+    "termsLink": "Terms and Conditions",
+    "and":"and",
+    "privacyLink": "Privacy policy"
+  },
+
+  "submitBtn": "Sign Up",
+  "haveAccount": "Have an account?",
+  "login": "Log In",
+
+  "governorates": {
+    "Cairo": "Cairo",
+    "Alexandria": "Alexandria",
+    "Giza": "Giza",
+    "Qalyubia": "Qalyubia",
+    "Port Said": "Port Said",
+    "Suez": "Suez",
+    "Luxor": "Luxor",
+    "Aswan": "Aswan",
+    "Asyut": "Asyut",
+    "Beheira": "Beheira",
+    "Beni Suef": "Beni Suef",
+    "Dakahlia": "Dakahlia",
+    "Damietta": "Damietta",
+    "Faiyum": "Faiyum",
+    "Gharbia": "Gharbia",
+    "Ismailia": "Ismailia",
+    "Kafr El Sheikh": "Kafr El Sheikh",
+    "Matrouh": "Matrouh",
+    "Minya": "Minya",
+    "Monufia": "Monufia",
+    "New Valley": "New Valley",
+    "North Sinai": "North Sinai",
+    "Qena": "Qena",
+    "Red Sea": "Red Sea",
+    "Sharqia": "Sharqia",
+    "Sohag": "Sohag",
+    "South Sinai": "South Sinai"
+  }
+}

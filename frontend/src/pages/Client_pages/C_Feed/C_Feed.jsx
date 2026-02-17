@@ -9,12 +9,19 @@ import { Link } from 'react-router-dom';
 import { fetchNotificationCount } from '../../../api/notifications';
 import { useUser } from '../../../context/userContext';
 import socket from '../../../Socket';
+import { FaUser } from 'react-icons/fa6';
+import SmallError from '../../../components/SmallError/SmallError';
+import PageError from '../../../components/PageError/PageError';
+import { useTranslation } from 'react-i18next'
+
 
 const C_Feed = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory , setSelectedCategory]=useState(null)
   const [ads , setAds]=useState([])
   const [error ,setError]=useState('')
+  const [pageError , setPageError]=useState('')
+  const [smallError , setSmallError]=useState('')
   const [loading , setLoading]=useState(false)
   const [offers , setOffers]=useState([])
   const [categories , setCategories]=useState([])
@@ -28,6 +35,10 @@ const C_Feed = () => {
   const [sliderElement, setSliderElement] = useState(null);
   const isJumpingRef = useRef(false)
   const [isSliderInitialized, setIsSliderInitialized] = useState(false);
+  const {t , i18n} = useTranslation('feed')
+  const isRTL = i18n.language === "ar"; // true if Arabic
+  const [tallImages, setTallImages] = useState(new Set())
+
 
   const toggleExpand = (offerId) => {
   setExpandedOffers((prev) => {
@@ -35,6 +46,15 @@ const C_Feed = () => {
     next.has(offerId) ? next.delete(offerId) : next.add(offerId)
     return next
   })
+}
+
+const handleImageLoad = (offerId, e) => {
+  const img = e.target
+  const isPortrait = img.naturalHeight > img.naturalWidth
+
+  if (isPortrait) {
+    setTallImages(prev => new Set(prev).add(offerId))
+  }
 }
   
 
@@ -228,15 +248,24 @@ const formatLikesAndCommentsCount = (num) => {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
+      {pageError?(
+        <PageError />
+      ):(<>
       {/* Header */}
       <div className="bg-white px-5 py-4 border-b border-gray-200 sticky top-0 z-20">
         <div className="flex items-center justify-between mb-4">
           {/* User Avatar */}
-          <img
-            src="https://ui-avatars.com/api/?name=User&background=009842&color=fff"
-            alt="User"
-            className="w-12 h-12 rounded-full"
-          />
+          <div className="flex w-12 rounded-full overflow-hidden h-12 items-center gap-3">
+            {user?.avatar?(
+              <img
+              src={user?.avatar}
+              className="w-full h-full rounded-full object-cover"
+            />):(
+              <div className="w-full h-full border border-neutral-300  overflow-hidden rounded-full flex justify-center items-end">
+                  <FaUser className='text-[#009842]' size={35}/>
+              </div>
+            )}
+          </div>
 
           {/* Logo */}
           <img src="/logo.svg" alt="Maujood Logo" className="h-10 object-contain" />
@@ -252,14 +281,14 @@ const formatLikesAndCommentsCount = (num) => {
         </div>
 
         {/* Search Bar */}
-        <div className="relative">
-          <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+        <div className={`relative flex `}>
+          <Search size={18} className={`absolute ${isRTL ? "right-3" : "left-3"} top-1/2 -translate-y-1/2 text-gray-400`} />
           <input
             type="text"
-            placeholder="Search"
+            placeholder={t('search')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-gray-100 border-none rounded-lg outline-none focus:ring-2 focus:ring-[#009842] transition-all text-sm"
+            className={`w-full ${isRTL ? "pr-10 pl-4 text-right" : "pl-10 pr-4 text-left"} py-2.5 bg-gray-100 border-none rounded-lg outline-none focus:ring-2 focus:ring-[#009842] transition-all text-sm`}
           />
         </div>
       </div>
@@ -267,9 +296,9 @@ const formatLikesAndCommentsCount = (num) => {
       {/* Content */}
       <div className="px-5 py-4">
         {/* Featured Slider */}
-        <div className="mb-6 relative">
+        {ads.length>0&&(<div className="mb-6 relative">
           <div 
-          ref={setSliderElement}
+            ref={setSliderElement}
             className="flex gap-3 overflow-x-auto snap-x snap-mandatory hide-scrollbar scroll-smooth"
             onScroll={handleSliderScroll}
           >
@@ -306,7 +335,7 @@ const formatLikesAndCommentsCount = (num) => {
               />
             ))}
           </div>
-        </div>
+        </div>)}
 
 
         {/* Category Filter Pills */}
@@ -359,28 +388,29 @@ const formatLikesAndCommentsCount = (num) => {
               <div className={`w-full relative transition-all duration-300 ${expandedOffers.has(offer.offer_id)? "h-auto": "aspect-square"}`}>
                 <img
                   src={offer.image}
+                  onLoad={(e)=>handleImageLoad(offer.offer_id, e)}
                   className={`w-full h-full object-cover `}/>
                   
-                  {!expandedOffers.has(offer.offer_id) && (
+                  {tallImages.has(offer.offer_id)&&!expandedOffers.has(offer.offer_id) && (
                     <div
                       className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"
                     />
                   )}
                 
                   {/* Clickable button */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      toggleExpand(offer.offer_id)
-                    }}
-                    className="absolute bottom-2 left-1/2 -translate-x-1/2
-                               bg-white/90 text-[#009842] text-sm font-medium
-                               px-4 py-1.5 rounded-full shadow"
-                  >
-                    {expandedOffers.has(offer.offer_id)
-                      ? "Show less"
-                      : "Show full image"}
-                  </button>
+                  {tallImages.has(offer.offer_id) && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        toggleExpand(offer.offer_id)
+                      }}
+                      className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-white/90 text-[#009842] text-sm font-medium  px-4 py-1.5 rounded-full shadow"
+                    >
+                      {expandedOffers.has(offer.offer_id)
+                        ? t("showLess")
+                        : t("showFullImage")}
+                    </button>
+                  )}
               </div>
 
               {/* Post Footer */}
@@ -437,6 +467,12 @@ const formatLikesAndCommentsCount = (num) => {
           <OfferDetailSheet isOpen={isOfferSheetOpen} onClose={()=>{setIsOfferSheetOpen(false)}} offerId={selectedOffer.offer_id}/>
         )
       }
+
+      {smallError&&(
+        <SmallError message={smallError} onClose={()=>{setSmallError('')}}/>
+        )
+      }
+      </>)}
     </div>
   );
 };

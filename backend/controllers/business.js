@@ -1,33 +1,5 @@
 import { pool } from "../index.js";
 
-export const getProfileData = async (req, res) => {
-  try {
-    const business_id = req.user.id;
-
-    const result = await pool.query(
-        `SELECT id,name,email,category,logo,description,
-        addresses,locations,number,qr_code,created_at
-        );
-        FROM businesses
-        WHERE id = $1`,
-        [business_id]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: "Business not found" });
-    }
-    const profile = result.rows[0]
-
-    res.status(200).json({
-        error:false,
-        profile
-    });
-
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
-
 export const getBusinessDashboardData = async (req, res) => {
   try {
     const business_id = req.user.id;
@@ -105,12 +77,9 @@ export const getBusinessOffers = async (req, res) => {
     const offersResult = await pool.query(
       `
       SELECT 
-      o.*,
-      COUNT(s.id) AS scans
+      o.*
       FROM offers o
-      LEFT JOIN scans s ON s.offer_id = o.offer_id
       WHERE o.business_id = $1
-      GROUP BY o.offer_id
       ORDER BY o.created_at DESC
       `,
       [business_id]

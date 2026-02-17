@@ -113,21 +113,14 @@ export const getOffers = async (req, res) => {
     const query = `
       SELECT 
         o.*,
-        COALESCE(s.scan_count, 0) AS scan_count,
         COALESCE(l.like_count, 0) AS like_count,
         COALESCE(c.comment_count, 0) AS comment_count,
         (
-          COALESCE(s.scan_count, 0) * 5 +
           COALESCE(l.like_count, 0) * 2 +
           COALESCE(c.comment_count, 0) * 3 +
           (RANDOM() * 3)
         ) AS score
       FROM offers o
-      LEFT JOIN (
-          SELECT offer_id, COUNT(*) AS scan_count
-          FROM scans
-          GROUP BY offer_id
-      ) s ON o.offer_id = s.offer_id
       LEFT JOIN (
           SELECT offer_id, COUNT(*) AS like_count
           FROM likes

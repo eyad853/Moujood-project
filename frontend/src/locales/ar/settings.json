@@ -1,0 +1,9 @@
+{
+  "header": "الإعدادات",
+  "securityTitle": "الأمان",
+  "securityDescription": "إدارة أمان حسابك",
+  "changePassword": "تغيير كلمة المرور",
+  "languageTitle": "اللغة",
+  "languageDescription": "اختر لغتك المفضلة",
+  "logout": "تسجيل الخروج"
+}

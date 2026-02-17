@@ -6,21 +6,26 @@ import EditProfileSheet from '../../components/EditProfileSheet/EditProfileSheet
 import { FaUser } from 'react-icons/fa6';
 import { editAccount } from '../../api/auth';
 import Loadiing from '../../components/Loadiing/Loadiing'
+import PageError from '../../components/PageError/PageError';
+import { useTranslation } from 'react-i18next'
+
 
 const Profile = () => {
     const navigate = useNavigate();
-    const {user , setUser , loading , setLoading , setError ,  error} = useUser() 
+    const {user , loading , error} = useUser() 
     const [isEditProfileSheetOpen , setIsEditProfileSheetOpen]=useState(false)
     const [avatarPreview, setAvatarPreview] = useState(user?.avatar || user?.logo);
+    const {t , i18n}=useTranslation('profile')
+    const isRTL = i18n.language === "ar"; // true if Arabic
 
 
   const menuItems = [
-    { id: 1, icon: Edit2 , label: 'Edit profile information', onClick: () => {setIsEditProfileSheetOpen(true)} },
+    { id: 1, icon: Edit2 , label: t('editProfile'), onClick: () => {setIsEditProfileSheetOpen(true)} },
   ];
 
   const bottomMenuItems = [
-    { id: 2, icon: MessageSquare, label: 'Contact us', onClick: () => console.log('Contact') },
-    { id: 3, icon: Lock, label: 'Privacy policy', onClick: () => console.log('Privacy') },
+    { id: 2, icon: MessageSquare, label: t('contact'), onClick: () => console.log('Contact') },
+    { id: 3, icon: Lock, label: t('privacyPolicy'), onClick: () => console.log('Privacy') },
   ];
 
   // useEffect(()=>{
@@ -48,9 +53,12 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
+      {error?(
+        <PageError error={error} />
+      ):(<>
       {/* Header with Green Background */}
       <div className="bg-[#009842] pt-12 pb-24 px-5 relative">
-        <h1 className="text-xl font-semibold text-white text-center">Profile</h1>
+        <h1 className="text-xl font-semibold text-white text-center">{t('title')}</h1>
       </div>
 
       {/* Profile Card - Overlapping Header */}
@@ -75,7 +83,7 @@ const Profile = () => {
           <div className="text-center mb-6">
             <h2 className="text-2xl font-bold text-gray-900 mb-1">{user?.name}</h2>
             <p className="text-sm text-gray-600">
-              {user?.email} | {user?.number}
+              {user?.email}
             </p>
           </div>
 
@@ -89,13 +97,10 @@ const Profile = () => {
                   onClick={item.onClick}
                   className="w-full flex items-center justify-between px-4 py-4 hover:bg-gray-50 rounded-xl transition-colors"
                 >
-                  <div className="flex items-center gap-3">
+                  <div className={`flex items-center gap-3 ${isRTL?"flex-row-reverse":"flex-row"}`}>
                     <Icon size={20} className="text-gray-700" />
-                    <span className="text-gray-900 font-medium">{item.label}</span>
+                    <span className={`text-gray-900 ${isRTL?"text-sm":""} font-medium`}>{item.label}</span>
                   </div>
-                  {item.value && (
-                    <span className="text-[#009842] font-medium">{item.value}</span>
-                  )}
                 </button>
               );
             })}
@@ -129,7 +134,7 @@ const Profile = () => {
               <button
                 key={item.id}
                 onClick={item.onClick}
-                className={`w-full flex items-center gap-3 px-6 py-4 hover:bg-gray-50 transition-colors ${
+                className={`w-full flex ${isRTL?"flex-row-reverse":"flex-row"} items-center gap-3 px-6 py-4 hover:bg-gray-50 transition-colors ${
                   index !== bottomMenuItems.length - 1 ? 'border-b border-gray-100' : ''
                 }`}
               >
@@ -141,6 +146,7 @@ const Profile = () => {
         </div>
       </div>
       <EditProfileSheet isOpen={isEditProfileSheetOpen} onClose={()=>{setIsEditProfileSheetOpen(false)}}/>
+        </>)}
     </div>
   );
 };

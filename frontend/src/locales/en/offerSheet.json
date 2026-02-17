@@ -1,0 +1,30 @@
+{
+  "title": {
+    "add": "Add New Offer",
+    "edit": "Edit Offer"
+  },
+  "labels": {
+    "offerTitle": "Offer Title",
+    "offerDescription": "Offer Description",
+    "category": "Category",
+    "image": "Image",
+    "priceType": "Price Type",
+    "price": "Price",
+    "offerPrice": "Offer Price"
+  },
+  "placeholders": {
+    "offerTitle": "Enter offer title",
+    "offerDescription": "Enter offer description",
+    "chooseCategory": "Choose category",
+    "uploadImage": "Upload offer image",
+    "price": "Enter price",
+    "beforeOffer": "Before offer",
+    "afterOffer": "After offer"
+  },
+  "buttons": {
+    "singlePrice": "Single Price",
+    "offerPrice": "Offer Price",
+    "addOffer": "Add Offer",
+    "updateOffer": "Update Offer"
+  }
+}

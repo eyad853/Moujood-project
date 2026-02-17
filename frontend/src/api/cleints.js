@@ -58,6 +58,7 @@ export const getBusinessPageData = async (setError , setBusiness , setCategories
         setBusiness(response.data.business)
         setOffers(response.data.offers)
         setMarkers(response.data.locations)
+        console.log(response.data.locations);
     }catch(err){
         if (err.response?.data?.message) {
             setError(err.response.data.message)

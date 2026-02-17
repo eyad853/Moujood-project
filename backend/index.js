@@ -22,11 +22,10 @@ import connectPgSimple from 'connect-pg-simple';
 import likesRouter from './routes/likes.js';
 import commentsRouter from './routes/comments.js';
 import LovedCategoriesRouter from './routes/lovedTopics.js';
-import './config/googleAuth.js'
 import adsRouter from './routes/ads.js';
-import './config/facebookAuth.js'
 import scansRouter from './routes/scans.js';
 import sharedsession from 'express-socket.io-session';
+import appRouter from './routes/app.js';
 
 const app = express()
 const server = http.createServer(app);
@@ -144,6 +143,7 @@ app.use('/comments', commentsRouter)
 app.use('/lovedCategoies' , LovedCategoriesRouter)
 app.use('/ads' , adsRouter)
 app.use('/scans' , scansRouter)
+app.use('/app', appRouter);
 
 
 async function createTables() {

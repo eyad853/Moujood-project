@@ -3,6 +3,9 @@ import { ArrowLeft, Search, Star } from 'lucide-react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { getBusinessesOfCategory, getSubCategoriesOfCategory } from '../../../api/cleints';
 import Loadiing from '../../../components/Loadiing/Loadiing';
+import PageError from '../../../components/PageError/PageError';
+import { useTranslation } from 'react-i18next'
+
 
 const C_Business_Of_Category = () => {
   const navigate = useNavigate();
@@ -13,6 +16,9 @@ const C_Business_Of_Category = () => {
   const [error , setError]=useState('')
   const [selectedCategory , setSelectedCategory]=useState(null)
   const [categories , setCategories]=useState([])
+  const { t , i18n } = useTranslation("categories")
+  const isRTL = i18n.language === "ar"; // true if Arabic
+
 
 
   useEffect(()=>{
@@ -56,6 +62,9 @@ const C_Business_Of_Category = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
+      {error?(
+        <PageError error={error}/>
+      ):(<>
       {/* Header */}
       <div className="bg-white px-5 py-4 border-b border-gray-200 sticky top-0 z-20">
         <div className="flex items-center justify-center relative mb-4">
@@ -69,14 +78,14 @@ const C_Business_Of_Category = () => {
         </div>
 
         {/* Search Bar */}
-        <div className="relative">
-          <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+        <div className={`relative flex `}>
+          <Search size={18} className={`absolute ${isRTL ? "right-3" : "left-3"} top-1/2 -translate-y-1/2 text-gray-400`} />
           <input
             type="text"
-            placeholder="Search"
+            placeholder={t('search')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-gray-100 border-none rounded-lg outline-none focus:ring-2 focus:ring-[#009842] transition-all text-sm"
+            className={`w-full ${isRTL ? "pr-10 pl-4 text-right" : "pl-10 pr-4 text-left"} py-2.5 bg-gray-100 border-none rounded-lg outline-none focus:ring-2 focus:ring-[#009842] transition-all text-sm`}
           />
         </div>
       </div>
@@ -139,6 +148,7 @@ const C_Business_Of_Category = () => {
           </div>
         )}
       </div>
+      </>)}
     </div>
   );
 };

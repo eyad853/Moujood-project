@@ -5,6 +5,7 @@ import Loadiing from '../../../components/Loadiing/Loadiing'
 import { getAllCategories } from '../../../api/categories';
 import socket from '../../../Socket';
 import BusinessSheet from '../../../components/BusinessSheet/BusinessSheet';
+import PageError from '../../../components/PageError/PageError';
 
 const SA_Businesses = () => {
   const [activeTab, setActiveTab] = useState('Overview');
@@ -18,6 +19,8 @@ const SA_Businesses = () => {
   const [businesses , setBusinesses]=useState([])
   const [categories , setCategories]=useState([])
   const [selectedBusiness , setSelectedBusiness] = useState(null)
+  const [pageError , setPageError]=useState('')
+  const [smallError , setSmallError]=useState('')
   const [isBusinessSheetOpen , setIsBusinessSheetOpen]=useState(false)
 
   const tabs = ['Overview'];
@@ -99,6 +102,11 @@ const SA_Businesses = () => {
 
   return (
     <div className="w-full max-w-full overflow-hidden">
+      {pageError?(
+        <div className="w-full h-full">
+          <PageError />
+        </div>
+      ):(<>
       {/* Page Title */}
       <h1 className="text-3xl font-bold text-gray-900 mb-6">Businesses</h1>
 
@@ -228,7 +236,8 @@ const SA_Businesses = () => {
 
               {/* Status */}
               <div 
-              onClick={()=>{
+              onClick={(e)=>{
+                e.stopPropagation()
                 editBusinessActivity(setError , businesses , business , setBusinesses)
               }}
               className="col-span-2">
@@ -247,6 +256,7 @@ const SA_Businesses = () => {
       {isBusinessSheetOpen&&selectedBusiness?.id&&(
         <BusinessSheet isOpen={isBusinessSheetOpen} onClose={()=>setIsBusinessSheetOpen(false)} businessId={selectedBusiness.id}/>
         )}
+        </>)}
     </div>
   );
 };

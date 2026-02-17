@@ -6,7 +6,8 @@ import {getAllCategories} from '../../api/categories.js'
 import { editAccount } from '../../api/auth.js';
 import { useMapProvider } from '../../context/mapContext.jsx';
 import MapModal from '../modals/MapModal/MapModal.jsx';
-import { LuImageMinus } from 'react-icons/lu';
+import Loadiing from '../Loadiing/Loadiing.jsx'
+import { useTranslation } from 'react-i18next';
 
 const EditProfileSheet = ({ isOpen, onClose }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -16,13 +17,17 @@ const EditProfileSheet = ({ isOpen, onClose }) => {
   const [logoPreview, setLogoPreview] = useState(null);
   const [categories, setCategories] = useState([]);
   const [error, setError] = useState('');
+  const [fullError, setFullError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({})
   const [loading , setLoading]=useState(false)
   const { user , setUser } = useUser();
+  const [success, setSuccess] = useState('');
+  const {t , i18n}=useTranslation('editProfileSheet')
+  const isRtl = i18n.language==='ar'
   const {showMapModal,setShowMapModal,markers,setMarkers , userLocation, setUserLocation}=useMapProvider()
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    password: '',
     gender: '',
     governorate: '',
     category: '',
@@ -33,38 +38,38 @@ const EditProfileSheet = ({ isOpen, onClose }) => {
   });
 
   const genderOptions = [
-    { value: 'male', label: 'Male' },
-    { value: 'female', label: 'Female' }
+    { value: 'male', label: t('genders.male') },
+    { value: 'female', label: t('genders.female') }
   ];
 
   const governorateOptions = [
-    { value: 'Cairo', label: 'Cairo' },
-    { value: 'Alexandria', label: 'Alexandria' },
-    { value: 'Giza', label: 'Giza' },
-    { value: 'Qalyubia', label: 'Qalyubia' },
-    { value: 'Port Said', label: 'Port Said' },
-    { value: 'Suez', label: 'Suez' },
-    { value: 'Luxor', label: 'Luxor' },
-    { value: 'Aswan', label: 'Aswan' },
-    { value: 'Asyut', label: 'Asyut' },
-    { value: 'Beheira', label: 'Beheira' },
-    { value: 'Beni Suef', label: 'Beni Suef' },
-    { value: 'Dakahlia', label: 'Dakahlia' },
-    { value: 'Damietta', label: 'Damietta' },
-    { value: 'Faiyum', label: 'Faiyum' },
-    { value: 'Gharbia', label: 'Gharbia' },
-    { value: 'Ismailia', label: 'Ismailia' },
-    { value: 'Kafr El Sheikh', label: 'Kafr El Sheikh' },
-    { value: 'Matrouh', label: 'Matrouh' },
-    { value: 'Minya', label: 'Minya' },
-    { value: 'Monufia', label: 'Monufia' },
-    { value: 'New Valley', label: 'New Valley' },
-    { value: 'North Sinai', label: 'North Sinai' },
-    { value: 'Qena', label: 'Qena' },
-    { value: 'Red Sea', label: 'Red Sea' },
-    { value: 'Sharqia', label: 'Sharqia' },
-    { value: 'Sohag', label: 'Sohag' },
-    { value: 'South Sinai', label: 'South Sinai' }
+    { value: 'Cairo', label: t('governorates.Cairo') },
+    { value: 'Alexandria', label: t('governorates.Alexandria') },
+    { value: 'Giza', label: t('governorates.Giza') },
+    { value: 'Qalyubia', label: t('governorates.Qalyubia') },
+    { value: 'Port Said', label: t('governorates.Port Said') },
+    { value: 'Suez', label: t('governorates.Suez') },
+    { value: 'Luxor', label: t('governorates.Luxor') },
+    { value: 'Aswan', label: t('governorates.Aswan') },
+    { value: 'Asyut', label: t('governorates.Asyut') },
+    { value: 'Beheira', label: t('governorates.Beheira') },
+    { value: 'Beni Suef', label: t('governorates.Beni Suef') },
+    { value: 'Dakahlia', label: t('governorates.Dakahlia') },
+    { value: 'Damietta', label: t('governorates.Damietta') },
+    { value: 'Faiyum', label: t('governorates.Faiyum') },
+    { value: 'Gharbia', label: t('governorates.Gharbia') },
+    { value: 'Ismailia', label: t('governorates.Ismailia') },
+    { value: 'Kafr El Sheikh', label: t('governorates.Kafr El Sheikh') },
+    { value: 'Matrouh', label: t('governorates.Matrouh') },
+    { value: 'Minya', label: t('governorates.Minya') },
+    { value: 'Monufia', label: t('governorates.Monufia') },
+    { value: 'New Valley', label: t('governorates.New Valley') },
+    { value: 'North Sinai', label: t('governorates.North Sinai') },
+    { value: 'Qena', label: t('governorates.Qena') },
+    { value: 'Red Sea', label: t('governorates.Red Sea') },
+    { value: 'Sharqia', label: t('governorates.Sharqia') },
+    { value: 'Sohag', label: t('governorates.Sohag') },
+    { value: 'South Sinai', label: t('governorates.South Sinai') }
   ];
 
   const getDistance = (lat1, lng1, lat2, lng2) => {
@@ -111,48 +116,48 @@ const EditProfileSheet = ({ isOpen, onClose }) => {
   
     return nearest;
   };
-
-  useEffect(()=>{
-    setTimeout(()=>{
-      setError('')
-    },5000)
-  },[error])
   
     useEffect(() => {
-            const setLocation = (lat, lng) => {
-                setUserLocation({ lat, lng });
-            };
-    
-            // 2️⃣ Try browser geolocation
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    setLocation(
-                    position.coords.latitude,
-                    position.coords.longitude
-                    );
-                },
-                () => {
-                    // 3️⃣ Geolocation failed → use nearest marker if exists
-                    if (markers?.length > 0) {
-                    const nearest = findNearestMarker(markers);
-                    setLocation(nearest.lat, nearest.lng);
-                    } else {
-                    // 4️⃣ Final fallback → Cairo
-                    setLocation(30.0444, 31.2357);
-                    }
-                }
-                );
-            } else {
-                // 3️⃣ No geolocation support
-                if (markers?.length > 0) {
-                const nearest = findNearestMarker(markers);
-                setLocation(nearest.lat, nearest.lng);
-                } else {
-                setLocation(30.0444, 31.2357);
-                }
-            }
+      const setLocation = (lat, lng) => {
+          setUserLocation({ lat, lng });
+      };
+      // 2️⃣ Try browser geolocation
+      if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+          (position) => {
+              setLocation(
+              position.coords.latitude,
+              position.coords.longitude
+              );
+          },
+          () => {
+              // 3️⃣ Geolocation failed → use nearest marker if exists
+              if (markers?.length > 0) {
+              const nearest = findNearestMarker(markers);
+              setLocation(nearest.lat, nearest.lng);
+              } else {
+              // 4️⃣ Final fallback → Cairo
+              setLocation(30.0444, 31.2357);
+              }
+          }
+          );
+      } else {
+          // 3️⃣ No geolocation support
+          if (markers?.length > 0) {
+          const nearest = findNearestMarker(markers);
+          setLocation(nearest.lat, nearest.lng);
+          } else {
+          setLocation(30.0444, 31.2357);
+          }
+      }
     }, [user, markers]);
+
+    useEffect(() => {
+      if (!isOpen) {
+        setSuccess('');
+        setError('');
+      }
+    }, [isOpen]);
 
   // Populate form when opening
   useEffect(() => {
@@ -169,7 +174,9 @@ const EditProfileSheet = ({ isOpen, onClose }) => {
         locations: user.locations || [],
         number: user.number || ''
       });
-      setLogoPreview(user.logo || null);
+      setLogoPreview(user.logo || user.avatar || null);
+      setFieldErrors({})
+      setFullError('')
     }
     // Fetch categories if business
     if (isOpen && user?.accountType === 'business') {
@@ -231,16 +238,24 @@ const EditProfileSheet = ({ isOpen, onClose }) => {
         locations: JSON.stringify(validLocations)
       };
       console.log(payload);
-      await editAccount(payload , setLoading , setError , setUser , user) 
-      onClose()
+      const result = await editAccount(payload , setLoading , setError , setUser , user , setFieldErrors , setFullError , true) 
+
+      if (result?.success) {
+        setSuccess('Profile updated successfully');
+
+        // close after small delay so user can see message
+        setTimeout(() => {
+          onClose();
+        }, 1500);
+      }
     }catch(err){
-       if (err.response?.data?.message) {
-      setError(err.response.data.message);
-    } else if (err.message) {
-      setError(err.message);
-    } else {
-      setError("Something went wrong");
-    }
+      if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else if (err.message) {
+        setError(err.message);
+      } else {
+        setError("Something went wrong");
+      }
     }
   }
 
@@ -263,8 +278,19 @@ const EditProfileSheet = ({ isOpen, onClose }) => {
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl z-50 max-h-[90vh] overflow-y-auto"
+            className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl z-50 h-[90vh] overflow-y-auto"
           >
+            {loading?(
+              <Loadiing />
+            ) : success || fullError ? (
+                // Show only message
+                <div className={`flex flex-col justify-center items-center w-full h-full px-5 ${success? 'bg-[#009842]' : 'bg-red-600'}`}>
+                  <h2 className={`text-2xl font-semibold mb-4 text-white`}>
+                    {success || fullError}
+                  </h2>
+                </div>
+              ) : (
+              <>
             {/* Header */}
             <div className="sticky top-0 z-20 bg-white border-b border-gray-200 px-5 py-4 flex items-center justify-between rounded-t-3xl">
               <button
@@ -274,7 +300,7 @@ const EditProfileSheet = ({ isOpen, onClose }) => {
                 <X size={24} className="text-gray-700" />
               </button>
               <h2 className="text-xl font-semibold text-gray-900">
-                Edit Profile
+                {t('title')}
               </h2>
               <div className="w-10"></div>
             </div>
@@ -314,56 +340,42 @@ const EditProfileSheet = ({ isOpen, onClose }) => {
 
               {/* Name */}
               <div className="mb-5">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
-                  {user?.accountType === 'business' ? 'Business Name' : 'Name'} <span className="text-red-500">*</span>
+                <label className={`block text-sm font-semibold text-gray-900 mb-2 ${isRtl?"text-right":"text-left"}`}>
+                  {isRtl && <span className="text-red-500 mr-1">*</span>}
+                  {user?.accountType === 'business' ? t('labels.businessName') : t('labels.name')}
+                  {!isRtl && <span className="text-red-500 ml-1">*</span>}
                 </label>
                 <input
                   type="text"
                   name="name"
-                  placeholder={user?.accountType === 'business' ? 'Business Name' : 'Name'}
+                  dir={isRtl?"rtl":"ltr"}
+                  placeholder={user?.accountType === 'business' ? t('placeholders.businessName') : t('placeholders.name')}
                   value={formData.name}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3.5 text-base border border-gray-200 rounded-xl outline-none bg-gray-50 focus:border-[#009842] focus:ring-1 focus:ring-[#009842] transition-colors"
+                  className={`w-full px-4 py-3.5 text-base border rounded-xl outline-none bg-gray-50 ${fieldErrors.name 
+                  ? 'border-2 border-red-500 focus:ring-red-500 focus:border-red-500'
+                  : 'border-2 border-gray-200 focus:border-[#00875A] focus:ring-[#00875A]'} transition-colors`}
                 />
               </div>
 
               {/* Email */}
               <div className="mb-5">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
-                  Email <span className="text-red-500">*</span>
+                <label className={`block text-sm font-semibold text-gray-900 mb-2 ${isRtl?"text-right":"text-left"}`}>
+                  {isRtl && <span className="text-red-500 mr-1">*</span>}
+                  {t('labels.email')} 
+                  {!isRtl && <span className="text-red-500 ml-1">*</span>}
                 </label>
                 <input
                   type="email"
                   name="email"
-                  placeholder="Enter your email"
+                  dir={isRtl?"rtl":"ltr"}
+                  placeholder={t('placeholders.email')}
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3.5 text-base border border-gray-200 rounded-xl outline-none bg-gray-50 focus:border-[#009842] focus:ring-1 focus:ring-[#009842] transition-colors"
+                  className={`w-full px-4 py-3.5 text-base border rounded-xl outline-none bg-gray-50 ${fieldErrors.email 
+              ? 'border-2 border-red-500 focus:ring-red-500 focus:border-red-500'
+              : 'border-2 border-gray-200 focus:border-[#00875A] focus:ring-[#00875A]'} transition-colors`}
                 />
-              </div>
-
-              {/* Password */}
-              <div className="mb-5">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
-                  Password
-                </label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    name="password"
-                    placeholder="Enter new password (leave empty to keep current)"
-                    value={formData.password}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3.5 pr-12 text-base border border-gray-200 rounded-xl outline-none bg-gray-50 focus:border-[#009842] focus:ring-1 focus:ring-[#009842] transition-colors"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                  >
-                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                  </button>
-                </div>
               </div>
 
               {/* CLIENT SPECIFIC FIELDS */}
@@ -371,15 +383,19 @@ const EditProfileSheet = ({ isOpen, onClose }) => {
                 <>
                   {/* Governorate */}
                   <div className="mb-5">
-                    <label className="block text-sm font-semibold text-gray-900 mb-2">
-                      Your Governorate
+                    <label className={`${isRtl?"text-right":"text-left"} block text-sm font-semibold text-gray-900 mb-2`}>
+                      {t('labels.governorate')}
                     </label>
                     
                     <div className="relative">
                       <button
                         type="button"
                         onClick={() => setShowGovernorateDropdown(!showGovernorateDropdown)}
-                        className="w-full px-4 py-3.5 text-base border border-gray-200 rounded-xl bg-gray-50 text-left flex items-center justify-between focus:border-[#009842] focus:ring-1 focus:ring-[#009842] transition-colors"
+                        className={`w-full px-4 py-3.5 text-base border rounded-xl bg-gray-50 text-left flex items-center justify-between
+                          ${fieldErrors.governorate 
+                          ? 'border-2 border-red-500 focus:ring-red-500 focus:border-red-500'
+                          : 'border-2 border-gray-200 focus:border-[#00875A] focus:ring-[#00875A]'} 
+                          transition-colors ${isRtl?"flex-row-reverse":"flex-row"}`}
                       >
                         <span className={formData.governorate ? 'text-gray-900 flex items-center gap-2' : 'text-gray-400'}>
                           {formData.governorate ? (
@@ -388,7 +404,7 @@ const EditProfileSheet = ({ isOpen, onClose }) => {
                               <span>{governorateOptions.find(opt => opt.value === formData.governorate)?.label}</span>
                             </>
                           ) : (
-                            'Select your governorate'
+                            t("messages.selectGovernorate")
                           )}
                         </span>
                         <svg 
@@ -436,15 +452,19 @@ const EditProfileSheet = ({ isOpen, onClose }) => {
 
                   {/* Gender */}
                   <div className="mb-5">
-                    <label className="block text-sm font-semibold text-gray-900 mb-2">
-                      Gender
+                    <label className={`block text-sm font-semibold text-gray-900 mb-2 ${isRtl?"text-right":"text-left"}`}>
+                      {t('labels.gender')}
                     </label>
                     
                     <div className="relative">
                       <button
                         type="button"
                         onClick={() => setShowGenderDropdown(!showGenderDropdown)}
-                        className="w-full px-4 py-3.5 text-base border border-gray-200 rounded-xl bg-gray-50 text-left flex items-center justify-between focus:border-[#009842] focus:ring-1 focus:ring-[#009842] transition-colors"
+                        className={`w-full px-4 py-3.5 text-base border rounded-xl bg-gray-50 text-left flex items-center
+                          justify-between ${fieldErrors.gender 
+                        ? 'border-2 border-red-500 focus:ring-red-500 focus:border-red-500'
+                        : 'border-2 border-gray-200 focus:border-[#00875A] focus:ring-[#00875A]'} 
+                        transition-colors ${isRtl?"flex-row-reverse":"flex-row"}`}
                       >
                         <span className={formData.gender ? 'text-gray-900 flex items-center gap-2' : 'text-gray-400'}>
                           {formData.gender ? (
@@ -452,7 +472,7 @@ const EditProfileSheet = ({ isOpen, onClose }) => {
                               <span>{genderOptions.find(opt => opt.value === formData.gender)?.label}</span>
                             </>
                           ) : (
-                            'Select your gender'
+                            t('messages.selectGender')
                           )}
                         </span>
                         <svg 
@@ -504,15 +524,18 @@ const EditProfileSheet = ({ isOpen, onClose }) => {
                 <>
                   {/* Business Category */}
                   <div className="mb-5">
-                    <label className="block text-sm font-semibold mb-2 text-gray-900">
-                      Business Category
+                    <label className={`block text-sm font-semibold mb-2 text-gray-900 ${isRtl?"text-right":"text-left"}`}>
+                      {t('labels.category')}
                     </label>
                     
                     <div className="relative">
                       <button
                         type="button"
                         onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
-                        className="w-full px-4 py-4 border border-gray-200 rounded-2xl bg-gray-50 hover:bg-gray-100 transition-all flex items-center justify-between group"
+                        className={`w-full px-4 py-4 border rounded-2xl bg-gray-50 hover:bg-gray-100 transition-all ${fieldErrors.category 
+                        ? 'border-2 border-red-500 focus:ring-red-500 focus:border-red-500'
+                        : 'border-2 border-gray-200 focus:border-[#00875A] focus:ring-[#00875A]'} 
+                        flex items-center justify-between group ${isRtl?"flex-row-reverse":"flex-row"}`}
                       >
                         <div className="flex items-center gap-3">
                           {formData.category ? (
@@ -529,7 +552,7 @@ const EditProfileSheet = ({ isOpen, onClose }) => {
                               </span>
                             </>
                           ) : (
-                            <span className="text-gray-400 text-base">Choose from the categories</span>
+                            <span className="text-gray-400 text-base">{t("placeholders.category")}</span>
                           )}
                         </div>
                         <svg 
@@ -596,16 +619,19 @@ const EditProfileSheet = ({ isOpen, onClose }) => {
 
                   {/* Business Description */}
                   <div className="mb-5">
-                    <label className="block text-sm font-semibold text-gray-900 mb-2">
-                      Business Description
+                    <label className={`block text-sm font-semibold text-gray-900 mb-2 ${isRtl?"text-right":"text-left"}`}>
+                      {t("labels.description")}
                     </label>
                     <textarea
                       name="description"
+                      dir={isRtl?"rtl":"ltr"}
                       placeholder="Describe your Business"
                       value={formData.description}
                       onChange={handleInputChange}
                       rows="4"
-                      className="w-full px-4 py-3.5 text-base border border-gray-200 rounded-xl outline-none bg-gray-50 focus:border-[#009842] focus:ring-1 focus:ring-[#009842] transition-colors resize-none"
+                      className={`w-full px-4 py-3.5 text-base rounded-xl outline-none bg-gray-50 ${fieldErrors.description 
+              ? 'border-2 border-red-500 focus:ring-red-500 focus:border-red-500'
+              : 'border-2 border-gray-200 focus:border-[#00875A] focus:ring-[#00875A]'} transition-colors resize-none`}
                     />
                   </div>
 
@@ -613,10 +639,12 @@ const EditProfileSheet = ({ isOpen, onClose }) => {
                   <div className="mb-5">
                     <div className="flex justify-between items-center mb-2">
                       <label className="text-sm font-semibold text-gray-900">
-                        Business Locations
+                        {t("labels.locations")}
                       </label>
                       <span className="text-sm text-[#009842] font-semibold">
-                        {formData.locations.length} location{formData.locations.length !== 1 ? 's' : ''} selected
+                        {formData.locations.length > 0 && 
+                          t('messages.locationsSelected', { count: formData.locations.length })
+                        }
                       </span>
                     </div>
                     <button
@@ -626,48 +654,59 @@ const EditProfileSheet = ({ isOpen, onClose }) => {
                     >
                       <MapPin size={40} className="text-[#009842]" />
                       <span className="text-[#009842] font-semibold text-base">
-                        Click to Select Locations on Map
+                        {t('buttons.selectLocations')}
                       </span>
                       <span className="text-gray-600 text-sm">
-                        You can add multiple business locations
+                        {t('messages.multipleLocations')}
                       </span>
                     </button>
                   </div>
 
                   {/* Business Phone */}
                   <div className="mb-5">
-                    <label className="block text-sm font-semibold text-gray-900 mb-2">
-                      Business Phone
+                    <label className={`block text-sm font-semibold text-gray-900 mb-2 ${isRtl?"text-right":"text-left"}`}>
+                      {t('labels.phone')}
                     </label>
                     <input
                       type="tel"
-                      name="phone"
-                      placeholder="Enter your Business phone Number"
-                      value={formData.phone}
+                      dir={isRtl?"rtl":"ltr"}
+                      name="number"
+                      placeholder={t('placeholders.phone')}
+                      value={formData.number}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3.5 text-base border border-gray-200 rounded-xl outline-none bg-gray-50 focus:border-[#009842] focus:ring-1 focus:ring-[#009842] transition-colors"
+                      className={`w-full px-4 py-3.5 text-base border rounded-xl outline-none bg-gray-50
+                        ${fieldErrors.number 
+              ? 'border-2 border-red-500 focus:ring-red-500 focus:border-red-500'
+              : 'border-2 border-gray-200 focus:border-[#00875A] focus:ring-[#00875A]'} transition-colors`}
                     />
                   </div>
                 </>
               )}
 
               {/* Error Message */}
+            <div className="px-4">
               {error && (
-                <div className="flex justify-center items-center text-red-600 font-semibold mb-5">
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-4 mb-5 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm"
+                >
                   {error}
-                </div>
+                </motion.div>
               )}
+            </div>
 
               {/* Save Button */}
               <button
-                onClick={()=>{
-                  handleEditAccount()
+                onClick={async()=>{
+                  await handleEditAccount()
                 }}
                 className="w-full bg-[#009842] text-white py-4 font-semibold rounded-2xl flex items-center justify-center gap-2 hover:bg-[#007a36] transition-colors shadow-lg"
               >
-                Save Changes
+                {t('buttons.saveChanges')}
               </button>
             </div>
+            </>)}
           </motion.div>
         </>
       )}

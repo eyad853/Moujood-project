@@ -1,0 +1,8 @@
+const ERRORS ={
+    // ads
+    IMAGE_NOT_FOUND:"IMAGE_NOT_FOUND",
+    NEW_IMAGE_REQUIRED:"NEW_IMAGE_REQUIRED",
+    AD_NOT_FOUND:"AD_NOT_FOUND"
+}
+
+export default ERRORS

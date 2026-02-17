@@ -8,6 +8,9 @@ import MapModal from '../../../components/modals/MapModal/MapModal';
 import { useMapProvider } from '../../../context/mapContext';
 import { useUser } from '../../../context/userContext';
 import { Share } from '@capacitor/share';
+import PageError from '../../../components/PageError/PageError';
+import { useTranslation } from 'react-i18next'
+
 
 const C_Business_Page = ({businessId}) => {
   const navigate = useNavigate();
@@ -24,6 +27,8 @@ const C_Business_Page = ({businessId}) => {
   const {showMapModal,setShowMapModal,markers,setMarkers , userLocation, setUserLocation}=useMapProvider()
   const {user} = useUser()
   const location = useLocation();
+  const { t } = useTranslation("categories")
+  
 
   const fullUrl =
   window.location.origin + location.pathname;
@@ -147,15 +152,11 @@ const filteredOffers = offers.filter(offer => {
 
   return (
     <div className="min-h-screen bg-white pb-20">
+      {error?(
+        <PageError error={error}/>
+      ):(<>
       {/* Header Image/Cover */}
-      <div className="relative h-44 bg-gray-300">
-        {/* Placeholder for business cover image */}
-        <div className="w-full h-full flex items-center justify-center">
-          <svg className="w-16 h-16 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
-          </svg>
-        </div>
-
+      <div className="relative h-44 bg-[#009842]">
         {/* Back Button */}
         {user?.accountType!=='super_admin'&&(<button
           onClick={() => navigate(-1)}
@@ -170,10 +171,10 @@ const filteredOffers = offers.filter(offer => {
         <div className="bg-white rounded-2xl shadow-lg p-4">
           <div className="flex items-start gap-4 mb-4">
             {/* Business Logo */}
-            <div className="w-24 h-24 bg-[#009842] rounded-2xl flex items-center justify-center flex-shrink-0">
+            <div className="w-24 h-24 bg-[#009842] rounded-md rounded-2xl flex items-center justify-center flex-shrink-0">
               <img
                 src={business.logo}
-                className="w-full h-full object-contain "
+                className="w-full h-full object-contain rounded-md"
               />
             </div>
 
@@ -204,21 +205,21 @@ const filteredOffers = offers.filter(offer => {
           </div>
 
           {/* Location Button */}
-          <button 
+          {markers?.length>0&&(<button 
           onClick={()=>{
             setShowMapModal(true)
           }}
           className="w-full bg-[#1A423A] text-white py-3 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-[#153530] transition-colors">
             <MapPin size={20} />
-            <span>Location</span>
-          </button>
+            <span>{t('locations')}</span>
+          </button>)}
         </div>
       </div>
 
       {/* Subcategory Filter Pills */}
       <div className="px-5 mt-6">
         <div className="flex gap-2 overflow-x-auto pb-2 hide-scrollbar">
-          {categories.map((category, index) => (
+          {categories.length>1&& categories.map((category, index) => (
             <button
               key={category.id}
               onClick={() => setSelectedCategory(
@@ -238,7 +239,7 @@ const filteredOffers = offers.filter(offer => {
       </div>
 
       {/* Offers Grid */}
-      <div className="px-5 mt-6">
+      <div className={`px-5 ${categories.length>1?"mt-6":"mt-0"}`}>
         <div className="grid grid-cols-2 gap-3 pb-6">
           {filteredOffers.map((offer) => (
             <button
@@ -268,6 +269,7 @@ const filteredOffers = offers.filter(offer => {
           markers={markers}
           userLocation={userLocation}
         />
+      </>)}
     </div>
   );
 };

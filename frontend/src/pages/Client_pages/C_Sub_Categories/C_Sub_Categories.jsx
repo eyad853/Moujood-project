@@ -4,6 +4,9 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { getAds } from '../../../api/ads';
 import Loadiing from '../../../components/Loadiing/Loadiing';
 import { getSubCategoriesOfCategory } from '../../../api/cleints';
+import PageError from '../../../components/PageError/PageError';
+import { useTranslation } from 'react-i18next'
+
 
 const C_Sub_Categories = () => {
   const navigate = useNavigate();
@@ -14,9 +17,11 @@ const C_Sub_Categories = () => {
   const [error , setError]=useState('')
   const [categories , setCategories]=useState([])
   const [currentSlide, setCurrentSlide] = useState(1);
-    const [sliderElement, setSliderElement] = useState(null);
-    const isJumpingRef = useRef(false)
-    const [isSliderInitialized, setIsSliderInitialized] = useState(false);
+  const [sliderElement, setSliderElement] = useState(null);
+  const isJumpingRef = useRef(false)
+  const [isSliderInitialized, setIsSliderInitialized] = useState(false);
+  const { t , i18n } = useTranslation("categories")
+  const isRTL = i18n.language === "ar"; // true if Arabic
   
   const extendedAds = ads.length
     ? [ads[ads.length - 1], ...ads, ads[0]]
@@ -127,6 +132,9 @@ useEffect(() => {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
+      {error?(
+        <PageError error={error}/>
+      ):(<>
       {/* Header */}
       <div className="bg-white px-5 py-4 border-b border-gray-200 sticky top-0 z-20">
         <div className="flex items-center justify-center relative mb-4">
@@ -136,18 +144,18 @@ useEffect(() => {
           >
             <ArrowLeft size={24} className="text-gray-700" />
           </button>
-          <h1 className="text-xl font-semibold text-gray-900">Categories</h1>
+          <h1 className="text-xl font-semibold text-gray-900">{t('categories')}</h1>
         </div>
 
         {/* Search Bar */}
-        <div className="relative">
-          <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+        <div className={`relative flex `}>
+          <Search size={18} className={`absolute ${isRTL ? "right-3" : "left-3"} top-1/2 -translate-y-1/2 text-gray-400`} />
           <input
             type="text"
-            placeholder="Search"
+            placeholder={t('search')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-gray-100 border-none rounded-lg outline-none focus:ring-2 focus:ring-[#009842] transition-all text-sm"
+            className={`w-full ${isRTL ? "pr-10 pl-4 text-right" : "pl-10 pr-4 text-left"} py-2.5 bg-gray-100 border-none rounded-lg outline-none focus:ring-2 focus:ring-[#009842] transition-all text-sm`}
           />
         </div>
       </div>
@@ -157,7 +165,7 @@ useEffect(() => {
       <div className="px-5 py-4">
         <div className="mb-5 text-2xl text-[#1A423A] font-bold">{categoryName}</div>
         {/* Featured Slider */}
-        <div className="mb-6 relative">
+        {ads.length>0&&(<div className="relative mb-6">
           <div  
             ref={setSliderElement}
             className="flex gap-3 overflow-x-auto snap-x snap-mandatory hide-scrollbar scroll-smooth"
@@ -169,7 +177,7 @@ useEffect(() => {
                 className="flex-shrink-0 w-full snap-center"
               >
                 <div className="bg-gradient-to-br from-[#009842] to-[#007a36] rounded-2xl aspect-square flex items-center justify-center overflow-hidden">
-                  <img src={ad.image} className='w-full h-full object-cover' />
+                  <img src={ad.image} className='w-full h-full object-cover ' />
                 </div>
               </div>
             ))}
@@ -195,7 +203,7 @@ useEffect(() => {
               />
             ))}
           </div>
-        </div>
+        </div>)}
 
         {/* All Categories Grid */}
         <div className="grid grid-cols-2 gap-3">
@@ -203,9 +211,9 @@ useEffect(() => {
             <Link
               key={category.id}
               to={`/client/businesses_of_category/${categoryId}/${category.name}/${category.id}`}
-              className="bg-[#009842] rounded-2xl p-8 flex flex-col items-center justify-center hover:bg-[#007a36] transition-colors aspect-square"
+              className="bg-[#009842] rounded-xl p-6 flex flex-col gap-2 items-center justify-center hover:bg-[#007a36] transition-colors aspect-square"
             >
-                <img src={category.image} className='w-full h-full object-contain'/>
+              <img src={category.image} className='w-full h-full object-contain rounded-md'/>
               <span className="text-white text-sm font-semibold text-center">
                 {category.name}
               </span>
@@ -220,6 +228,7 @@ useEffect(() => {
           </div>
         )}
       </div>
+      </>)}
     </div>
   );
 };

@@ -6,6 +6,10 @@ import { getAds } from '../../../api/ads';
 import {getAllCategories} from '../../../api/categories'
 import { fetchNotificationCount } from '../../../api/notifications';
 import { useUser } from '../../../context/userContext';
+import { FaUser } from 'react-icons/fa6';
+import PageError from '../../../components/PageError/PageError';
+import { useTranslation } from 'react-i18next'
+
 
 const C_Categories = () => {
   const navigate = useNavigate();
@@ -21,6 +25,9 @@ const C_Categories = () => {
   const [sliderElement, setSliderElement] = useState(null);
   const isJumpingRef = useRef(false)
   const [isSliderInitialized, setIsSliderInitialized] = useState(false);
+  const { t , i18n } = useTranslation("categories")
+  const isRTL = i18n.language === "ar"; // true if Arabic
+
 
 const extendedAds = ads.length
   ? [ads[ads.length - 1], ...ads, ads[0]]
@@ -134,15 +141,24 @@ useEffect(() => {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
+      {error?(
+        <PageError error={error}/>
+      ):(<>
       {/* Header */}
       <div className="bg-white px-5 py-4 border-b border-gray-200 sticky top-0 z-20">
         <div className="flex items-center justify-between mb-4">
           {/* User Avatar */}
-          <img
-            src="https://ui-avatars.com/api/?name=User&background=009842&color=fff"
-            alt="User"
-            className="w-12 h-12 rounded-full"
-          />
+          <div className="flex w-12 rounded-full overflow-hidden h-12 items-center gap-3">
+            {user?.avatar?(
+              <img
+              src={user?.avatar}
+              className="w-full h-full rounded-full object-cover"
+            />):(
+              <div className="w-full h-full border border-neutral-300  overflow-hidden rounded-full flex justify-center items-end">
+                  <FaUser className='text-[#009842]' size={35}/>
+              </div>
+            )}
+          </div>
 
           {/* Logo */}
           <img src="/logo.svg" alt="Maujood Logo" className="h-10 object-contain" />
@@ -158,22 +174,23 @@ useEffect(() => {
         </div>
 
         {/* Search Bar */}
-        <div className="relative">
-          <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+        <div className={`relative flex `}>
+          <Search size={18} className={`absolute ${isRTL ? "right-3" : "left-3"} top-1/2 -translate-y-1/2 text-gray-400`} />
           <input
             type="text"
-            placeholder="Search"
+            placeholder={t('search')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-gray-100 border-none rounded-lg outline-none focus:ring-2 focus:ring-[#009842] transition-all text-sm"
+            className={`w-full ${isRTL ? "pr-10 pl-4 text-right" : "pl-10 pr-4 text-left"} py-2.5 bg-gray-100 border-none rounded-lg outline-none focus:ring-2 focus:ring-[#009842] transition-all text-sm`}
           />
         </div>
       </div>
 
       {/* Content */}
-      <div className="px-5 py-4">
+      <div className={`${ads.length>0?"py-4":'pb-4 pt-2'} px-5 `}>
         {/* Featured Slider */}
-        <div className="mb-6 relative">
+        {ads.length>0&&(
+          <div className="relative mb-6">
           <div 
             ref={setSliderElement}
             className="flex gap-3 overflow-x-auto snap-x snap-mandatory hide-scrollbar scroll-smooth"
@@ -212,17 +229,17 @@ useEffect(() => {
               />
             ))}
           </div>
-        </div>
+        </div>)}
 
         {/* Categories Section */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-bold text-gray-900">Categories</h2>
+            <h2 className="text-lg font-bold text-gray-900">{t('categories')}</h2>
             <button
               onClick={() => navigate('/client/all_categories')}
               className="text-sm text-gray-600 hover:text-[#009842] transition-colors flex items-center gap-1"
             >
-              See more
+              {t('seeMore')}
               <ChevronRight size={16} />
             </button>
           </div>
@@ -234,7 +251,7 @@ useEffect(() => {
               <Link
                 key={category.id}
                 to={`/client/sub_categories/${category.name}/${category.id}`}
-                className="bg-[#009842] w-27 h-30 rounded-2xl p-6 flex flex-col items-center justify-center hover:bg-[#007a36] transition-colors aspect-square"
+                className="bg-[#009842] w-27 h-30 rounded-xl p-6 flex flex-col items-center justify-center hover:bg-[#007a36] transition-colors aspect-square"
               >
                 <img src={category?.image} />
                 <span className="text-white text-xs font-medium text-center">
@@ -244,18 +261,18 @@ useEffect(() => {
             ))}
           </div>
         ):(
-          <div className="flex justify-center items-center text-gray-500">No Categories</div>
+          <div className="flex justify-center items-center text-gray-500">{t('noCategories')}</div>
         )}
         </div>
 
         {/* Brands Section */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-bold text-gray-900">Brands you may like</h2>
+            <h2 className="text-lg font-bold text-gray-900">{t('Brands')}</h2>
             <button 
             onClick={() => navigate('/client/all_categories')}
             className="text-sm text-gray-600 hover:text-[#009842] transition-colors flex items-center gap-1">
-              See more
+              {t('seeMore')}
               <ChevronRight size={16} />
             </button>
           </div>
@@ -266,7 +283,7 @@ useEffect(() => {
               <Link 
               key={category.id} 
               to={`/client/sub_categories/${category.name}/${category.id}`}
-              className="flex-shrink-0 w-44 bg-white rounded-2xl overflow-hidden shadow-sm">
+              className="flex-shrink-0 w-44 bg-white rounded-xl overflow-hidden shadow-sm">
                 {/* category Image */}
                 <div className="bg-gradient-to-br from-[#009842] to-[#007a36] h-40 flex items-center justify-center">
                   <div className="w-30 h-30 bg-white/20 rounded-xl flex items-center justify-center">
@@ -281,10 +298,11 @@ useEffect(() => {
               </Link>
             ))}
           </div>):(
-            <div className="flex justify-center items-center text-gray-500">No Categories</div>
+            <div className="flex justify-center items-center text-gray-500">{t("noCategories")}</div>
           )}
         </div>
       </div>
+      </>)}
     </div>
   );
 };

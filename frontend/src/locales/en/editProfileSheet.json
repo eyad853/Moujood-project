@@ -1,0 +1,69 @@
+{
+  "title": "Edit Profile",
+  "labels": {
+    "name": "Name",
+    "businessName": "Business Name",
+    "email": "Email",
+    "gender": "Gender",
+    "governorate": "Your Governorate",
+    "category": "Business Category",
+    "description": "Business Description",
+    "locations": "Business Locations",
+    "phone": "Business Phone"
+  },
+  "placeholders": {
+    "name": "Enter your name",
+    "businessName": "Business Name",
+    "email": "Enter your email",
+    "description": "Describe your Business",
+    "phone": "Enter your Business phone Number",
+    "governorate": "Select your governorate",
+    "gender": "Select your gender",
+    "category": "Choose from the categories"
+  },
+  "genders": {
+    "male": "Male",
+    "female": "Female"
+  },
+  "governorates": {
+    "Cairo": "Cairo",
+    "Alexandria": "Alexandria",
+    "Giza": "Giza",
+    "Qalyubia": "Qalyubia",
+    "Port Said": "Port Said",
+    "Suez": "Suez",
+    "Luxor": "Luxor",
+    "Aswan": "Aswan",
+    "Asyut": "Asyut",
+    "Beheira": "Beheira",
+    "Beni Suef": "Beni Suef",
+    "Dakahlia": "Dakahlia",
+    "Damietta": "Damietta",
+    "Faiyum": "Faiyum",
+    "Gharbia": "Gharbia",
+    "Ismailia": "Ismailia",
+    "Kafr El Sheikh": "Kafr El Sheikh",
+    "Matrouh": "Matrouh",
+    "Minya": "Minya",
+    "Monufia": "Monufia",
+    "New Valley": "New Valley",
+    "North Sinai": "North Sinai",
+    "Qena": "Qena",
+    "Red Sea": "Red Sea",
+    "Sharqia": "Sharqia",
+    "Sohag": "Sohag",
+    "South Sinai": "South Sinai"
+  },
+  "messages": {
+    "success": "Profile updated successfully",
+    "loading": "Loading...",
+    "locationsSelected": "{{count}} location(s) selected",
+    "selectGovernorate":"Select Your Governorate",
+    "selectGender":"Select Your Gender",
+    "multipleLocations":"You can add multiple business locations"
+  },
+  "buttons": {
+    "saveChanges": "Save Changes",
+    "selectLocations": "Click to Select Locations on Map"
+  }
+}

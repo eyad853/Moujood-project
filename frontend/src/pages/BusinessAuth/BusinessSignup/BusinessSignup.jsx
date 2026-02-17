@@ -9,9 +9,12 @@ import L from 'leaflet';
 import MapModal from '../../../components/modals/MapModal/MapModal';
 import { useMapProvider } from '../../../context/mapContext';
 import { useUser } from '../../../context/userContext';
+import { useTranslation } from 'react-i18next'
 
 const BusinessSignup = () => {
   const navigate = useNavigate();
+  const { t , i18n} = useTranslation("businessAuth")
+  const isRTL = i18n.language === "ar"; // true if Arabic
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -150,19 +153,22 @@ const BusinessSignup = () => {
         
         {/* Business Name */}
         <div style={{ marginBottom: '20px' }}>
-          <label style={{ 
+          <label 
+          className={`${isRTL ? "text-right" : "text-left"}`}
+          style={{ 
             display: 'block', 
             fontSize: '14px', 
             fontWeight: '600', 
             marginBottom: '8px',
             color: '#1a1a1a'
           }}>
-            Business Name
+            {t('form.businessName')}
           </label>
           <input
             type="text"
             name="name"
-            placeholder="Name"
+            dir={isRTL ? 'rtl' : 'ltr'}
+            placeholder={t('placeholder.businessName')}
             value={formData.name}
             onChange={handleInputChange}
             style={{
@@ -182,19 +188,22 @@ const BusinessSignup = () => {
 
         {/* Email */}
         <div style={{ marginBottom: '20px' }}>
-          <label style={{ 
+          <label 
+          className={`${isRTL ? "text-right" : "text-left"}`}
+          style={{ 
             display: 'block', 
             fontSize: '14px', 
             fontWeight: '600', 
             marginBottom: '8px',
             color: '#1a1a1a'
           }}>
-            Email
+            {t('form.emailLabel')}
           </label>
           <input
             type="email"
             name="email"
-            placeholder="Enter your email"
+            dir={isRTL ? 'rtl' : 'ltr'}
+            placeholder={t('placeholder.email')}
             value={formData.email}
             onChange={handleInputChange}
             style={{
@@ -214,25 +223,28 @@ const BusinessSignup = () => {
 
         {/* Password */}
         <div style={{ marginBottom: '20px' }}>
-          <label style={{ 
+          <label 
+          className={`${isRTL ? "text-right" : "text-left"}`}
+          style={{ 
             display: 'block', 
             fontSize: '14px', 
             fontWeight: '600', 
             marginBottom: '8px',
             color: '#1a1a1a'
           }}>
-            Password
+            {t('form.passwordLabel')}
           </label>
           <div style={{ position: 'relative' }}>
             <input
               type={showPassword ? 'text' : 'password'}
               name="password"
-              placeholder="Enter your password"
+              dir={isRTL ? 'rtl' : 'ltr'}
+              placeholder={t('placeholder.password')}
               value={formData.password}
               onChange={handleInputChange}
               style={{
                 width: '100%',
-                padding: '14px 50px 14px 16px',
+                padding: '14px 14px 16px',
                 fontSize: '15px',
                 borderRadius: '12px',
                 outline: 'none',
@@ -246,19 +258,7 @@ const BusinessSignup = () => {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              style={{
-                position: 'absolute',
-                right: '16px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                padding: '0',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
+              className={`absolute ${isRTL?'left-4':"right-4"} top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700`}
             >
               {showPassword ? <EyeOff size={20} color="#666" /> : <Eye size={20} color="#666" />}
             </button>
@@ -267,25 +267,28 @@ const BusinessSignup = () => {
 
         {/* Confirm Password */}
         <div style={{ marginBottom: '20px' }}>
-          <label style={{ 
+          <label 
+          className={`${isRTL ? "text-right" : "text-left"}`}
+          style={{ 
             display: 'block', 
             fontSize: '14px', 
             fontWeight: '600', 
             marginBottom: '8px',
             color: '#1a1a1a'
           }}>
-            Confirm Password
+            {t('form.confirmPasswordLabel')}
           </label>
           <div style={{ position: 'relative' }}>
             <input
               type={showConfirmPassword ? 'text' : 'password'}
               name="confirm_password"
-              placeholder="Enter your password"
+              dir={isRTL ? 'rtl' : 'ltr'}
+              placeholder={t('placeholder.confirmPassword')}
               value={formData.confirm_password}
               onChange={handleInputChange}
               style={{
                 width: '100%',
-                padding: '14px 50px 14px 16px',
+                padding: '14px 14px 16px',
                 fontSize: '15px',
                 borderRadius: '12px',
                 outline: 'none',
@@ -299,19 +302,7 @@ const BusinessSignup = () => {
             <button
               type="button"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              style={{
-                position: 'absolute',
-                right: '16px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                padding: '0',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
+              className={`absolute ${isRTL?'left-4':"right-4"} top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700`}
             >
               {showConfirmPassword ? <EyeOff size={20} color="#666" /> : <Eye size={20} color="#666" />}
             </button>
@@ -320,8 +311,8 @@ const BusinessSignup = () => {
 
         {/* Business Category */}
         <div className="mb-5">
-          <label className="block text-sm font-semibold mb-2 text-gray-900">
-            Business category
+          <label className={`block text-sm font-semibold mb-2 ${isRTL ? "text-right" : "text-left"} text-gray-900`}>
+            {t('form.categoryLabel')}
           </label>
           
           {/* Custom Dropdown */}
@@ -332,12 +323,12 @@ const BusinessSignup = () => {
               className={`w-full px-4 py-4 border ${fieldErrors.category 
               ? 'border-2 border-red-500 focus:ring-red-500 focus:border-red-500'
               : 'border-2 border-gray-200 focus:border-[#00875A] focus:ring-[#00875A]'} 
-              rounded-2xl bg-[#fafafa] hover:bg-gray-50 transition-all shadow-sm hover:shadow-md flex items-center justify-between group`}
+              rounded-2xl bg-[#fafafa] hover:bg-gray-50 transition-all shadow-sm hover:shadow-md flex items-center justify-between ${isRTL ? "flex-row-reverse" : "flex-row"} group`}
             >
-              <div className="flex items-center gap-3">
+              <div className={`flex items-center gap-3`}>
                 {formData.category ? (
                   <>
-                    <div className="w-10 h-10 rounded-xl bg-[#009842] flex items-center justify-center overflow-hidden">
+                    <div className="w-10 h-10 rounded-md bg-[#009842] flex items-center justify-center overflow-hidden">
                       <img 
                         src={categories.find(cat => cat.id === formData.category)?.image} 
                         className="w-full h-full object-contain"
@@ -348,9 +339,10 @@ const BusinessSignup = () => {
                     </span>
                   </>
                 ) : (
-                  <span className="text-gray-400 text-[15px]">Choose from the categories</span>
+                  <span className="text-gray-400 text-[15px]">{t('placeholder.category')}</span>
                 )}
               </div>
+              
               <svg 
                 width="20" 
                 height="20" 
@@ -419,14 +411,16 @@ const BusinessSignup = () => {
 
         {/* Business Logo */}
         <div style={{ marginBottom: '20px' }}>
-          <label style={{ 
+          <label 
+          className={`${isRTL ? "text-right" : "text-left"}`}
+          style={{ 
             display: 'block', 
             fontSize: '14px', 
             fontWeight: '600', 
             marginBottom: '8px',
             color: '#1a1a1a'
           }}>
-            Business logo
+            {t('form.logoLabel')}
           </label>
           <div style={{ position: 'relative' }}>
             <input
@@ -454,13 +448,24 @@ const BusinessSignup = () => {
                 color: '#999'
               }}
             >
-              <span>{formData.logo ? formData.logo.name : 'Upload Your Logo'}</span>
-              <Upload size={20} color="#666" />
+              {isRTL ? (
+                <>
+                  <Upload size={20} color="#666" />
+                  <span>{formData.logo ? formData.logo.name : t('placeholder.logo')}</span>
+                </>
+              ) : (
+                <>
+                  <span>{formData.logo ? formData.logo.name : t('placeholder.logo')}</span>
+                  <Upload size={20} color="#666" />
+                </>
+              )}
             </label>
           </div>
           
           {logoPreview && (
-            <div style={{ marginTop: '10px', marginBottom: '10px' }}>
+            <div 
+            className={`flex ${isRTL ? "justify-end" : "justify-start"}`}
+            style={{ marginTop: '10px', marginBottom: '10px' }}>
               <img 
                 src={logoPreview} 
                 alt="Logo Preview" 
@@ -478,18 +483,21 @@ const BusinessSignup = () => {
 
         {/* Business Description */}
         <div style={{ marginBottom: '20px' }}>
-          <label style={{ 
+          <label 
+          className={`${isRTL ? "text-right" : "text-left"}`}
+          style={{ 
             display: 'block', 
             fontSize: '14px', 
             fontWeight: '600', 
             marginBottom: '8px',
             color: '#1a1a1a'
           }}>
-            Business Description
+            {t('form.descriptionLabel')}
           </label>
           <textarea
             name="description"
-            placeholder="Describe your Business"
+            dir={isRTL ? 'rtl' : 'ltr'}
+            placeholder={t('placeholder.description')}
             value={formData.description}
             onChange={handleInputChange}
             rows="4"
@@ -523,15 +531,15 @@ const BusinessSignup = () => {
               fontWeight: '600',
               color: '#1a1a1a'
             }}>
-              Business Locations
+              {t('form.locationsLabel')}
             </label>
-            <span style={{ 
-              fontSize: '13px', 
-              color: '#009842',
-              fontWeight: '600'
-            }}>
-              {formData.locations.length} location{formData.locations.length !== 1 ? 's' : ''} selected
-            </span>
+            {formData.locations.length > 0 && (
+              <span className='text-sm text-gray-700' style={{ direction: isRTL ? 'rtl' : 'ltr', display: 'inline-block' }}>
+                {isRTL
+                  ? `${formData.locations.length} ${t('form.selectedLocation')}` // Arabic: number on the right
+                  : `${t('form.selectedLocation')} ${formData.locations.length}`}
+              </span>
+            )}
           </div>
           <button
             type="button"
@@ -556,29 +564,32 @@ const BusinessSignup = () => {
           >
             <MapPin size={40} color="#009842" />
             <span style={{ color: '#009842', fontWeight: '600', fontSize: '16px' }}>
-              Click to Select Locations on Map
+              {t('map.selectLocations')}
             </span>
             <span style={{ color: '#666', fontSize: '13px' }}>
-              You can add multiple business locations
+              {t('map.locationsInfo')}
             </span>
           </button>
         </div>
 
         {/* Business Phone */}
         <div style={{ marginBottom: '20px' }}>
-          <label style={{ 
+          <label 
+          className={`${isRTL ? "text-right" : "text-left"}`}
+          style={{ 
             display: 'block', 
             fontSize: '14px', 
             fontWeight: '600', 
             marginBottom: '8px',
             color: '#1a1a1a'
           }}>
-            Business Phone
+            {t('form.phoneLabel')}
           </label>
           <input
             type="tel"
             name="number"
-            placeholder="Enter you Business phone Number"
+            dir={isRTL ? 'rtl' : 'ltr'}
+            placeholder={t('placeholder.phone')}
             value={formData.number}
             onChange={handleInputChange}
             style={{
@@ -613,16 +624,16 @@ const BusinessSignup = () => {
               accentColor: '#00875A'
             }}
           />
-          <label htmlFor="acceptTerms" style={{ fontSize: '13px', color: '#626B70', lineHeight: '1.5' }}>
-            I accept and agree to comply with Maujood's{' '}
-            <a href="#" style={{ color: 'black',fontWeight:'bold', textDecoration: 'underline' }}>
-              Terms and Conditions
-            </a>{' '}
-            and{' '}
-            <a href="#" style={{ color: 'black',fontWeight:'bold', textDecoration: 'underline' }}>
-              Privacy policy
-            </a>
-          </label>
+          <label htmlFor="acceptTerms" className="text-sm text-gray-600 leading-relaxed cursor-pointer">
+              {t('terms.prefix')}{' '}
+              <a href="#" className="text-[#00875A] underline">
+                {t('terms.termsLink')}
+              </a>{' '}
+              {t('terms.and')}{' '}
+              <a href="#" className="text-[#00875A] underline">
+                {t('terms.privacyLink')}
+              </a>
+            </label>
         </div>
 
         {error&&(
@@ -654,9 +665,9 @@ const BusinessSignup = () => {
 
         {/* Log In Link */}
         <div style={{ textAlign: 'center', fontSize: '14px', marginBottom: '20px' }}>
-          <span style={{ color: '#666' }}>Have an account? </span>
-          <Link to={'/login'} style={{ color: '#009842', fontWeight: '600', textDecoration: 'none' }}>
-            Log In
+          <span className="text-gray-600">{t('haveAccount')}</span>
+          <Link to={'/login'} className="text-[#009842] font-semibold">
+            {t('login')}
           </Link>
         </div>
 
@@ -666,7 +677,7 @@ const BusinessSignup = () => {
         </div>
       </div>
 
-      {showMapModal&&(<MapModal 
+      <MapModal 
       showMapModal={showMapModal} 
       setShowMapModal={setShowMapModal}
       userLocation={userLocation}
@@ -674,7 +685,7 @@ const BusinessSignup = () => {
       handleSaveLocations={handleSaveLocations}
       handleAddMarker={handleAddMarker}
       handleRemoveMarker={handleRemoveMarker}
-      />)}
+      />
     </div>
   );
 };

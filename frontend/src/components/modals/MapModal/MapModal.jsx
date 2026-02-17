@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import Modal from 'react-modal'
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Eye, EyeOff, Upload, MapPin, X, User2, Search } from 'lucide-react';
+import { Eye, EyeOff, Upload, MapPin, X, User2, Search, ExternalLink } from 'lucide-react';
 import { useUser } from '../../../context/userContext';
 
 const MapModal = ({showMapModal , setShowMapModal,userLocation , markers , handleSaveLocations , handleAddMarker,handleRemoveMarker}) => {
@@ -11,65 +11,79 @@ const MapModal = ({showMapModal , setShowMapModal,userLocation , markers , handl
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [loadingAddresses, setLoadingAddresses] = useState({});
   const mapRef = useRef(null);
 
   const isBusiness = user?.accountType === 'business';
+  const isSuperAdmin = user?.accountType === 'superAdmin';
+  const canOpenGoogleMaps = !isBusiness && (user || isSuperAdmin);
 
   const getKey = (lat, lng) =>`${Number(lat).toFixed(6)},${Number(lng).toFixed(6)}`;
 
+  // Function to open Google Maps
+  const openInGoogleMaps = (lat, lng) => {
+    const url = `https://www.google.com/maps?q=${lat},${lng}`;
+    window.open(url, '_blank');
+  };
+
   // Reverse geocode function to get address from coordinates
   const getAddressFromCoordinates = async (lat, lng) => {
-  const key = getKey(lat , lng);
-  try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 5000); // stop after 5 sec
+    const key = getKey(lat, lng);
 
-    console.log('[REVERSE GEOCODE] sending request:', { lat, lng });
+    // Skip if already fetched
+    if (markerAddresses[key]) return;
 
-    const response = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`,
-      { signal: controller.signal }
-    );
+    // Mark as loading
+    setLoadingAddresses(prev => ({ ...prev, [key]: true }));
 
-    console.log('[REVERSE GEOCODE] response status:', response.status);
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`,
+        {
+          headers: {
+            'User-Agent': 'YourAppName/1.0 (your@email.com)'
+          }
+        }
+      );
 
-    clearTimeout(timeout);
+      if (!response.ok) throw new Error(`HTTP error ${response.status}`);
 
-    if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+      const data = await response.json();
 
-    const data = await response.json();
-    console.log('[REVERSE GEOCODE] response data:', data);
-    setMarkerAddresses(prev => ({
-      ...prev,
-      [key]: data.display_name || 'Address not found'
-    }));
-  } catch (error) {
-    console.log('Failed to get address:', error);
-    setMarkerAddresses(prev => ({
-      ...prev,
-      [key]: 'Address not available'
-    }));
-  }
-};
-
-useEffect(() => {
-  if (!showMapModal) return; // <-- only run when modal is open
-  if (!user || user.accountType === 'business') return;
-  if (!markers?.length) return;
-
-  console.log('[MAP MODAL] useEffect triggered, markers:', markers);
-
-  const fetchAddresses = async () => {
-    for (const marker of markers) {
-      console.log('[MAP MODAL] fetching address for marker:', marker);
-      await getAddressFromCoordinates(marker.lat, marker.lng);
+      setMarkerAddresses(prev => ({
+        ...prev,
+        [key]: data.display_name || 'Address not found'
+      }));
+    } catch (error) {
+      console.error('Error fetching address:', error);
+      setMarkerAddresses(prev => ({
+        ...prev,
+        [key]: 'Address not available'
+      }));
+    } finally {
+      setLoadingAddresses(prev => ({ ...prev, [key]: false }));
     }
   };
 
-  fetchAddresses();
-}, [markers, showMapModal]); // <-- add showMapModal as dependency
+  // Fetch addresses for all markers when modal opens
+  useEffect(() => {
+    if (!showMapModal) return;
+    if (!markers?.length) return;
 
+    const fetchAddresses = async () => {
+      for (const marker of markers) {
+        const key = getKey(marker.lat, marker.lng);
+        // Only fetch if not already fetched or loading
+        if (!markerAddresses[key] && !loadingAddresses[key]) {
+          await getAddressFromCoordinates(marker.lat, marker.lng);
+          // Nominatim rule: 1 request per second
+          await new Promise(res => setTimeout(res, 1100));
+        }
+      }
+    };
 
+    fetchAddresses();
+  }, [markers, showMapModal, user]);
 
   // Search for addresses (for business users)
   const searchAddress = async (query) => {
@@ -81,7 +95,12 @@ useEffect(() => {
     setIsSearching(true);
     try {
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`,
+        {
+          headers: {
+            'User-Agent': 'YourAppName/1.0 (eyadmosa853@email.com)'
+          }
+        }
       );
       const data = await response.json();
       setSearchResults(data);
@@ -124,7 +143,7 @@ useEffect(() => {
     } else {
       setSearchResults([]);
     }
-  }, [showMapModal,searchQuery, isBusiness]);
+  }, [searchQuery, isBusiness]);
 
   // Component to handle map clicks
   const MapClickHandler = ({ onLocationAdd }) => {
@@ -171,7 +190,9 @@ useEffect(() => {
       <div className="bg-white overflow-auto hide-scrollbar w-screen h-screen sm:w-full sm:h-auto sm:max-h-[95vh] sm:max-w-4xl sm:rounded-2xl flex flex-col shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between p-3 sm:p-5 border-b border-neutral-400 flex-shrink-0">
-          <h3 className="text-lg sm:text-xl font-bold text-gray-900">{!user || user?.accountType==='business'?"Select Business Locations":"Business Locations"}</h3>
+          <h3 className="text-lg sm:text-xl font-bold text-gray-900">
+            {!user || user?.accountType==='business'?"Select Business Locations":"Business Locations"}
+          </h3>
           <button
             onClick={() => setShowMapModal(false)}
             className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -181,7 +202,7 @@ useEffect(() => {
         </div>
 
         {/* Search Bar for Business */}
-        {isBusiness && (
+        {(!user || isBusiness) && (
           <div className="px-3 sm:px-5 py-3 border-b flex-shrink-0 relative">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
@@ -196,7 +217,7 @@ useEffect(() => {
             
             {/* Search Results Dropdown */}
             {searchResults.length > 0 && (
-              <div className="absolute left-3 right-3 sm:left-5 sm:right-5 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
+              <div className="absolute left-3 right-3 sm:left-5 sm:right-5 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-[1000] max-h-60 overflow-y-auto">
                 {searchResults.map((result, index) => (
                   <div
                     key={index}
@@ -219,7 +240,7 @@ useEffect(() => {
 
         {/* Map */}
         {userLocation && (
-          <div className="relative flex-1 sm:flex-none h-[350px]">
+          <div className="relative flex-1 sm:flex-none h-[350px] z-0">
             <MapContainer
               center={[userLocation.lat, userLocation.lng]}
               zoom={13}
@@ -234,7 +255,7 @@ useEffect(() => {
 
               <MapRefHandler />
               
-              {isBusiness && (
+              {(!user || isBusiness) && (
                 <MapClickHandler onLocationAdd={handleAddMarker} />
               )}
               {markers?.map((marker, index) => (
@@ -254,63 +275,94 @@ useEffect(() => {
               Selected Locations ({markers?.length}):
             </p>
             <div className="space-y-2">
-              {markers?.map((marker, index) => (
-                <div
-                  key={index}
-                  onClick={() => handleMarkerClick(marker, index)}
-                  className={`flex items-center justify-between bg-white px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl border border-gray-200 shadow-sm ${
-                    !isBusiness ? 'cursor-pointer hover:bg-gray-50 hover:border-green-300 transition-all' : ''
-                  }`}
-                >
-                  <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-                    <div className="w-7 h-7 sm:w-8 sm:h-8 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <MapPin size={16} className="sm:w-[18px] sm:h-[18px] text-green-600" />
+              {markers?.map((marker, index) => {
+                const key = getKey(marker.lat, marker.lng);
+                const address = markerAddresses[key];
+                const isLoading = loadingAddresses[key];
+                
+                return (
+                  <div
+                    key={index}
+                    onClick={() => handleMarkerClick(marker, index)}
+                    className={`flex items-center justify-between bg-white px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl border border-gray-200 shadow-sm ${
+                      !isBusiness ? 'cursor-pointer hover:bg-gray-50 hover:border-green-300 transition-all' : ''
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                      <div className="w-7 h-7 sm:w-8 sm:h-8 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <MapPin size={16} className="sm:w-[18px] sm:h-[18px] text-green-600" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <span className="text-xs sm:text-sm font-medium text-gray-900 block">
+                          Location {index + 1}
+                        </span>
+                        <p className="text-[10px] sm:text-xs text-gray-500 truncate">
+                          {isLoading 
+                            ? 'Loading address...'
+                            : address || `${Number(marker.lat).toFixed(6)}, ${Number(marker.lng).toFixed(6)}`
+                          }
+                        </p>
+                      </div>
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <span className="text-xs sm:text-sm font-medium text-gray-900 block">
-                        Location {index + 1}
-                      </span>
-                      <p className="text-[10px] sm:text-xs text-gray-500 truncate">
-                        {markerAddresses[getKey(marker.lat, marker.lng)] ||
-                        `${Number(marker.lat).toFixed(6)}, ${Number(marker.lng).toFixed(6)}`}
-                      </p>
+                    
+                    <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+                      {/* Google Maps Button - Show for users and super admins */}
+                      {canOpenGoogleMaps && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openInGoogleMaps(marker.lat, marker.lng);
+                          }}
+                          className="p-1.5 sm:p-2 hover:bg-blue-50 rounded-lg transition-colors"
+                          title="Open in Google Maps"
+                        >
+                          <ExternalLink size={16} className="text-blue-600" />
+                        </button>
+                      )}
+                      
+                      {/* Remove Button - Show for business users only */}
+                      {(!user || isBusiness) && (
+                        <button
+                          onClick={(e) => { 
+                            e.stopPropagation();
+                            handleRemoveMarker(index);
+                          }}
+                          className="p-1.5 sm:p-2 hover:bg-red-50 rounded-lg transition-colors"
+                          title="Remove location"
+                        >
+                          <X size={16} className="text-red-600" />
+                        </button>
+                      )}
                     </div>
                   </div>
-                  {isBusiness && (
-                    <button
-                      onClick={() => handleRemoveMarker(index)}
-                      className="p-1.5 sm:p-2 hover:bg-red-50 rounded-lg"
-                    >
-                      <X size={16} className="text-red-600" />
-                    </button>
-                  )}
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
 
         {/* Footer Buttons */}
-        {!user || user?.accountType==='business'&&(
+        {(!user || isBusiness) && (
           <div className="flex gap-2 sm:gap-3 p-3 sm:p-5 border-t bg-white flex-shrink-0">
-          <button
-            onClick={() => setShowMapModal(false)}
-            className="flex-1 py-2.5 sm:py-3 border-2 border-gray-300 text-gray-700 rounded-lg sm:rounded-xl text-sm sm:text-base font-semibold hover:bg-gray-50 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSaveLocations}
-            disabled={markers?.length === 0}
-            className={`flex-1 py-2.5 sm:py-3 rounded-lg sm:rounded-xl text-sm sm:text-base font-semibold transition-colors ${
-              markers?.length === 0
-                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                : 'bg-[#009842] text-white hover:bg-[#007a36] shadow-md'
-            }`}
-          >
-            Save Locations ({markers?.length})
-          </button>
-        </div>)}
+            <button
+              onClick={() => setShowMapModal(false)}
+              className="flex-1 py-2.5 sm:py-3 border-2 border-gray-300 text-gray-700 rounded-lg sm:rounded-xl text-sm sm:text-base font-semibold hover:bg-gray-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSaveLocations}
+              disabled={markers?.length === 0}
+              className={`flex-1 py-2.5 sm:py-3 rounded-lg sm:rounded-xl text-sm sm:text-base font-semibold transition-colors ${
+                markers?.length === 0
+                  ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                  : 'bg-[#009842] text-white hover:bg-[#007a36] shadow-md'
+              }`}
+            >
+              Save Locations ({markers?.length})
+            </button>
+          </div>
+        )}
       </div>
     </Modal>
   )

@@ -1,0 +1,9 @@
+{
+  "header": "Settings",
+  "securityTitle": "Security",
+  "securityDescription": "Manage your account security",
+  "changePassword": "Change Password",
+  "languageTitle": "Language",
+  "languageDescription": "Choose your preferred language",
+  "logout": "Logout"
+}

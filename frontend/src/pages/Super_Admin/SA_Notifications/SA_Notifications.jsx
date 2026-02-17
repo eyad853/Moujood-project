@@ -8,6 +8,7 @@ import { createNotification , getAllNotifications , editNotification , deleteNot
 import { useNotifications } from '../../../context/notificationContext';
 import OfferDetailSheet from '../../../components/OfferDetailSheet/OfferDetailSheet';
 import NotificationBottomSheet from '../../../components/NotificationBottomSheet/NotificationBottomSheet';
+import PageError from '../../../components/PageError/PageError';
 
 
 const SA_Notifications = () => {
@@ -21,6 +22,8 @@ const SA_Notifications = () => {
   const [gender, setGender] = useState('');
 
   const [error , setError]=useState(false)
+  const [pageError , setPageError]=useState('')
+  const [smallError , setSmallError]=useState('')
   const [loading , setLoading]=useState(false)
 
   const [userNotifications , setUserNotifications]=useState([])
@@ -397,6 +400,11 @@ const SA_Notifications = () => {
   // List View
   return (
     <div className="w-full max-w-full overflow-hidden">
+      {pageError?(
+        <div className="w-full h-full">
+          <PageError />
+        </div>
+      ):(<>
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <h1 className="text-3xl font-bold text-gray-900">Notifications</h1>
@@ -613,6 +621,7 @@ const SA_Notifications = () => {
           notificationId={selectedNotification?.id}
         /> 
         )}
+        </>)}
     </div>
   );
 };

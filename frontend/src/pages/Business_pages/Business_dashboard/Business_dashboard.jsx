@@ -9,6 +9,12 @@ import { useUser } from '../../../context/userContext';
 import { useOffer } from '../../../context/offerContext';
 import OfferDetailSheet from '../../../components/OfferDetailSheet/OfferDetailSheet';
 import socket from '../../../Socket';
+import { FaUser } from 'react-icons/fa6';
+import PageError from '../../../components/PageError/PageError';
+import SmallError from '../../../components/SmallError/SmallError';
+import { useTranslation } from 'react-i18next'
+
+
 
 const Business_dashboard = () => {
   const [selectedCategoy , setSelectedCategory]=useState(null)
@@ -22,6 +28,12 @@ const Business_dashboard = () => {
   const [categories , setCategories]=useState([])
   const [isOfferDetailsOpen , setIsOffersDetailsOpen]=useState(false)
   const [notificationsCount , setNotificationsCount] = useState(0)
+  const [pageError , setPageError]=useState('')
+  const [smallError , setSmallError]=useState('')
+  const { t , i18n} = useTranslation("businessDashboard")
+  const isRTL = i18n.language === "ar"; // true if Arabic
+
+
   
 
   
@@ -72,8 +84,8 @@ useEffect(()=>{
 
 
   const stats = [
-    { id: 3, label: 'Total Offers', value: totalOffers, icon: Grid3x3 },
-    { id: 4, label: 'Total Loves', value: totalLikes, icon: Heart },
+    { id: 3, label: t('totalOffers'), value: totalOffers, icon: Grid3x3 },
+    { id: 4, label: t('TotalLikes'), value: totalLikes, icon: Heart },
   ];
 
   const hasOffers = offers.length > 0;
@@ -88,13 +100,21 @@ useEffect(()=>{
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
+      {pageError?(
+        <PageError />
+      ):(<>
       {/* Header */}
       <div className="bg-white px-5 py-4 flex items-center justify-between border-b border-gray-200">
         <div className="flex w-12 rounded-full overflow-hidden h-12 items-center gap-3">
-          <img
+          {user?.logo?(
+            <img
             src={user?.logo}
-            className="w-full h-full object-contain rounded-full"
-          />
+            className="w-full h-full rounded-full object-cover"
+          />):(
+            <div className="w-full h-full border border-neutral-300  overflow-hidden rounded-full flex justify-center items-end">
+                <FaUser className='text-[#009842]' size={35}/>
+            </div>
+          )}
         </div>
 
         <div className="flex-1 flex justify-center">
@@ -119,15 +139,15 @@ useEffect(()=>{
             return (
               <div
                 key={stat.id}
-                className="bg-[#00893B] rounded-md p-4 text-white shadow-lg"
+                className={`bg-[#00893B] rounded-md p-4 text-white shadow-lg`}
               >
-                <div className="flex items-start justify-between mb-2">
+                <div className={`flex items-start justify-between mb-2 ${isRTL?"justify-end":"justify-start"}`}>
                   <div className="bg-white/20 p-2 rounded-lg">
                     <Icon size={24} />
                   </div>
                 </div>
-                <p className="text-sm opacity-90 mb-1">{stat.label}</p>
-                <p className="text-2xl font-bold">{stat.value}</p>
+                <p className={`text-sm opacity-90 mb-1 ${isRTL ? "text-right" : "text-left"}`}>{stat.label}</p>
+                <p className={`text-2xl font-bold ${isRTL ? "text-right" : "text-left"}`}>{stat.value}</p>
               </div>
             );
           })}
@@ -137,9 +157,9 @@ useEffect(()=>{
           <>
             {/* All Offers Section */}
             <div className="px-3 flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-gray-900">All Offers</h2>
-              <Link to={'/Business/offers'} className="text-sm text-gray-600 transition-colors">
-                See All
+              <h2 className="text-xl font-bold text-gray-900">{t('allOffers')}</h2>
+              <Link to={'/business/offers'} className="text-sm text-gray-600 transition-colors">
+                {t("seeAll")}
               </Link>
             </div>
 
@@ -195,7 +215,7 @@ useEffect(()=>{
             }`}
           >
             <span className="text-2xl">+</span>
-            <span>Add New Offer</span>
+            <span>{t('addBtn')}</span>
           </button>
         </div>
       </div>
@@ -219,6 +239,12 @@ useEffect(()=>{
           offerId={selectedOffer?.offer_id}
         /> 
       )}
+
+      {smallError&&(
+        <SmallError message={smallError} onClose={()=>{setSmallError('')}}/>
+      )
+      }
+      </>)}
     </div>
   );
 };

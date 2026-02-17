@@ -2,7 +2,7 @@
         id SERIAL PRIMARY KEY,
         name VARCHAR(150) NOT NULL,
         email VARCHAR(150) UNIQUE NOT NULL,
-        auth_provider VARCHAR(20)CHECK (auth_provider IN ('local', 'google', 'facebook')),
+        auth_provider VARCHAR(20)CHECK (auth_provider IN ('local', 'google', 'facebook')) DEFAULT 'local',
         password VARCHAR(255),
         avatar VARCHAR(500),
         gender VARCHAR(20) CHECK (gender IN ('male', 'female')) DEFAULT 'male',
@@ -32,6 +32,22 @@
         active BOOLEAN DEFAULT FALSE,
         is_verified BOOLEAN DEFAULT FALSE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS email_verification_tokens (
+        id SERIAL PRIMARY KEY,
+        account_id INT NOT NULL,
+        account_type VARCHAR(20) CHECK(account_type IN ('user','business')) NOT NULL,
+        token VARCHAR(255) NOT NULL UNIQUE,
+        expires_at TIMESTAMP NOT NULL
+      );
+      
+      CREATE TABLE IF NOT EXISTS password_reset_tokens (
+        id SERIAL PRIMARY KEY,
+        account_id INT NOT NULL,
+        account_type VARCHAR(20) CHECK(account_type IN ('user','business')) NOT NULL,
+        token TEXT NOT NULL,
+        expires_at TIMESTAMP NOT NULL
       );
 
       CREATE TABLE IF NOT EXISTS business_locations (
@@ -110,4 +126,15 @@
   CREATE TABLE IF NOT EXISTS ads (
   id SERIAL PRIMARY KEY,
   image VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS device_tokens (
+  id SERIAL PRIMARY KEY,
+  receiver_type VARCHAR(20) CHECK (receiver_type IN ('user', 'business')) NOT NULL,
+  receiver_id INTEGER NOT NULL,
+  token TEXT UNIQUE NOT NULL,
+  platform VARCHAR(10) CHECK (platform IN ('ios', 'android')) NOT NULL,
+  is_active BOOLEAN DEFAULT true,
+  device_id TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

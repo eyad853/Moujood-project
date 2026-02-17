@@ -1,0 +1,50 @@
+{
+  "form": {
+    "businessName": "اسم النشاط التجاري",
+    "emailLabel": "البريد الإلكتروني",
+    "passwordLabel": "كلمة المرور",
+    "confirmPasswordLabel": "تأكيد كلمة المرور",
+    "categoryLabel": "فئة النشاط التجاري",
+    "logoLabel": "شعار النشاط التجاري",
+    "descriptionLabel": "وصف النشاط التجاري",
+    "locationsLabel": "مواقع النشاط التجاري",
+    "selectedLocation":"مواقع تم اختيارها",
+    "phoneLabel": "رقم الهاتف",
+    "acceptTerms": "أوافق وأتعهد بالالتزام بشروط وأحكام موقع Maujood وسياسة الخصوصية",
+    "submitButton": "إنشاء حساب",
+    "loginText": "هل لديك حساب؟",
+    "loginButton": "تسجيل الدخول"
+  },
+  "placeholder": {
+    "businessName": "أدخل اسم نشاطك التجاري",
+    "email": "أدخل بريدك الإلكتروني",
+    "password": "أدخل كلمة المرور",
+    "confirmPassword": "أكد كلمة المرور",
+    "category": "اختر من الفئات",
+    "description": "صف نشاطك التجاري",
+    "phone": "أدخل رقم هاتف النشاط التجاري",
+    "logo": "تحميل شعار النشاط التجاري"
+  },
+
+  "terms": {
+    "prefix": "أوافق وأتعهد بالالتزام بـ",
+    "termsLink": "الشروط والأحكام",
+    "and":"و",
+    "privacyLink": "سياسة الخصوصية"
+  },
+
+  "submitBtn": "إنشاء حساب",
+  "haveAccount": "لديك حساب؟",
+  "login": "تسجيل الدخول",
+
+  "map": {
+    "selectLocations": "انقر لاختيار المواقع على الخريطة",
+    "locationsInfo": "يمكنك إضافة مواقع نشاط تجاري متعددة"
+  },
+
+  "errors": {
+    "required": "هذا الحقل مطلوب",
+    "passwordMismatch": "كلمات المرور غير متطابقة",
+    "invalidEmail": "البريد الإلكتروني غير صالح"
+  }
+}

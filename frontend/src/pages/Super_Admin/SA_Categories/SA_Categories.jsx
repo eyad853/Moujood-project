@@ -3,6 +3,7 @@ import { Search, ChevronDown, ChevronRight, Trash2, Edit, Plus, Upload, X, Arrow
 import { getCategoriesPageData } from '../../../api/super_admin_data'; 
 import Loadiing from '../../../components/Loadiing/Loadiing';
 import { createCategory , editCategory , deleteCategory } from '../../../api/categories';
+import PageError from '../../../components/PageError/PageError';
 
 const SA_Categories = () => {
   const [view, setView] = useState('list'); // 'list' or 'form'
@@ -13,6 +14,8 @@ const SA_Categories = () => {
   const [imagePreview, setImagePreview] = useState(null);
   const [categories , setCategories]=useState([])
   const [error , setError]=useState(false)
+  const [pageError , setPageError]=useState('')
+  const [smallError , setSmallError]=useState('')
   const [loading , setLoading]=useState(false)
   const [formData, setFormData] = useState({
     name: '',
@@ -229,6 +232,11 @@ const SA_Categories = () => {
   // List View
   return (
     <div className="w-full max-w-full overflow-hidden">
+      {pageError?(
+        <div className="w-full h-full">
+          <PageError />
+        </div>
+      ):(<>
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <h1 className="text-3xl font-bold text-gray-900">Categories</h1>
@@ -414,6 +422,7 @@ const SA_Categories = () => {
           <div className="flex justify-center items-center  font-bold text-gray-500">There's Not Any Categories Yet...</div>
         )}
       </div>
+      </>)}
     </div>
   );
 };

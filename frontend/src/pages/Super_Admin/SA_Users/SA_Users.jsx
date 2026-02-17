@@ -5,6 +5,7 @@ import Loadiing from '../../../components/Loadiing/Loadiing'
 import { getUserPageData } from '../../../api/super_admin_data';
 import { FaUser } from "react-icons/fa";
 import socket from '../../../Socket';
+import PageError from '../../../components/PageError/PageError';
 
 
 const SA_Users = () => {
@@ -128,6 +129,12 @@ const SA_Users = () => {
 
   return (
     <div className="w-full max-w-full overflow-hidden">
+      {error?
+      (
+        <div className="w-full h-full">
+          <PageError />
+        </div>
+      ):(<>
       {/* Page Title */}
       <h1 className="text-3xl font-bold text-gray-900 mb-6">Users</h1>
 
@@ -328,6 +335,7 @@ const SA_Users = () => {
           })}
         </div>
       </div>
+      </>)}
     </div>
   );
 };

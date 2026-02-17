@@ -6,6 +6,7 @@ import Loadiing from '../Loadiing/Loadiing'
 import { getOfferSheet } from '../../api/offers';
 import MapModal from '../modals/MapModal/MapModal';
 import { useUser } from '../../context/userContext';
+import { useTranslation } from 'react-i18next';
 
 const OfferDetailSheet = ({ isOpen, onClose , offerId}) => {
     const [offer , setOffer]=useState({})    
@@ -13,6 +14,8 @@ const OfferDetailSheet = ({ isOpen, onClose , offerId}) => {
     const [loading , setLoading]=useState(false)
     const {showMapModal,setShowMapModal,markers,setMarkers ,userLocation,setUserLocation}=useMapProvider()
     const {user}=useUser()
+    const {t , i18n}=useTranslation('offerDetailsSheet')
+    const isRTL = i18n.language==='ar'
 
 
      useEffect(()=>{
@@ -114,7 +117,8 @@ useEffect(() => {
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
+    const locale = isRTL ? 'ar-SA' : 'en-US';
+    return date.toLocaleDateString(locale, { 
       year: 'numeric', 
       month: 'long', 
       day: 'numeric' 
@@ -163,7 +167,7 @@ useEffect(() => {
             ):(<>
             {/* Header */}
             <div className="sticky top-0 z-20 bg-white border-b border-gray-200 px-5 py-4 flex items-center justify-between rounded-t-3xl">
-              <h2 className="text-xl font-semibold text-gray-900">Offer Details</h2>
+              <h2 className="text-xl font-semibold text-gray-900">{t("title")}</h2>
               <button
                 onClick={onClose}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -187,7 +191,7 @@ useEffect(() => {
               {/* Business Info */}
               <div className="bg-gray-50 rounded-2xl p-4 mb-5">
                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
-                  Business Information
+                  {t("information")}
                 </p>
                 <div className="flex items-center gap-3">
                   <div className="w-14 h-14 bg-[#009842] rounded-full flex items-center justify-center flex-shrink-0">
@@ -226,7 +230,7 @@ useEffect(() => {
               <div className="bg-gradient-to-br from-[#009842]/10 to-[#007a36]/10 rounded-2xl p-5 mb-5">
                 <div className="flex items-center gap-2 mb-3">
                   <DollarSign size={20} className="text-[#009842]" />
-                  <p className="text-sm font-semibold text-gray-700">Price</p>
+                  <p className="text-sm font-semibold text-gray-700">{t('price')}</p>
                 </div>
                 <div className="flex items-center gap-3 flex-wrap">
                   {offer?.offer_price_after && offer?.offer_price_after !== offer?.offer_price_before ? (
@@ -283,7 +287,7 @@ useEffect(() => {
                     </div>
                     <div className="flex-1">
                       <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
-                        Posted On
+                        {t('postedOn')}
                       </p>
                       <p className="font-medium text-gray-900">
                         {formatDate(offer.created_at)}
@@ -318,7 +322,7 @@ useEffect(() => {
                   >
                     <MapPin size={40} color="#009842" />
                     <span style={{ color: '#009842', fontWeight: '600', fontSize: '16px' }}>
-                      Click to See Locations on Map
+                      {t('mapMessage')}
                     </span>
                   </button>
                 </div>)
