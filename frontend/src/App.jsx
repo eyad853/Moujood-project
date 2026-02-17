@@ -2,6 +2,8 @@ import { App as CapApp } from '@capacitor/app';
 import { PushNotifications } from '@capacitor/push-notifications';
 import { SocialLogin } from '@capgo/capacitor-social-login';
 import { Preferences } from '@capacitor/preferences';
+import { Device } from '@capacitor/device';
+
  
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { useEffect } from 'react';
@@ -245,8 +247,10 @@ const App = () => {
     PushNotifications.addListener('registration', async (token) => {
       const savedToken = await Preferences.get({ key:"pushToken"});
       if (savedToken.value !== token.value) {
+        const deviceId = await Device.getId();
+
         //TODO: send token to backend
-        alert(token.value);
+        alert(token.value + deviceId.identifier);
         await Preferences.set({ key: "pushToken", value: token.value});
       }
     });
