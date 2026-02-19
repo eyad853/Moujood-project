@@ -1,4 +1,6 @@
+import admin from "../config/firebase.js";
 import { pool } from "../index.js"
+import { sendNotification } from "../services/firebase.js";
 
 const getTargetText =async ({ receiver_type, filter_type, filter_value, specific_names }) => {
     const typeText = receiver_type === 'user' ? 'users' : 'businesses';
@@ -87,6 +89,14 @@ export const createNotification = async (req, res) => {
 
     const receivers = await client.query(receiversQuery, params);
 
+    const receiverIds = receivers.rows.map(r => r.id);
+    const deviceTokensRes = await pool.query(
+      `SELECT token FROM device_tokens 
+      WHERE receiver_type = $1 AND receiver_id = ANY($2::int[]) AND is_active = true`,
+      [receiver_type, receiverIds]
+    );
+    const tokens = deviceTokensRes.rows.map(r => r.token);
+
     // 3️⃣ insert notification_targets
     for (const r of receivers.rows) {
       await client.query(
@@ -115,6 +125,10 @@ export const createNotification = async (req, res) => {
         type:'notification_created',
         notification
       });
+    }
+
+    if (tokens.length > 0) {
+      sendNotification(title , message , tokens)
     }
 
     res.json({
