@@ -6,6 +6,8 @@ import { getAllCategories } from '../../../api/categories';
 import socket from '../../../Socket';
 import BusinessSheet from '../../../components/BusinessSheet/BusinessSheet';
 import PageError from '../../../components/PageError/PageError';
+import { useError } from '../../../context/error';
+import { useTranslation } from 'react-i18next';
 
 const SA_Businesses = () => {
   const [activeTab, setActiveTab] = useState('Overview');
@@ -15,13 +17,13 @@ const SA_Businesses = () => {
   const [subCategory, setSubCategory] = useState('');
   const [orderStatus, setOrderStatus] = useState('');
   const [loading ,setLoading]=useState(false)
-  const [error , setError]=useState('')
   const [businesses , setBusinesses]=useState([])
   const [categories , setCategories]=useState([])
   const [selectedBusiness , setSelectedBusiness] = useState(null)
   const [pageError , setPageError]=useState('')
-  const [smallError , setSmallError]=useState('')
+  const {setSmallError}=useError()
   const [isBusinessSheetOpen , setIsBusinessSheetOpen]=useState(false)
+  const {t}=useTranslation()
 
   const tabs = ['Overview'];
 
@@ -37,10 +39,18 @@ const SA_Businesses = () => {
     const get=async()=>{
         try{
             setLoading(true)
-            await getBusinessPageData(setError , setBusinesses)
-            await getAllCategories(setError , setCategories)
-        }catch(error){
-            setError(error)
+            await getBusinessPageData(setPageError , setBusinesses , t)
+            await getAllCategories(setPageError , setCategories , t)
+        }catch(err){
+          if (err.response?.data?.message) {
+              setPageError(t(`errors:${err.response.data.message}`))
+          }else if (err.message === "Network Error") {
+              setPageError(t("errors:NETWORK_ERROR"))
+          } else if (err.message) {
+              setPageError(t(`errors:${err.message}`))
+          } else {
+              setPageError(t("errors:SOMETHING_WENT_WRONG"))
+          }
         }finally{
             setLoading(false)
         }
@@ -78,10 +88,16 @@ const SA_Businesses = () => {
 }, []);
 
   if(loading){
-    return(
-        <Loadiing />
-    )
+    return <div className="w-full h-full">
+      <Loadiing />
+    </div> 
   }
+
+  if (pageError) {
+  return (
+      <PageError error={pageError} />
+  );
+}
 
   const filteredBusinesses = businesses.filter((business) => {
     // Filter by search query (name)
@@ -102,11 +118,6 @@ const SA_Businesses = () => {
 
   return (
     <div className="w-full max-w-full overflow-hidden">
-      {pageError?(
-        <div className="w-full h-full">
-          <PageError />
-        </div>
-      ):(<>
       {/* Page Title */}
       <h1 className="text-3xl font-bold text-gray-900 mb-6">Businesses</h1>
 
@@ -238,7 +249,7 @@ const SA_Businesses = () => {
               <div 
               onClick={(e)=>{
                 e.stopPropagation()
-                editBusinessActivity(setError , businesses , business , setBusinesses)
+                editBusinessActivity(setSmallError , businesses , business , setBusinesses , t)
               }}
               className="col-span-2">
                 <span className={`inline-block cursor-pointer px-4 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap ${
@@ -256,7 +267,6 @@ const SA_Businesses = () => {
       {isBusinessSheetOpen&&selectedBusiness?.id&&(
         <BusinessSheet isOpen={isBusinessSheetOpen} onClose={()=>setIsBusinessSheetOpen(false)} businessId={selectedBusiness.id}/>
         )}
-        </>)}
     </div>
   );
 };

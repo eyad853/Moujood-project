@@ -1,8 +1,16 @@
+import ERRORS from "../config/errors.js";
 import { pool } from "../index.js";
 
 export const getFeedPageData = async (req , res) => {
   const userId = req.user.id;
-  console.log(userId);
+
+  if(!userId){
+    return res.status(400).json({
+      error:true,
+      message:ERRORS.NOT_AUTHENTICATED
+    })
+  }
+
   try {
     // 🔹 Get Ads
     const adsResult = await pool.query(`
@@ -30,8 +38,8 @@ export const getFeedPageData = async (req , res) => {
 
       FROM offers o
 
-      LEFT JOIN businesses b 
-        ON o.business_id = b.id
+      JOIN businesses b 
+      ON o.business_id = b.id AND b.active = TRUE
 
       LEFT JOIN (
         SELECT offer_id, COUNT(*) AS count
@@ -64,11 +72,10 @@ export const getFeedPageData = async (req , res) => {
       categories: categoriesResult.rows
     });
   } catch (err) {
-    console.error(err);
-    throw err;
+    console.log(err);
+    return res.status(500).json({message:ERRORS.SERVER_ERROR})
   }
 };
-
 
 export const getSubCategoriesOfCategory = async (req, res) => {
   try {
@@ -85,10 +92,9 @@ export const getSubCategoriesOfCategory = async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ message:ERRORS.SERVER_ERROR });
   }
 };
-
 
 export const getBusinessesOfCategory = async (req, res) => {
   try {
@@ -104,7 +110,7 @@ export const getBusinessesOfCategory = async (req, res) => {
         b.logo,
         b.description
       FROM businesses b
-      WHERE EXISTS (
+      WHERE b.active = TRUE AND EXISTS (
         SELECT 1
         FROM offers o
         WHERE o.business_id = b.id
@@ -123,7 +129,7 @@ export const getBusinessesOfCategory = async (req, res) => {
 
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: true, message: 'Server error' });
+    res.status(500).json({ error: true, message: ERRORS.SERVER_ERROR });
   }
 };
 
@@ -142,7 +148,7 @@ export const getBusinessPageData = async (req , res) => {
     );
 
     if (!businessResult.rows.length) {
-      return res.status(404).json({ message: 'Business not found' });
+      return res.status(404).json({error:true, message: ERRORS.BUSINESS_NOT_FOUND });
     }
 
     const business = businessResult.rows[0];
@@ -191,42 +197,20 @@ export const getBusinessPageData = async (req , res) => {
       subCategories: subCategoriesResult.rows
     });
   } catch (err) {
-    console.error(err);
-    throw err;
-  }
-};
-
-
-export const getProfileData = async (req, res) => {
-  try {
-    const userId = req.user.id;
-
-    // Get user info + stats
-    const result = await pool.query(
-      `
-      SELECT u.id,u.name,u.email,u.gender,u.governorate,u.user_type,u.created_at,
-        (SELECT COUNT(*) FROM scans WHERE user_id = u.id) AS points,
-        FROM users u
-        WHERE u.id = $1
-      `,
-      [userId]
-    );
-
-    const user = result.rows[0];
-
-    return res.status(200).json({
-      error: false,
-      user,
-    });
-
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: true, message: "Server error" });
+    console.log(err);
+    return res.status(500).json({message:ERRORS.SERVER_ERROR})
   }
 };
 
 export const getUserPoints = async (req, res) => {
   const user_id = req.user.id;
+
+    if(!user_id){
+    return res.status(400).json({
+      error:true,
+      message:ERRORS.NOT_AUTHENTICATED
+    })
+  }
 
   try {
     const result = await pool.query(
@@ -244,6 +228,6 @@ export const getUserPoints = async (req, res) => {
 
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "server_error" });
+    res.status(500).json({ message: ERRORS.SERVER_ERROR });
   }
 };

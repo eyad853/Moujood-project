@@ -14,7 +14,7 @@ const C_Topics = () => {
             try{
                 setLoading(true)
                 await getAllCategories(setError , setCategoies)
-            }catch(error){
+            }catch(err){
                 if (err.response?.data?.message) {
                     setError(err.response.data.message)
                 } else if (err.message) {

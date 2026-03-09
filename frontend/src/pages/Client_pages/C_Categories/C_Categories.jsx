@@ -10,14 +10,13 @@ import { FaUser } from 'react-icons/fa6';
 import PageError from '../../../components/PageError/PageError';
 import { useTranslation } from 'react-i18next'
 
-
 const C_Categories = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   // const [categories , setCategories]=useState([])
   const [ads , setAds]=useState([])
   const [loading , setLoading]=useState(false)
-  const [error , setError]=useState('')
+  const [pageError , setPageError]=useState('')
   const [categories , setCategories]=useState([])
   const [notificationsCount , setNotificationsCount] = useState(0)
   const {user}=useUser()
@@ -49,12 +48,19 @@ const canAutoScroll = ads.length > 1;
     const get = async ()=>{
       try{
         setLoading(true)
-        // await getAllCategories(setError , setCategories)
-        await getAds(setError , setAds)
-        await getAllCategories(setError , setCategories)
-        await fetchNotificationCount(user?.accountType , setNotificationsCount , setError)
-      }catch(error){
-        setError(error)
+        await getAds(setPageError , setAds , t)
+        await getAllCategories(setPageError , setCategories , t)
+        await fetchNotificationCount(user?.accountType , setNotificationsCount , setPageError , t)
+      }catch(err){
+        if (err.response?.data?.message) {
+            setPageError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setPageError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setPageError(t(`errors:${err.message}`))
+        } else {
+            setPageError(t("errors:SOMETHING_WENT_WRONG"))
+        }
       }finally{
         setLoading(false)
       }
@@ -135,15 +141,20 @@ useEffect(() => {
     )
   }
 
+  if (pageError) {
+    return (
+      <div className="fixed inset-0">
+        <PageError error={pageError} />
+      </div>
+    );
+  }
+
    const filteredCategories = categories.filter(category =>
     category.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
-      {error?(
-        <PageError error={error}/>
-      ):(<>
       {/* Header */}
       <div className="bg-white px-5 py-4 border-b border-gray-200 sticky top-0 z-20">
         <div className="flex items-center justify-between mb-4">
@@ -302,7 +313,6 @@ useEffect(() => {
           )}
         </div>
       </div>
-      </>)}
     </div>
   );
 };

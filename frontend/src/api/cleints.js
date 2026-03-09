@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-export const getFeedPageData = async (setError , setOffers , setCategories , setAds)=>{
+export const getFeedPageData = async (setError , setOffers , setCategories , setAds , t)=>{
     try{
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/clients/getFeedPageData` , {withCredentials:true})
         setOffers(response.data.offers)
@@ -9,31 +9,35 @@ export const getFeedPageData = async (setError , setOffers , setCategories , set
         console.log(response.data);
     }catch(err){
         if (err.response?.data?.message) {
-            setError(err.response.data.message)
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
         } else if (err.message) {
-            setError(err.message)
+            setError(t(`errors:${err.message}`))
         } else {
-            setError('Something went wrong')
+            setError(t("errors:SOMETHING_WENT_WRONG"))
         }
     }
 }
 
-export const getSubCategoriesOfCategory = async (setError , setCategories , categoryId)=>{
+export const getSubCategoriesOfCategory = async (setError , setCategories , categoryId , t)=>{
     try{
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/clients/getSubCategoriesOfCategory/${categoryId}`)
         setCategories(response.data.subCategories)
     }catch(err){
         if (err.response?.data?.message) {
-            setError(err.response.data.message)
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
         } else if (err.message) {
-            setError(err.message)
+            setError(t(`errors:${err.message}`))
         } else {
-            setError('Something went wrong')
+            setError(t("errors:SOMETHING_WENT_WRONG"))
         }
     }
 }
 
-export const getBusinessesOfCategory = async (setError , setBusinesses , categoryId)=>{
+export const getBusinessesOfCategory = async (setError , setBusinesses , categoryId , t)=>{
     try{
         console.log('started');
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/clients/getbusinessesOfCategory/${categoryId}`)
@@ -41,16 +45,18 @@ export const getBusinessesOfCategory = async (setError , setBusinesses , categor
         setBusinesses(response.data.businesses)
     }catch(err){
         if (err.response?.data?.message) {
-            setError(err.response.data.message)
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
         } else if (err.message) {
-            setError(err.message)
+            setError(t(`errors:${err.message}`))
         } else {
-            setError('Something went wrong')
+            setError(t("errors:SOMETHING_WENT_WRONG"))
         }
     }
 }
 
-export const getBusinessPageData = async (setError , setBusiness , setCategories , setOffers , business_id , businessId , setMarkers)=>{
+export const getBusinessPageData = async (setError , setBusiness , setCategories , setOffers , business_id , businessId , setMarkers , t)=>{
     const usedId = businessId?businessId:business_id
     try{
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/clients/getBusinessPageData/${usedId}`)
@@ -61,30 +67,18 @@ export const getBusinessPageData = async (setError , setBusiness , setCategories
         console.log(response.data.locations);
     }catch(err){
         if (err.response?.data?.message) {
-            setError(err.response.data.message)
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
         } else if (err.message) {
-            setError(err.message)
+            setError(t(`errors:${err.message}`))
         } else {
-            setError('Something went wrong')
+            setError(t("errors:SOMETHING_WENT_WRONG"))
         }
     }
 }
 
-const getProfileData = async (setError)=>{
-    try{
-        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/clients/getprofileData`)
-    }catch(err){
-        if (err.response?.data?.message) {
-            setError(err.response.data.message)
-        } else if (err.message) {
-            setError(err.message)
-        } else {
-            setError('Something went wrong')
-        }
-    }
-}
-
-export const getUserPoints = async (setPoints, setError) => {
+export const getUserPoints = async (setPoints, setError , t)=>{
   try {
     const res = await axios.get(
       `${import.meta.env.VITE_BACKEND_URL}/clients/getUserPoints`,
@@ -93,12 +87,14 @@ export const getUserPoints = async (setPoints, setError) => {
 
     setPoints(res.data.total_points);
   } catch (err) {
-    if (err.response?.data?.message) {
-      setError(err.response.data.message);
-    } else if (err.message) {
-      setError(err.message);
-    } else {
-      setError("Something went wrong");
-    }
+        if (err.response?.data?.message) {
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setError(t(`errors:${err.message}`))
+        } else {
+            setError(t("errors:SOMETHING_WENT_WRONG"))
+        }
   }
 };

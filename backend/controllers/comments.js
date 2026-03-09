@@ -1,9 +1,17 @@
+import ERRORS from "../config/errors.js";
 import { pool } from "../index.js";
 
 export const createComment = async (req, res) => {
   const user_id = req.user.id;
   const { offer_id } = req.params;
   const {content} = req.body
+
+    if(!user_id){
+    return res.status(400).json({
+      error:true,
+      message:ERRORS.NOT_AUTHENTICATED
+    })
+  }
 
   try {
     const result = await pool.query(
@@ -34,7 +42,7 @@ export const createComment = async (req, res) => {
 
   } catch (err) {
     console.log(err);
-    res.status(500).json({ message: "server_error" });
+    res.status(500).json({ message: ERRORS.SERVER_ERROR });
   }
 };
 
@@ -44,6 +52,13 @@ export const updateComment = async (req, res) => {
   const {content } = req.body;
   const {comment_id} = req.params
 
+    if(!user_id){
+    return res.status(400).json({
+      error:true,
+      message:ERRORS.NOT_AUTHENTICATED
+    })
+  }
+
   try {
     // Fetch the comment to verify ownership
     const check = await pool.query(
@@ -52,11 +67,11 @@ export const updateComment = async (req, res) => {
     );
 
     if (check.rowCount === 0) {
-      return res.status(404).json({ message: "comment_not_found" });
+      return res.status(404).json({error:true, message: ERRORS.COMMENT_NOT_FOUND });
     }
 
     if (check.rows[0].user_id !== user_id) {
-      return res.status(403).json({ message: "unauthorized" });
+      return res.status(403).json({error:true, message: ERRORS.UNAUTHORIZED });
     }
 
     const offer_id = check.rows[0].offer_id;
@@ -76,13 +91,20 @@ export const updateComment = async (req, res) => {
 
   } catch (err) {
     console.log(err);
-    res.status(500).json({ message: "server_error" });
+    res.status(500).json({ message: ERRORS.SERVER_ERROR });
   }
 };
 
 export const deleteComment = async (req, res) => {
   const user_id = req.user.id;
   const { id } = req.params; // comment id
+
+    if(!user_id){
+    return res.status(400).json({
+      error:true,
+      message:ERRORS.NOT_AUTHENTICATED
+    })
+  }
 
   try {
     // Ensure user owns the comment
@@ -92,11 +114,11 @@ export const deleteComment = async (req, res) => {
     );
 
     if (check.rowCount === 0) {
-      return res.status(404).json({ message: "comment_not_found" });
+      return res.status(404).json({error:true, message: ERRORS.COMMENT_NOT_FOUND });
     }
 
     if (check.rows[0].user_id !== user_id) {
-      return res.status(403).json({ message: "unauthorized" });
+      return res.status(403).json({error:true, message: ERRORS.UNAUTHORIZED });
     }
 
     const offer_id = check.rows[0].offer_id;
@@ -110,7 +132,7 @@ export const deleteComment = async (req, res) => {
 
   } catch (err) {
     console.log(err);
-    res.status(500).json({ message: "server_error" });
+    res.status(500).json({ message: ERRORS.SERVER_ERROR});
   }
 };
 
@@ -118,7 +140,6 @@ export const getOfferComments = async(req , res)=>{
   const {id} = req.params
 
   try{
-
       const result = await pool.query(`
         SELECT 
         c.*,
@@ -131,9 +152,8 @@ export const getOfferComments = async(req , res)=>{
         ` , [id])
       const comments = result.rows
       return res.status(200).json(comments)
-
   }catch(error){
     console.log(error);
-    res.status(500).json({ message: "server_error" });
+    res.status(500).json({ message: ERRORS.SERVER_ERROR });
   }
 }

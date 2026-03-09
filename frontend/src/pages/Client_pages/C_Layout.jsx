@@ -10,10 +10,11 @@ import { Bell } from 'lucide-react';
 import { useUser } from '../../context/userContext';
 import { fetchNotificationCount } from '../../api/notifications';
 import socket from '../../Socket';
+import { useTranslation } from 'react-i18next';
 
 const C_Layout = () => {
   const {user}=useUser()
-  const [error , setError]=useState([])
+  const [pageError , setPageError]=useState([])
   const [notificationsCount , setNotificationsCount] = useState(0)
   const location = useLocation();
   const isActive =
@@ -22,6 +23,7 @@ const C_Layout = () => {
   location.pathname.startsWith("/client/sub_categories/") ||
   location.pathname.startsWith("/client/businesses_of_category/") ||
   location.pathname.startsWith("/client/business_page/");
+  const {t}=useTranslation()
 
 
   useEffect(() => {
@@ -48,9 +50,15 @@ const C_Layout = () => {
       if (!user) return;
       const get = async ()=>{
         try{
-          await fetchNotificationCount(user?.accountType , setNotificationsCount , setError)
-        }catch(error){
-          setError(error)
+          await fetchNotificationCount(user?.accountType , setNotificationsCount , setPageError)
+        }catch(err){
+          if (err.response?.data?.message) {
+              setPageError(t(err.response.data.message))
+          } else if (err.message) {
+              setPageError(t(err.message))
+          } else {
+              setPageError(t("SOMETHING_WENT_WRONG"))
+          }
         }
       }
   

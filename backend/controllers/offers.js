@@ -1,8 +1,16 @@
+import ERRORS from "../config/errors.js";
 import { pool } from "../index.js";
 
 export const addOffer = async (req, res) => {
   try {
     const business_id = req.user.id;
+
+      if(!business_id){
+    return res.status(400).json({
+      error:true,
+      message:ERRORS.NOT_AUTHENTICATED
+    })
+  }
 
     const { title, description, offer_price_before,category ,  offer_price_after } = req.body;
 
@@ -10,7 +18,7 @@ export const addOffer = async (req, res) => {
         if (!image) {
             return res.status(400).json({
                 error: true,
-                message: 'Offer image is required'
+                message: ERRORS.OFFER_IMAGE_IS_REQUIRED
             });
         }
 
@@ -27,7 +35,8 @@ export const addOffer = async (req, res) => {
     res.status(201).json(result.rows[0]);
 
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.log(err);
+    res.status(500).json({ message: ERRORS.SERVER_ERROR });
   }
 };
 
@@ -44,7 +53,7 @@ export const editOffer = async (req, res) => {
     );
 
     if (existing.rows.length === 0) {
-      return res.status(404).json({ message: "Offer not found" });
+      return res.status(404).json({error:true, message: ERRORS.OFFER_NOT_FOUND });
     }
 
     const oldOffer = existing.rows[0];
@@ -82,7 +91,8 @@ export const editOffer = async (req, res) => {
     res.json(result.rows[0]);
 
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.log(err);
+    res.status(500).json({ message: ERRORS.SERVER_ERROR });
   }
 };
 
@@ -90,6 +100,13 @@ export const deleteOffer = async (req, res) => {
   try {
     const business_id = req.user.id;
     const { offer_id } = req.params;
+
+      if(!business_id){
+    return res.status(400).json({
+      error:true,
+      message:ERRORS.NOT_AUTHENTICATED
+    })
+  }
 
     const result = await pool.query(
       `DELETE FROM offers 
@@ -99,11 +116,12 @@ export const deleteOffer = async (req, res) => {
     );
 
     if (result.rows.length === 0)
-      return res.status(404).json({ message: "Offer not found" });
+      return res.status(404).json({error:true, message: ERRORS.OFFER_NOT_FOUND });
 
     res.json({ message: "Offer deleted successfully" });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.log(err);
+    res.status(500).json({ message: ERRORS.SERVER_ERROR });
   }
 };
 
@@ -138,7 +156,8 @@ export const getOffers = async (req, res) => {
     res.json(result.rows);
 
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.log(err);
+    res.status(500).json({ message: ERRORS.SERVER_ERROR });
   }
 };
 
@@ -163,7 +182,7 @@ export const getOfferSheet = async (req, res) => {
     );
 
     if (offerResult.rowCount === 0) {
-      return res.status(404).json({ message: "Offer not found" });
+      return res.status(404).json({error:true, message: OFFER_NOT_FOUND });
     }
 
     const offer = offerResult.rows[0];
@@ -187,6 +206,6 @@ export const getOfferSheet = async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ message: ERRORS.SERVER_ERROR });
   }
 };

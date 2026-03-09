@@ -7,11 +7,14 @@ import { useUser } from '../../context/userContext';
 import { useOffer } from '../../context/offerContext';
 import Loadiing from '../Loadiing/Loadiing'
 import { useTranslation } from 'react-i18next';
+import {useError} from '../../context/error'
+import PageError from '../PageError/PageError';
 
 const OfferSheet = ({ isOpen, onClose, offerId ,setOffers , setTotalOffers , setFuncUsedCategories}) => {
   const [imagePreview, setImagePreview] = useState(null);
   const {user} = useUser()
-  const [error , setError]=useState(false)
+  const [pageError , setPageError]=useState('')
+  const {setSmallError}=useError()
   const [loading , setLoading]=useState(false)
   const [priceType, setPriceType] = useState('single'); // 'single' or 'offer'
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
@@ -34,11 +37,19 @@ const OfferSheet = ({ isOpen, onClose, offerId ,setOffers , setTotalOffers , set
     try {
       setLoading(true);
       if (offerId) {
-        await getOfferSheet(offerId, setOffer, null, setError);
+        await getOfferSheet(offerId, setOffer, null, setPageError , t);
       }
-      await getAllSubCategories(setError, setCategories);
+      await getAllSubCategories(setPageError, setCategories , t);
     } catch (err) {
-      setError(err);
+        if (err.response?.data?.message) {
+            setPageError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setPageError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setPageError(t(`errors:${err.message}`))
+        } else {
+            setPageError(t("errors:SOMETHING_WENT_WRONG"))
+        }
     } finally {
       setLoading(false);
     }
@@ -129,6 +140,8 @@ const OfferSheet = ({ isOpen, onClose, offerId ,setOffers , setTotalOffers , set
           >
             {loading?(
               <Loadiing />
+            ):pageError?(
+              <PageError error={pageError}/>
             ):(<>
             {/* Header */}
             <div className="sticky top-0 z-20 bg-white border-b border-gray-200 px-5 py-4 flex items-center justify-between rounded-t-3xl">
@@ -395,11 +408,11 @@ const OfferSheet = ({ isOpen, onClose, offerId ,setOffers , setTotalOffers , set
 
               {/* Share Offer Button */}
               <button
-                onClick={()=>{
+                onClick={async()=>{
                   offer?
-                  editOffer(setError , offer.offer_id , setOffers , formData , imagePreview , setFuncUsedCategories)
+                  await editOffer(setSmallError , offer.offer_id , setOffers , formData , imagePreview , setFuncUsedCategories , t)
                   :
-                  addOffer(setError , setOffers , formData , imagePreview , setTotalOffers , setFuncUsedCategories)
+                  await addOffer(setSmallError , setOffers , formData , imagePreview , setTotalOffers , setFuncUsedCategories , t)
                   setIsOfferSheetOpen(false)
                   setSelectedOffer(null)
                 }}

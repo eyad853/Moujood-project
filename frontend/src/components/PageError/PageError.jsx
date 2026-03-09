@@ -2,10 +2,10 @@ import React from 'react'
 
 const PageError = ({error}) => {
   return (
-    <div className='w-full h-full flex flex-col justify-center items-center text-white bg-red-50'>
+    <div className='w-full h-full flex flex-col gap-3.5 justify-center items-center text-white bg-red-200'>
         <svg
-          width="20"
-          height="20"
+          width="80"
+          height="80"
           viewBox="0 0 20 20"
           fill="none"
         >
@@ -18,7 +18,7 @@ const PageError = ({error}) => {
         />
         </svg>
 
-        <div className="text-white">
+        <div className="text-white font-bold">
           {error}
         </div>
     </div>

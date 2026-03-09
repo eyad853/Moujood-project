@@ -2,7 +2,18 @@ import axios from "axios";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
-export const createComment = async (offer_id , content , comments , setComments , setError ,user) => {
+export const createComment = async (offer_id , content , comments , setComments , setError ,user, t) => {
+
+  if (!content || content.trim().length === 0) {
+    setError(t("limits:CONTENT_REQUIRED"));
+    return;
+  }
+
+  if (content.length > 500) {
+    setError(t("limits:COMMENT_TOO_LONG"));
+    return;
+  }
+
   const tempId = Date.now();
 
   const optimisticComment = {
@@ -33,17 +44,30 @@ export const createComment = async (offer_id , content , comments , setComments 
     // rollback
     setComments(prev => prev.filter(c => c.id !== tempId));
 
-    if (err.response?.data?.message) {
-      setError(err.response.data.message);
-    } else if (err.message) {
-      setError(err.message);
-    } else {
-      setError("Something went wrong");
-    }
+        if (err.response?.data?.message) {
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setError(t(`errors:${err.message}`))
+        } else {
+            setError(t("errors:SOMETHING_WENT_WRONG"))
+        }
   }
 };
 
-export const updateComment = async (comment_id, newContent , comments , setComments , setError ) => {
+export const updateComment = async (comment_id, newContent , comments , setComments , setError , t) => {
+
+  if (!newContent || newContent.trim().length === 0) {
+    setError(t("limits:CONTENT_REQUIRED"));
+    return;
+  }
+
+  if (newContent.length > 500) {
+    setError(t("limits:COMMENT_TOO_LONG"));
+    return;
+  }
+
   const oldComments = [...comments];
 
   // optimistic update
@@ -60,17 +84,19 @@ export const updateComment = async (comment_id, newContent , comments , setComme
     // rollback
     setComments(oldComments);
 
-    if (err.response?.data?.message) {
-      setError(err.response.data.message);
-    } else if (err.message) {
-      setError(err.message);
-    } else {
-      setError("Something went wrong");
-    }
+        if (err.response?.data?.message) {
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setError(t(`errors:${err.message}`))
+        } else {
+            setError(t("errors:SOMETHING_WENT_WRONG"))
+        }
   }
 };
 
-export const deleteComment = async  (comment_id , comments , setComments , setError ) => {
+export const deleteComment = async  (comment_id , comments , setComments , setError , t) => {
   const oldComments = [...comments];
 
   // optimistic remove
@@ -83,17 +109,19 @@ export const deleteComment = async  (comment_id , comments , setComments , setEr
     // rollback
     setComments(oldComments);
 
-    if (err.response?.data?.message) {
-      setError(err.response.data.message);
-    } else if (err.message) {
-      setError(err.message);
-    } else {
-      setError("Something went wrong");
-    }
+        if (err.response?.data?.message) {
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setError(t(`errors:${err.message}`))
+        } else {
+            setError(t("errors:SOMETHING_WENT_WRONG"))
+        }
   }
 };
 
-export const getOfferComments = async  (offer_id , setComments , setError ) => {
+export const getOfferComments = async  (offer_id , setComments , setError , t) => {
   try {
     const { data } = await axios.get(`${API}/comments/getOfferComments/${offer_id}`);
     console.log(data);
@@ -101,12 +129,14 @@ export const getOfferComments = async  (offer_id , setComments , setError ) => {
     setComments(data);
 
   } catch (err) {
-    if (err.response?.data?.message) {
-      setError(err.response.data.message);
-    } else if (err.message) {
-      setError(err.message);
-    } else {
-      setError("Something went wrong");
-    }
+        if (err.response?.data?.message) {
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setError(t(`errors:${err.message}`))
+        } else {
+            setError(t("errors:SOMETHING_WENT_WRONG"))
+        }
   }
 };

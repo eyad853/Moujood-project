@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Search, Filter, RotateCcw, ChevronDown, ChevronLeft, ChevronRight, Trash2, Edit, X } from 'lucide-react';
 import { getOffersPageData } from '../../../api/super_admin_data';
 import { getAllCategories } from '../../../api/categories';
-import { editOffer , deleteOffer } from '../../../api/offers';
+import { deleteOffer } from '../../../api/offers';
 import { useEffect } from 'react';
 import Loadiing from '../../../components/Loadiing/Loadiing'
 import OfferDetailSheet from '../../../components/OfferDetailSheet/OfferDetailSheet';
@@ -11,6 +11,8 @@ import { useOffer } from '../../../context/offerContext';
 import socket from '../../../Socket';
 import { useUser } from '../../../context/userContext';
 import PageError from '../../../components/PageError/PageError';
+import { useTranslation } from 'react-i18next';
+import { useError } from '../../../context/error';
 
 
 const SA_Posts = () => {
@@ -22,22 +24,29 @@ const SA_Posts = () => {
   const [isOfferDetailsOpen , setIsOffersDetailsOpen]=useState(false)
   const [categories , setCategories]=useState([])
   const [loading ,setLoading]=useState(false)
-  const [error , setError]=useState('')
   const [offers , setOffers]=useState([])
   const {user} = useUser()
   const [pageError , setPageError]=useState('')
-  const [smallError , setSmallError]=useState('')
+  const {setSmallError}=useError()
+  const {t}=useTranslation()
   
 
     useEffect(()=>{
         const get=async()=>{
             try{
                 setLoading(true)
-                await getAllCategories(setError , setCategories)
-                await getOffersPageData(setError , setOffers)
-                
-            }catch(error){
-                setError(error)
+                await getAllCategories(setPageError , setCategories , t)
+                await getOffersPageData(setPageError , setOffers , t)
+            }catch(err){
+        if (err.response?.data?.message) {
+            setSmallError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setSmallError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setSmallError(t(`errors:${err.message}`))
+        } else {
+            setSmallError(t("errors:SOMETHING_WENT_WRONG"))
+        }
             }finally{
                 setLoading(false)
             }
@@ -96,12 +105,19 @@ useEffect(() => {
 }, []);
 
     
-      if(loading){
-        return(
-            <Loadiing />
-        )
-      }
+  if(loading){
+    return <div className="w-full h-full">
+      <Loadiing />
+    </div> 
+  }
 
+  if (pageError) {
+  return (
+      <PageError error={pageError} />
+  );
+}
+
+      
   const tabs = ['Overview'];
 
   // Filter offers based on category, business name, and search query
@@ -136,11 +152,6 @@ useEffect(() => {
 
   return (
     <div className="w-full max-w-full overflow-hidden">
-      {pageError?(
-        <div className="w-full h-full">
-          <PageError />
-        </div>
-      ):(<>
       {/* Page Title */}
       <h1 className="text-3xl font-bold text-gray-900 mb-6">Posts</h1>
 
@@ -281,8 +292,7 @@ useEffect(() => {
                     <button
                       onClick={(e) => {
                         e.stopPropagation()
-                        deleteOffer(setError , setOffers , offer?.offer_id , setCategories
-                        )}}
+                        deleteOffer(setSmallError , setOffers , offer?.offer_id , setCategories , t)}}
                       className="p-2 hover:bg-red-50 rounded-lg transition-colors"
                       title="Delete offer"
                     >
@@ -329,7 +339,6 @@ useEffect(() => {
           setOffers={setOffers}
         /> 
       )}
-      </>)}
     </div>
   );
 };

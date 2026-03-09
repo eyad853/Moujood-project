@@ -2,9 +2,12 @@ import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import SA_Sidebar from '../../components/SA_Sidebar/SA_Sidebar';
 import SA_Navbar from '../../components/Nav/Nav';
+import SmallError from '../../components/SmallError/SmallError';
+import { useError } from '../../context/error';
 
 const SA_Layout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const {smallError , setSmallError}=useError()
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -43,6 +46,11 @@ const SA_Layout = () => {
           <Outlet />
         </main>
       </div>
+
+      {smallError&&(
+        <SmallError message={smallError} onClose={()=>{setSmallError('')}}/>
+        )
+      }
     </div>
   );
 };

@@ -6,6 +6,7 @@ import { getUserPageData } from '../../../api/super_admin_data';
 import { FaUser } from "react-icons/fa";
 import socket from '../../../Socket';
 import PageError from '../../../components/PageError/PageError';
+import { useTranslation } from 'react-i18next';
 
 
 const SA_Users = () => {
@@ -16,10 +17,11 @@ const SA_Users = () => {
   const [filterValue, setFilterValue] = useState('');
   const [users , setUsers]=useState([])
   const [loading ,setLoading]=useState(false)
-  const [error , setError]=useState('')
+  const [pageError , setPageError]=useState('')
   const [totalPercantage , setTotalPercantage]=useState(0)
   const [malePercantage , setMalePercantage]=useState(0)
   const [femalePercantage , setFemalePercantage]=useState(0)
+  const {t}=useTranslation()
 
   const tabs = ['Overview'];
 
@@ -40,9 +42,17 @@ const SA_Users = () => {
     const get=async()=>{
         try{
             setLoading(true)
-            await getUserPageData(setError , setUsers , setTotalPercantage , setMalePercantage , setFemalePercantage)
-        }catch(error){
-            setError(error)
+            await getUserPageData(setPageError , setUsers , setTotalPercantage , setMalePercantage , setFemalePercantage , t)
+        }catch(err){
+        if (err.response?.data?.message) {
+            setPageError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setPageError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setPageError(t(`errors:${err.message}`))
+        } else {
+            setPageError(t("errors:SOMETHING_WENT_WRONG"))
+        }
         }finally{
             setLoading(false)
         }
@@ -63,10 +73,16 @@ const SA_Users = () => {
 }, []);
 
   if(loading){
-    return(
-        <Loadiing />
-    )
+    return <div className="w-full h-full">
+      <Loadiing />
+    </div> 
   }
+
+  if (pageError) {
+  return (
+      <PageError error={pageError} />
+  );
+}
 
   // Filter users based on search and filters
   const filteredUsers = users.filter(user => {
@@ -129,12 +145,6 @@ const SA_Users = () => {
 
   return (
     <div className="w-full max-w-full overflow-hidden">
-      {error?
-      (
-        <div className="w-full h-full">
-          <PageError />
-        </div>
-      ):(<>
       {/* Page Title */}
       <h1 className="text-3xl font-bold text-gray-900 mb-6">Users</h1>
 
@@ -335,7 +345,6 @@ const SA_Users = () => {
           })}
         </div>
       </div>
-      </>)}
     </div>
   );
 };

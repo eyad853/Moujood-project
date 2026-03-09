@@ -5,6 +5,9 @@ import { editAccount } from '../../api/auth';
 import { useUser } from '../../context/userContext';
 import Loadiing from '../Loadiing/Loadiing'
 import { useTranslation } from 'react-i18next';
+import {useError} from '../../context/error'
+import PageError from '../PageError/PageError';
+import ShowSuccess from '../ShowSuccess/ShowSuccess';
 
  const PasswordEditSheet = ({ isOpen, onClose })=> {
   const [oldPassword, setOldPassword] = useState('');
@@ -13,20 +16,21 @@ import { useTranslation } from 'react-i18next';
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [error, setError] = useState('');
+  const {setSmallError}=useError()
   const [fullError, setFullError] = useState('');
   const [fieldErrors, setFieldErrors] = useState({})
   const [loading , setLoading]= useState(false)
   const [success, setSuccess] = useState('');
   const {user, setUser}=useUser()
   const {t , i18n}=useTranslation('passwordEditSheet')
+  const [pageError , setPageError]=useState('')
   const isRTL = i18n.language==='ar'
 
   const handleClose = () => {
     setOldPassword('');
     setNewPassword('');
     setConfirmPassword('');
-    setError('');
+    setSmallError('');
     setShowOldPassword(false);
     setShowNewPassword(false);
     setShowConfirmPassword(false);
@@ -38,7 +42,7 @@ import { useTranslation } from 'react-i18next';
   useEffect(() => {
     if (!isOpen) {
       setSuccess('');
-      setError('');
+      setSmallError('');
     }
   }, [isOpen]);
 
@@ -51,7 +55,7 @@ import { useTranslation } from 'react-i18next';
 
   const handleEditAccount = async ()=>{
     try{
-      const result = await editAccount(formdata , setLoading , setError , setUser , user , setFieldErrors , setFullError , false) 
+      const result = await editAccount(formdata , setLoading , setPageError , setUser , user , setFieldErrors , false , t) 
       
       if (result?.success) {
         setSuccess('Profile updated successfully');
@@ -62,13 +66,15 @@ import { useTranslation } from 'react-i18next';
         }, 1500);
       }
     }catch(err){
-      if (err.response?.data?.message) {
-        setError(err.response.data.message);
-      } else if (err.message) {
-        setError(err.message);
-      } else {
-        setError("Something went wrong");
-      }
+        if (err.response?.data?.message) {
+            setSmallError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setSmallError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setSmallError(t(`errors:${err.message}`))
+        } else {
+            setSmallError(t("errors:SOMETHING_WENT_WRONG"))
+        }
     }
   }
 
@@ -95,13 +101,10 @@ import { useTranslation } from 'react-i18next';
           >
             {loading?(
               <Loadiing />
-            ) : success || fullError ? (
-                // Show only message
-                <div className={`flex flex-col justify-center items-center w-full h-full px-5 ${success? 'bg-[#009842]' : 'bg-red-600'}`}>
-                  <h2 className={`text-2xl font-semibold mb-4 text-white`}>
-                    {success || fullError}
-                  </h2>
-                </div>
+            ) : success ? (
+                <ShowSuccess message={success} onClose={()=>{setSuccess('')}}/>
+              ) :pageError?(
+                <PageError error={pageError}/>
               ) : (
             <>
             {/* Handle bar */}

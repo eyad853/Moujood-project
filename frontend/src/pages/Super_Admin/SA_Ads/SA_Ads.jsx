@@ -3,6 +3,8 @@ import { Plus, Edit2, Trash2, X, Upload, Image } from 'lucide-react';
 import { addAd , getAds ,editAd , deleteAd } from '../../../api/ads';
 import Loadiing from '../../../components/Loadiing/Loadiing'
 import PageError from '../../../components/PageError/PageError';
+import { useTranslation } from 'react-i18next';
+import { useError } from '../../../context/error';
 
 const SA_Ads = () => {
   const [ads, setAds] = useState([]);
@@ -10,11 +12,11 @@ const SA_Ads = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [editingAd, setEditingAd] = useState(null);
-  const [error ,setError]=useState('')
   const [loading , setLoading]=useState(false)
   const [pageError , setPageError]=useState('')
-  const [smallError , setSmallError]=useState('')
+  const {setSmallError}=useError()
   const [selectedAd , setSelectedAd]=useState({})
+  const {t}=useTranslation()
 
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
@@ -47,9 +49,17 @@ const SA_Ads = () => {
     const get=async()=>{
         try{
             setLoading(true)
-            await getAds(setError , setAds)
-        }catch(error){
-            setError(error)
+            await getAds(setPageError , setAds , t)
+        }catch(err){
+        if (err.response?.data?.message) {
+            setPageError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setPageError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setPageError(t(`errors:${err.message}`))
+        } else {
+            setPageError(t("errors:SOMETHING_WENT_WRONG"))
+        }
         }finally{
             setLoading(false)
         }
@@ -58,18 +68,19 @@ const SA_Ads = () => {
   },[])
 
   if(loading){
-    return(
-        <Loadiing />
-    )
+    return <div className="w-full h-full">
+      <Loadiing />
+    </div> 
   }
+
+  if (pageError) {
+  return (
+      <PageError error={pageError} />
+  );
+}
 
   return (
     <div className="max-w-7xl mx-auto">
-      {pageError?(
-        <div className="w-full h-full">
-          <PageError />
-        </div>
-      ):(<>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -126,7 +137,7 @@ const SA_Ads = () => {
                   <Edit2 size={20} />
                 </button>
                 <button
-                  onClick={() => deleteAd(ad.id , ads , setAds , setError)}
+                  onClick={() => deleteAd(ad.id , ads , setAds , setSmallError , t)}
                   className="p-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors shadow-lg transform hover:scale-110"
                   title="Delete Ad"
                 >
@@ -144,7 +155,7 @@ const SA_Ads = () => {
                   <Edit2 size={18} />
                 </button>
                 <button
-                  onClick={() => deleteAd(ad.id , ads , setAds , setError)}
+                  onClick={() => deleteAd(ad.id , ads , setAds , setSmallError , t)}
                   className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
                   title="Delete Ad"
                 >
@@ -243,7 +254,7 @@ const SA_Ads = () => {
               </button>
               <button
                 onClick={()=>{
-                    editingAd ? editAd(selectedAd.id , selectedFile , ads , setAds , setError) : addAd(selectedFile , ads , setAds , setError)
+                    editingAd ? editAd(selectedAd.id , selectedFile , ads , setAds , setSmallError , t) : addAd(selectedFile , ads , setAds , setSmallError , t)
                     handleCloseModal()
                 }}
                 disabled={!selectedFile}
@@ -259,7 +270,6 @@ const SA_Ads = () => {
           </div>
         </div>
       )}
-      </>)}
     </div>
   );
 };

@@ -388,7 +388,7 @@ const governorateOptions = [
           {/* Submit Button */}
           <button
             onClick={()=>{
-              localAuth(setError , formData,navigate , setLoading , false , setUser , setFieldErrors)
+              localAuth(setError , formData,navigate , setLoading , false , setUser , setFieldErrors , t)
             }}
             className="w-full py-4 text-base font-semibold text-white bg-[#0A4D3C] rounded-full hover:bg-[#083d30] transition-colors mb-4"
           >

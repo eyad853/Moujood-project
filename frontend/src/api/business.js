@@ -1,39 +1,26 @@
 import axios from 'axios'
 
-export const getBusinessDashboardData = async (setError ,setOffers,setTotalOffers,setTotalLikes , setCategories)=>{
+export const getBusinessDashboardData = async (setError ,setOffers,setTotalOffers,setTotalLikes , setCategories , t)=>{
     try{
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/businesses/getBusinessDashboardData` , {withCredentials:true})
-        console.log(response.data);
         setOffers(response.data.latest_offers)
         setTotalOffers(response.data.total_offers)
         setTotalLikes(response.data.total_likes)
         setCategories(response.data.categories)
     }catch(err){
         if (err.response?.data?.message) {
-            setError(err.response.data.message)
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
         } else if (err.message) {
-            setError(err.message)
+            setError(t(`errors:${err.message}`))
         } else {
-            setError('Something went wrong')
+            setError(t("errors:SOMETHING_WENT_WRONG"))
         }
     }
 }
 
-export const editProfileData = async (setError)=>{
-    try{
-        const response = await axios.patch(`${import.meta.env.VITE_BACKEND_URL}/businesses/editProfileData` , {withCredentials:true})
-    }catch(err){
-        if (err.response?.data?.message) {
-            setError(err.response.data.message)
-        } else if (err.message) {
-            setError(err.message)
-        } else {
-            setError('Something went wrong')
-        }
-    }
-}
-
-export const getBusinessOffers = async (setError , setLoading , setOffers , setCategories)=>{
+export const getBusinessOffers = async (setError , setLoading , setOffers , setCategories , t)=>{
     try{
         setLoading(true)
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/businesses/getBusinessOffers` , {withCredentials:true})
@@ -41,11 +28,13 @@ export const getBusinessOffers = async (setError , setLoading , setOffers , setC
         setCategories(response.data.categories)
     }catch(err){
         if (err.response?.data?.message) {
-            setError(err.response.data.message)
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
         } else if (err.message) {
-            setError(err.message)
+            setError(t(`errors:${err.message}`))
         } else {
-            setError('Something went wrong')
+            setError(t("errors:SOMETHING_WENT_WRONG"))
         }
     }finally{
         setLoading(false)

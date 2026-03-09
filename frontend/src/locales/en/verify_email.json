@@ -1,1 +1,25 @@
-{}
+{
+    "EMAIL_VERIFIED_TITLE": "Email Verified!",
+    "EMAIL_VERIFIED_DESC": "Thank you for verifying your email address. Your account is now active and ready to use.",
+    "EMAIL_VERIFIED_SUCCESS_BOX_TITLE": "All set!",
+    "EMAIL_VERIFIED_SUCCESS_BOX_DESC": "You can now access all features of your account.",
+    "CONTINUE_BUTTON": "Continue",
+    "VERIFICATION_FAILED_TITLE": "Verification Failed",
+    "VERIFICATION_FAILED_DESC": "Oops! Something went wrong",
+    "REQUEST_NEW_EMAIL": "Request New Verification Email",
+    "SENDING": "Sending...",
+    "EMAIL_SENT": "Email Sent!",
+    "RESEND_IN": "Resend in {{countdown}}s",
+    "GO_TO_HOME": "Go to Home",
+    "CHECK_YOUR_EMAIL_TITLE": "Check Your Email",
+    "CHECK_YOUR_EMAIL_DESC": "We've sent a verification link to your email address. Click the link to activate your account and get started.",
+    "SENT_TO_LABEL": "Sent to",
+    "WHAT_TO_DO_NEXT": "What to do next",
+    "STEP_1": "Open your email inbox",
+    "STEP_2": "Find the verification email (check spam if needed)",
+    "STEP_3": "Click the verification link",
+    "STEP_4": "Return here once verified",
+    "USE_DIFFERENT_EMAIL": "Use a Different Email",
+    "SECURE_VERIFICATION": "Secure verification",
+    "RESEND_VERIFICATION_EMAIL":"Resend Verification Email"
+}

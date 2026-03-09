@@ -19,7 +19,7 @@ export const addAd = async (req, res) => {
     res.json(ad);
   } catch (error) {
     console.log(error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ message: ERRORS.SERVER_ERROR });
   }
 };
 
@@ -29,7 +29,7 @@ export const getAds = async (req, res) => {
     res.json(result.rows);
   } catch (error) {
     console.log(error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ message: ERRORS.SERVER_ERROR });
   }
 };
 
@@ -58,7 +58,7 @@ export const editAd = async (req, res) => {
     res.json(result.rows[0]);
   } catch (error) {
     console.log(error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ message: ERRORS.SERVER_ERROR });
   }
 };
 
@@ -74,9 +74,12 @@ export const deleteAd = async (req, res) => {
       message: ERRORS.AD_NOT_FOUND
     });
 
-    res.json({ message: 'Ad deleted' });
+    res.json({ 
+      error:false,
+      message: 'Ad deleted' 
+    });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ message: ERRORS.SERVER_ERROR });
   }
 };

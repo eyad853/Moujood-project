@@ -10,6 +10,7 @@ import OfferDetailSheet from '../../../components/OfferDetailSheet/OfferDetailSh
 import PageError from '../../../components/PageError/PageError'
 import SmallError from '../../../components/SmallError/SmallError';
 import { useTranslation } from 'react-i18next'
+import { useError } from '../../../context/error';
 
 
 
@@ -18,13 +19,12 @@ const Business_offers = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategoy , setSelectedCategory]=useState('')
   const {isOfferSheetOpen, setIsOfferSheetOpen, selectedOffer, setSelectedOffer} = useOffer()
-  const [error , setError]=useState(false)
   const [loading , setLoading]=useState(false)
   const [categories , setCategories]=useState([])
   const [offers , setOffers]=useState([])
   const [isOfferDetailsOpen , setIsOffersDetailsOpen]=useState(false)
   const [pageError , setPageError]=useState('')
-  const [smallError , setSmallError]=useState('')
+  const {smallError , setSmallError}=useError()
   const { t , i18n} = useTranslation("businessOffers")
   const isRTL = i18n.language === "ar"; // true if Arabic
 
@@ -43,7 +43,23 @@ const Business_offers = () => {
 
   
   useEffect(()=>{
-    getBusinessOffers(setError , setLoading , setOffers , setCategories)
+    const getData = async()=>{
+      try{
+        getBusinessOffers(setPageError , setLoading , setOffers , setCategories , t)
+      }catch(err){
+        if (err.response?.data?.message) {
+            setPageError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setPageError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setPageError(t(`errors:${err.message}`))
+        } else {
+            setPageError(t("errors:SOMETHING_WENT_WRONG"))
+        }
+      }
+    }
+
+    getData()
   },[])
   
 
@@ -55,11 +71,16 @@ const Business_offers = () => {
   );
 }
 
+if (pageError) {
+  return (
+    <div className="fixed inset-0">
+      <PageError error={pageError} />
+    </div>
+  );
+}
+
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
-      {pageError?(
-        <PageError />
-      ):(<>
       {/* Header */}
       <div className="bg-white px-5 py-4 flex items-center justify-center relative border-b border-gray-200">
         <h1 className="text-xl font-semibold text-gray-900">Offers</h1>
@@ -134,7 +155,7 @@ const Business_offers = () => {
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
-                    deleteOffer(setError , setOffers, offer?.offer_id , setCategories)}}
+                    deleteOffer(setSmallError , setOffers, offer?.offer_id , setCategories)}}
                   className="p-2.5 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
                 >
                   <Trash2 size={20} className="text-white" />
@@ -196,7 +217,6 @@ const Business_offers = () => {
           offerId={selectedOffer?.offer_id}
         /> 
       )}
-      </>)}
 
       {smallError&&(
         <SmallError message={smallError} onClose={()=>{setSmallError('')}}/>

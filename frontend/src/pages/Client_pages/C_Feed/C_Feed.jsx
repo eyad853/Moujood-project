@@ -13,15 +13,15 @@ import { FaUser } from 'react-icons/fa6';
 import SmallError from '../../../components/SmallError/SmallError';
 import PageError from '../../../components/PageError/PageError';
 import { useTranslation } from 'react-i18next'
+import { useError } from '../../../context/error';
 
 
 const C_Feed = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory , setSelectedCategory]=useState(null)
   const [ads , setAds]=useState([])
-  const [error ,setError]=useState('')
   const [pageError , setPageError]=useState('')
-  const [smallError , setSmallError]=useState('')
+  const {smallError , setSmallError}=useError()
   const [loading , setLoading]=useState(false)
   const [offers , setOffers]=useState([])
   const [categories , setCategories]=useState([])
@@ -56,7 +56,6 @@ const handleImageLoad = (offerId, e) => {
     setTallImages(prev => new Set(prev).add(offerId))
   }
 }
-  
 
   const filteredOffers = offers.filter(offer => {
   const matchesCategory =
@@ -108,10 +107,18 @@ const extendedAds = ads.length
     const get = async ()=>{
       try{
         setLoading(true)
-        await getFeedPageData(setError , setOffers , setCategories , setAds)
-        await fetchNotificationCount(user?.accountType , setNotificationsCount , setError)
-      }catch(error){
-        setError(error)
+        await getFeedPageData(setPageError , setOffers , setCategories , setAds , t)
+        await fetchNotificationCount(user?.accountType , setNotificationsCount , setPageError , t)
+      }catch(err){
+        if (err.response?.data?.message) {
+            setPageError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setPageError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setPageError(t(`errors:${err.message}`))
+        } else {
+            setPageError(t("errors:SOMETHING_WENT_WRONG"))
+        }
       }finally{
         setLoading(false)
       }
@@ -123,19 +130,9 @@ const extendedAds = ads.length
 
   const handleLikeToggle = (offer) => {
   if (offer.is_liked) {
-    unlikeOffer(
-      offer.offer_id,
-      offers,
-      setOffers,
-      setError
-    );
+    unlikeOffer(offer.offer_id,offers,setOffers,setSmallError,t);
   } else {
-    likeOffer(
-      offer.offer_id,
-      offers,
-      setOffers,
-      setError
-    );
+    likeOffer(offer.offer_id,offers,setOffers,setSmallError,t);
   }
 };
 
@@ -246,11 +243,16 @@ const formatLikesAndCommentsCount = (num) => {
     )
   }
 
+  if (pageError) {
+    return (
+      <div className="fixed inset-0">
+        <PageError error={pageError} />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
-      {pageError?(
-        <PageError />
-      ):(<>
       {/* Header */}
       <div className="bg-white px-5 py-4 border-b border-gray-200 sticky top-0 z-20">
         <div className="flex items-center justify-between mb-4">
@@ -472,7 +474,6 @@ const formatLikesAndCommentsCount = (num) => {
         <SmallError message={smallError} onClose={()=>{setSmallError('')}}/>
         )
       }
-      </>)}
     </div>
   );
 };

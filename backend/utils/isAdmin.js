@@ -1,18 +1,21 @@
+import ERRORS from "../config/errors.js";
+
 const isAdmin = (req, res, next) => {
+  console.log(req.user);
   try {
     // Check if user is logged in
-    if (!req.session.user) {
+    if (!req.user) {
       return res.status(401).json({
         error: true,
-        message: "You must be logged in"
+        message: ERRORS.UNAUTHORIZED
       });
     }
 
     // Check admin role
-    if (req.session.user.accountType !== "super_admin") {
+    if (req.user.accountType !== "super_admin") {
       return res.status(403).json({
         error: true,
-        message: "Access denied. Admins only"
+        message: ERRORS.ACCESS_DENIED_ADMINS_ONLY
       });
     }
 
@@ -21,7 +24,7 @@ const isAdmin = (req, res, next) => {
     console.error("isAdmin Error:", err);
     return res.status(500).json({
       error: true,
-      message: "Server error"
+      message: ERRORS.SERVER_ERROR
     });
   }
 };

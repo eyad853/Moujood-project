@@ -9,6 +9,8 @@ import { useNotifications } from '../../../context/notificationContext';
 import OfferDetailSheet from '../../../components/OfferDetailSheet/OfferDetailSheet';
 import NotificationBottomSheet from '../../../components/NotificationBottomSheet/NotificationBottomSheet';
 import PageError from '../../../components/PageError/PageError';
+import { useError } from '../../../context/error';
+import { useTranslation } from 'react-i18next';
 
 
 const SA_Notifications = () => {
@@ -21,9 +23,8 @@ const SA_Notifications = () => {
   const [governorate, setGovernorate] = useState('');
   const [gender, setGender] = useState('');
 
-  const [error , setError]=useState(false)
   const [pageError , setPageError]=useState('')
-  const [smallError , setSmallError]=useState('')
+  const {setSmallError}=useError()
   const [loading , setLoading]=useState(false)
 
   const [userNotifications , setUserNotifications]=useState([])
@@ -31,6 +32,7 @@ const SA_Notifications = () => {
 
   const {isNotificationSheetOpen , setIsNotificationSheetOpen,selectedNotification,setSelectedNotification}=useNotifications()
 
+  const {t}=useTranslation()
 
   const [users , setUsers]=useState([])
   const [businesses , setBusinesses]=useState([])
@@ -53,12 +55,20 @@ const SA_Notifications = () => {
     const fetchData = async () => {
     try {
       setLoading(true);
-      await getAllUsers(setError , setUsers)
-      await getAllBusinesses(setError , setBusinesses)
-      await getAllCategories(setError , setCategoies)
-      await getAllNotifications(setError , receiver_type  , setUserNotifications , setBusinessNotifications)
-    } catch (error) {
-      console.log(error);
+      await getAllUsers(setPageError , setUsers , t)
+      await getAllBusinesses(setPageError , setBusinesses , t)
+      await getAllCategories(setPageError , setCategoies , t)
+      await getAllNotifications(setPageError , receiver_type  , setUserNotifications , setBusinessNotifications , t)
+    } catch (err) {
+        if (err.response?.data?.message) {
+            setPageError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setPageError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setPageError(t(`errors:${err.message}`))
+        } else {
+            setPageError(t("errors:SOMETHING_WENT_WRONG"))
+        }
     } finally {
       setLoading(false);
     }
@@ -68,8 +78,16 @@ const SA_Notifications = () => {
   },[receiver_type])
     
       if(loading){
-        return <Loadiing />
+        return <div className="w-full h-full">
+          <Loadiing />
+        </div> 
       }
+
+  if (pageError) {
+  return (
+      <PageError error={pageError} />
+  );
+}
 
   const egyptGovernates = [
     'Cairo', 'Alexandria', 'Giza', 'Qalyubia', 'Port Said', 'Suez', 
@@ -115,12 +133,20 @@ const SA_Notifications = () => {
   const handleCreateAndUpdateNotification = async()=>{
     try{
       editingNotification?
-      editNotification(editingNotification.id , formData , setError , setLoading ,  setUserNotifications , setBusinessNotifications)
+      editNotification(editingNotification.id , formData , setSmallError , setLoading ,  setUserNotifications , setBusinessNotifications , t)
       :
-      await createNotification(formData , setUserNotifications , setBusinessNotifications , setLoading , setError) 
+      await createNotification(formData , setUserNotifications , setBusinessNotifications , setLoading , setSmallError , t) 
       setView('list')
-    }catch(error){
-      setError(error)
+    }catch(err){
+        if (err.response?.data?.message) {
+            setSmallError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setSmallError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setSmallError(t(`errors:${err.message}`))
+        } else {
+            setSmallError(t("errors:SOMETHING_WENT_WRONG"))
+        }
     }
   }
 
@@ -155,6 +181,7 @@ const SA_Notifications = () => {
 
     return true;
   });
+  
 
   // Form View
   if (view === 'form') {
@@ -400,11 +427,6 @@ const SA_Notifications = () => {
   // List View
   return (
     <div className="w-full max-w-full overflow-hidden">
-      {pageError?(
-        <div className="w-full h-full">
-          <PageError />
-        </div>
-      ):(<>
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <h1 className="text-3xl font-bold text-gray-900">Notifications</h1>
@@ -598,7 +620,7 @@ const SA_Notifications = () => {
                   <button
                     onClick={(e)=>{
                       e.stopPropagation()
-                      deleteNotification(notification.id , receiver_type , setError , null ,setUserNotifications,setBusinessNotifications)
+                      deleteNotification(notification.id , receiver_type , setSmallError , null ,setUserNotifications,setBusinessNotifications , t)
                     }}
                     className="p-2 hover:bg-red-50 rounded-lg transition-colors"
                     title="Delete notification"
@@ -621,7 +643,6 @@ const SA_Notifications = () => {
           notificationId={selectedNotification?.id}
         /> 
         )}
-        </>)}
     </div>
   );
 };

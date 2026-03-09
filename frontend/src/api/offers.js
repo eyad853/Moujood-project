@@ -1,6 +1,50 @@
 import axios from 'axios'
 
-export const addOffer = async (setError, setOffers, formData, imagePreview , setTotalOffers , setCategories) => {
+export const addOffer = async (setError, setOffers, formData, imagePreview , setTotalOffers , setCategories , t) => {
+if (!formData.title || formData.title.trim().length === 0) {
+    setError(t("limits:TITLE_REQUIRED"));
+    return;
+  }
+  if (formData.title.length > 100) {
+    setError(t("limits:TITLE_TOO_LONG"));
+    return;
+  }
+
+  if (!formData.description || formData.description.trim().length === 0) {
+    setError(t("limits:DESCRIPTION_REQUIRED"));
+    return;
+  }
+  if (formData.description.length > 1000) {
+    setError(t("limits:DESCRIPTION_TOO_LONG"));
+    return;
+  }
+
+  if (!formData.priceBeforeOffer || Number(formData.priceBeforeOffer) <= 0) {
+    setError(t("limits:PRICE_BEFORE_REQUIRED"));
+    return;
+  }
+
+  if (formData.priceAfterOffer&&Number(formData.priceAfterOffer) > Number(formData.priceBeforeOffer)) {
+    setError(t("limits:PRICE_AFTER_MUST_BE_LESS"));
+    return;
+  }
+
+  if (!formData.category) {
+    setError(t("limits:CATEGORY_REQUIRED"));
+    return;
+  }
+
+  if (!formData.image) {
+    setError(t("limits:IMAGE_REQUIRED"));
+    return;
+  }
+
+  const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+  if (!allowedTypes.includes(formData.image.type)) {
+    setError(t("limits:INVALID_IMAGE_TYPE"));
+    return;
+  }
+
     const selectedCategory = formData.category;
     // TEMP optimistic offer
     const tempOffer = {
@@ -72,15 +116,60 @@ export const addOffer = async (setError, setOffers, formData, imagePreview , set
             return prev;
         });
 
-        if (err.response?.data?.message) setError(err.response.data.message);
-        else if (err.message) setError(err.message);
-        else setError("Something went wrong");
+        if (err.response?.data?.message) {
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setError(t(`errors:${err.message}`))
+        } else {
+            setError(t("errors:SOMETHING_WENT_WRONG"))
+        }
     }
 };
 
+export const editOffer = async (setError, offerId, setOffers, formData, imagePreview , setCategories , t) => {
+  if (!formData.title || formData.title.trim().length === 0) {
+    setError(t("TITLE_REQUIRED"));
+    return;
+  }
+  if (formData.title.length > 100) {
+    setError(t("TITLE_TOO_LONG"));
+    return;
+  }
 
+  if (!formData.description || formData.description.trim().length === 0) {
+    setError(t("DESCRIPTION_REQUIRED"));
+    return;
+  }
+  if (formData.description.length > 1000) {
+    setError(t("DESCRIPTION_TOO_LONG"));
+    return;
+  }
 
-export const editOffer = async (setError, offerId, setOffers, formData, imagePreview , setCategories) => {
+  if (!formData.priceBeforeOffer || Number(formData.priceBeforeOffer) <= 0) {
+    setError(t("PRICE_BEFORE_REQUIRED"));
+    return;
+  }
+
+  if (formData.priceAfterOffer&&Number(formData.priceAfterOffer) > Number(formData.priceBeforeOffer)) {
+    setError(t("PRICE_AFTER_MUST_BE_LESS"));
+    return;
+  }
+
+  if (!formData.category) {
+    setError(t("CATEGORY_REQUIRED"));
+    return;
+  }
+
+  if (formData.image) { // only validate if a new image is uploaded
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+    if (!allowedTypes.includes(formData.image.type)) {
+      setError(t("INVALID_IMAGE_TYPE"));
+      return;
+    }
+}
+    
     let oldOffer;
     let oldCategories;
     const selectedCategory = formData.category;
@@ -165,24 +254,24 @@ export const editOffer = async (setError, offerId, setOffers, formData, imagePre
 
         // Replace temp with real
         setOffers(prev =>
-  prev.map(o => {
-    if (o.offer_id === offerId) {
-      // Only keep the fields your frontend expects
-      const updatedOffer = response.data;
-      return {
-        ...o,
-        offer_id: updatedOffer.offer_id,
-        title: updatedOffer.title,
-        description: updatedOffer.description,
-        image: updatedOffer.image,
-        offer_price_before: updatedOffer.offer_price_before,
-        offer_price_after: updatedOffer.offer_price_after,
-        category: updatedOffer?.category
-      };
-    }
-    return o;
-  })
-);
+          prev.map(o => {
+            if (o.offer_id === offerId) {
+              // Only keep the fields your frontend expects
+              const updatedOffer = response.data;
+              return {
+                ...o,
+                offer_id: updatedOffer.offer_id,
+                title: updatedOffer.title,
+                description: updatedOffer.description,
+                image: updatedOffer.image,
+                offer_price_before: updatedOffer.offer_price_before,
+                offer_price_after: updatedOffer.offer_price_after,
+                category: updatedOffer?.category
+              };
+            }
+            return o;
+          })
+        );
 
     } catch (err) {
         // rollback
@@ -196,28 +285,35 @@ export const editOffer = async (setError, offerId, setOffers, formData, imagePre
             setCategories(oldCategories);
         }
 
-        if (err.response?.data?.message) setError(err.response.data.message);
-        else if (err.message) setError(err.message);
-        else setError("Something went wrong");
+        if (err.response?.data?.message) {
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setError(t(`errors:${err.message}`))
+        } else {
+            setError(t("errors:SOMETHING_WENT_WRONG"))
+        }
     }
 };
 
-
-export const getOffers = async (setError , setOffers)=>{
+export const getOffers = async (setError , setOffers , t)=>{
     try{
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/offers/get`)
-    }catch(error){
+    }catch(err){
         if (err.response?.data?.message) {
-            setError(err.response.data.message)
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
         } else if (err.message) {
-            setError(err.message)
+            setError(t(`errors:${err.message}`))
         } else {
-            setError('Something went wrong')
+            setError(t("errors:SOMETHING_WENT_WRONG"))
         }
     }
 }
 
-export const deleteOffer = async (setError, setOffers, offerId , setCategories) => {
+export const deleteOffer = async (setError, setOffers, offerId , setCategories , t) => {
     let deleted;
 
     // optimistic
@@ -267,13 +363,19 @@ export const deleteOffer = async (setError, setOffers, offerId , setCategories) 
             });
         }
 
-        if (err.response?.data?.message) setError(err.response.data.message);
-        else if (err.message) setError(err.message);
-        else setError("Something went wrong");
+        if (err.response?.data?.message) {
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setError(t(`errors:${err.message}`))
+        } else {
+            setError(t("errors:SOMETHING_WENT_WRONG"))
+        }
     }
 };
 
-export const getOfferSheet = async (offer_id, setOffer , setMarkers , setError) => {
+export const getOfferSheet = async (offer_id, setOffer , setMarkers , setError , t) => {
   try {
 
     const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/offers/getOfferSheet/${offer_id}`);
@@ -284,13 +386,15 @@ export const getOfferSheet = async (offer_id, setOffer , setMarkers , setError) 
         setMarkers(data.markers)
     }
   } catch (err) {
-    if (err.response?.data?.message) {
-      setError(err.response.data.message);
-    } else if (err.message) {
-      setError(err.message);
-    } else {
-      setError("Something went wrong");
-    }
+        if (err.response?.data?.message) {
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setError(t(`errors:${err.message}`))
+        } else {
+            setError(t("errors:SOMETHING_WENT_WRONG"))
+        }
   }
 };
 

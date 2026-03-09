@@ -1,52 +1,56 @@
+import ERRORS from '../config/errors.js';
 import admin from '../config/firebase.js';
 import {pool} from '../index.js'
 
 export async function sendNotification(title, body, tokens) {
   try {
+    if(tokens.length===0)return
+
     const message = {
-      notification: { title, body },
+      notification: {
+        title,
+        body,
+      },
       tokens,
     };
 
     const response = await admin.messaging().sendEachForMulticast(message);
 
-    let deletedTokens = [];
-
     if (response.failureCount > 0) {
       const failedTokens = [];
 
-      response.responses.forEach((resp, idx) => {
+      response.responses.forEach((resp, index) => {
         if (!resp.success) {
-          const errorCode = resp.error.code;
+          const errorCode = resp.error?.code;
 
           if (
-            errorCode === 'messaging/registration-token-not-registered' ||
-            errorCode === 'messaging/invalid-registration-token'
+            errorCode === "messaging/registration-token-not-registered" ||
+            errorCode === "messaging/invalid-registration-token"
           ) {
-            failedTokens.push(tokens[idx]);
+            failedTokens.push(tokens[index]);
           }
         }
       });
 
       if (failedTokens.length > 0) {
         await pool.query(
-          'DELETE FROM device_tokens WHERE token = ANY($1)',
+          "DELETE FROM device_tokens WHERE token = ANY($1)",
           [failedTokens]
         );
-
-        deletedTokens = failedTokens;
       }
     }
 
     return {
       error: false,
-      message:'Notifications sent successfully'
+      message: "Notifications processed",
     };
 
   } catch (error) {
+    console.error("FCM Error:", error);
+
     return {
       error: true,
-      message: error.message,
+      message: ERRORS.SERVER_ERROR,
     };
   }
 }

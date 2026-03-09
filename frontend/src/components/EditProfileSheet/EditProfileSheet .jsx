@@ -8,6 +8,8 @@ import { useMapProvider } from '../../context/mapContext.jsx';
 import MapModal from '../modals/MapModal/MapModal.jsx';
 import Loadiing from '../Loadiing/Loadiing.jsx'
 import { useTranslation } from 'react-i18next';
+import PageError from '../PageError/PageError.jsx';
+import ShowSuccess from '../ShowSuccess/ShowSuccess.jsx';
 
 const EditProfileSheet = ({ isOpen, onClose }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -16,8 +18,7 @@ const EditProfileSheet = ({ isOpen, onClose }) => {
   const [showGovernorateDropdown, setShowGovernorateDropdown] = useState(false);
   const [logoPreview, setLogoPreview] = useState(null);
   const [categories, setCategories] = useState([]);
-  const [error, setError] = useState('');
-  const [fullError, setFullError] = useState('');
+  const [pageError , setPageError]=useState('')
   const [fieldErrors, setFieldErrors] = useState({})
   const [loading , setLoading]=useState(false)
   const { user , setUser } = useUser();
@@ -155,7 +156,7 @@ const EditProfileSheet = ({ isOpen, onClose }) => {
     useEffect(() => {
       if (!isOpen) {
         setSuccess('');
-        setError('');
+        setPageError('');
       }
     }, [isOpen]);
 
@@ -176,12 +177,11 @@ const EditProfileSheet = ({ isOpen, onClose }) => {
       });
       setLogoPreview(user.logo || user.avatar || null);
       setFieldErrors({})
-      setFullError('')
     }
     // Fetch categories if business
     if (isOpen && user?.accountType === 'business') {
       // Call your API to get categories
-      getAllCategories(setError, setCategories);
+      getAllCategories(setPageError, setCategories , t);
     }
   }, [isOpen, user]);
 
@@ -238,7 +238,7 @@ const EditProfileSheet = ({ isOpen, onClose }) => {
         locations: JSON.stringify(validLocations)
       };
       console.log(payload);
-      const result = await editAccount(payload , setLoading , setError , setUser , user , setFieldErrors , setFullError , true) 
+      const result = await editAccount(payload , setLoading , setPageError , setUser , user , setFieldErrors , true , t) 
 
       if (result?.success) {
         setSuccess('Profile updated successfully');
@@ -249,13 +249,15 @@ const EditProfileSheet = ({ isOpen, onClose }) => {
         }, 1500);
       }
     }catch(err){
-      if (err.response?.data?.message) {
-        setError(err.response.data.message);
-      } else if (err.message) {
-        setError(err.message);
-      } else {
-        setError("Something went wrong");
-      }
+        if (err.response?.data?.message) {
+            setPageError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setPageError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setPageError(t(`errors:${err.message}`))
+        } else {
+            setPageError(t("errors:SOMETHING_WENT_WRONG"))
+        }
     }
   }
 
@@ -282,14 +284,11 @@ const EditProfileSheet = ({ isOpen, onClose }) => {
           >
             {loading?(
               <Loadiing />
-            ) : success || fullError ? (
-                // Show only message
-                <div className={`flex flex-col justify-center items-center w-full h-full px-5 ${success? 'bg-[#009842]' : 'bg-red-600'}`}>
-                  <h2 className={`text-2xl font-semibold mb-4 text-white`}>
-                    {success || fullError}
-                  </h2>
-                </div>
-              ) : (
+            ) : success ? (
+                <ShowSuccess message={success} onClose={()=>{setSuccess('')}}/>
+              ): pageError ? (
+                <PageError error={pageError}/>
+              ): (
               <>
             {/* Header */}
             <div className="sticky top-0 z-20 bg-white border-b border-gray-200 px-5 py-4 flex items-center justify-between rounded-t-3xl">

@@ -4,6 +4,8 @@ import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-lea
 import 'leaflet/dist/leaflet.css';
 import { Eye, EyeOff, Upload, MapPin, X, User2, Search, ExternalLink } from 'lucide-react';
 import { useUser } from '../../../context/userContext';
+import {useError} from '../../../context/error'
+import { useTranslation } from 'react-i18next';
 
 const MapModal = ({showMapModal , setShowMapModal,userLocation , markers , handleSaveLocations , handleAddMarker,handleRemoveMarker}) => {
   const {user}=useUser()
@@ -12,6 +14,9 @@ const MapModal = ({showMapModal , setShowMapModal,userLocation , markers , handl
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [loadingAddresses, setLoadingAddresses] = useState({});
+  const [loading , setLoading]=useState(false)
+  const {setSmallError}=useError()
+  const {t}=useTranslation()
   const mapRef = useRef(null);
 
   const isBusiness = user?.accountType === 'business';
@@ -107,6 +112,7 @@ const MapModal = ({showMapModal , setShowMapModal,userLocation , markers , handl
     } catch (error) {
       console.error('Error searching address:', error);
       setSearchResults([]);
+      setSmallError(t("FAILED_TO_GET_SEARCH_ADDRESS"));
     } finally {
       setIsSearching(false);
     }

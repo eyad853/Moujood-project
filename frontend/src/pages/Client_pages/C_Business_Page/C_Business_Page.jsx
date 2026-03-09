@@ -16,9 +16,8 @@ const C_Business_Page = ({businessId}) => {
   const navigate = useNavigate();
   const { business_id } = useParams();
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [isLiked, setIsLiked] = useState(false);
   const [loading , setLoading]=useState(false)
-  const [error , setError]=useState('')
+  const [pageError , setPageError]=useState('')
   const [offers , setOffers]=useState([])
   const [categories , setCategories]=useState([])
   const [business , setBusiness]=useState({})
@@ -32,17 +31,22 @@ const C_Business_Page = ({businessId}) => {
 
   const fullUrl =
   window.location.origin + location.pathname;
-  
-  
-  
 
    useEffect(()=>{
     const get = async ()=>{
       try{
         setLoading(true)
-        await getBusinessPageData(setError , setBusiness , setCategories , setOffers , business_id , businessId , setMarkers)
-      }catch(error){
-        setError(error)
+        await getBusinessPageData(setPageError , setBusiness , setCategories , setOffers , business_id , businessId , setMarkers)
+      }catch(err){
+        if (err.response?.data?.message) {
+            setPageError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setPageError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setPageError(t(`errors:${err.message}`))
+        } else {
+            setPageError(t("errors:SOMETHING_WENT_WRONG"))
+        }
       }finally{
         setLoading(false)
       }
@@ -150,11 +154,16 @@ const filteredOffers = offers.filter(offer => {
     )
   }
 
+  if (pageError) {
+    return (
+      <div className="fixed inset-0">
+        <PageError error={pageError} />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white pb-20">
-      {error?(
-        <PageError error={error}/>
-      ):(<>
       {/* Header Image/Cover */}
       <div className="relative h-44 bg-[#009842]">
         {/* Back Button */}
@@ -269,7 +278,6 @@ const filteredOffers = offers.filter(offer => {
           markers={markers}
           userLocation={userLocation}
         />
-      </>)}
     </div>
   );
 };

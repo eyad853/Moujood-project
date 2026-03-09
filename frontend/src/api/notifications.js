@@ -1,27 +1,62 @@
 import axios from 'axios'
 
-export const createNotification = async (notificationData,setUserNotifications , setBusinessNotifications,setLoading,setError) => {
+export const createNotification = async (notificationData,setUserNotifications , setBusinessNotifications,setLoading,setError , t) => {
   try {
     setLoading(true);
     setError('');
 
-    console.log(notificationData);
+    if (!notificationData.title || notificationData.title.trim().length === 0) {
+      setError(t("limits:NOTIFICATION_TITLE_REQUIRED"));
+      return;
+    }
+    if (notificationData.title.length > 100) {
+      setError(t("limits:NOTIFICATION_TITLE_TOO_LONG"));
+      return;
+    }
+
+    if (!notificationData.message || notificationData.message.trim().length === 0) {
+      setError(t("limits:NOTIFICATION_MESSAGE_REQUIRED"));
+      return;
+    }
+    if (notificationData.message.length > 2000) {
+      setError(t("limits:NOTIFICATION_MESSAGE_TOO_LONG"));
+      return;
+    }
+
+    if (!notificationData.receiver_type || !["user", "business"].includes(notificationData.receiver_type)) {
+      setError(t("limits:INVALID_RECEIVER_TYPE"));
+      return;
+    }
+
+    if (!notificationData.filter_value || notificationData.filter_value.toString().trim().length === 0) {
+      setError(t("limits:FILTER_VALUE_REQUIRED"));
+      return;
+    }
+
+    // ✅ Conditional validation for 'specific'
+    if (notificationData.filter_type === "specific") {
+      if (!notificationData.specific_names || notificationData.specific_names.length === 0) {
+        setError(t("limits:SPECIFIC_NAMES_REQUIRED"));
+        return;
+      }
+    }
 
     const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/notifications/createNotification`,notificationData);
-    console.log('this is the create notification response:' , res);
 
     const notification = res.data.notification;
     notification.receiver_type==='user'?setUserNotifications(prev => [notification, ...prev]):setBusinessNotifications(prev => [notification, ...prev]);
 
 
   } catch (err) {
-    if (err.response?.data?.message) {
-      setError(err.response.data.message);
-    } else if (err.message) {
-      setError(err.message);
-    } else {
-      setError('Something went wrong');
-    }
+        if (err.response?.data?.message) {
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setError(t(`errors:${err.message}`))
+        } else {
+            setError(t("errors:SOMETHING_WENT_WRONG"))
+        }
     console.error(err);
 
   } finally {
@@ -29,10 +64,46 @@ export const createNotification = async (notificationData,setUserNotifications ,
   }
 };
 
-export const editNotification = async (id,notificationData,setError,setLoading ,  setUserNotifications , setBusinessNotifications) => {
+export const editNotification = async (id,notificationData,setError,setLoading ,  setUserNotifications , setBusinessNotifications , t) => {
   try {
     setLoading(true);
     setError('');
+
+    if (!notificationData.title || notificationData.title.trim().length === 0) {
+      setError(t("limits:NOTIFICATION_TITLE_REQUIRED"));
+      return;
+    }
+    if (notificationData.title.length > 100) {
+      setError(t("limits:NOTIFICATION_TITLE_TOO_LONG"));
+      return;
+    }
+
+    if (!notificationData.message || notificationData.message.trim().length === 0) {
+      setError(t("limits:NOTIFICATION_MESSAGE_REQUIRED"));
+      return;
+    }
+    if (notificationData.message.length > 2000) {
+      setError(t("limits:NOTIFICATION_MESSAGE_TOO_LONG"));
+      return;
+    }
+
+    if (!notificationData.receiver_type || !["user", "business"].includes(notificationData.receiver_type)) {
+      setError(t("limits:INVALID_RECEIVER_TYPE"));
+      return;
+    }
+
+    if (!notificationData.filter_value || notificationData.filter_value.toString().trim().length === 0) {
+      setError(t("limits:FILTER_VALUE_REQUIRED"));
+      return;
+    }
+
+    // ✅ Conditional validation for 'specific'
+    if (notificationData.filter_type === "specific") {
+      if (!notificationData.specific_names || notificationData.specific_names.length === 0) {
+        setError(t("limits:SPECIFIC_NAMES_REQUIRED"));
+        return;
+      }
+    }
 
     const response = await axios.patch(
       `${import.meta.env.VITE_BACKEND_URL}/notifications/editNotification/${id}`,
@@ -53,19 +124,21 @@ export const editNotification = async (id,notificationData,setError,setLoading ,
     }
 
   } catch (err) {
-    if (err.response?.data?.message) {
-      setError(err.response.data.message);
-    } else if (err.message) {
-      setError(err.message);
-    } else {
-      setError('Something went wrong');
-    }
+        if (err.response?.data?.message) {
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setError(t(`errors:${err.message}`))
+        } else {
+            setError(t("errors:SOMETHING_WENT_WRONG"))
+        }
   } finally {
     setLoading(false);
   }
 };
 
-export const deleteNotification = async (id,receiver_type,setError , setNotifications,setUserNotifications,setBusinessNotifications) => {
+export const deleteNotification = async (id,receiver_type,setError , setNotifications,setUserNotifications,setBusinessNotifications , t) => {
   let backup = null;
 
   try {
@@ -101,131 +174,124 @@ export const deleteNotification = async (id,receiver_type,setError , setNotifica
         : setBusinessNotifications(backup);
     }
 
-    if (err.response?.data?.message) {
-      setError(err.response.data.message);
-    } else if (err.message) {
-      setError(err.message);
-    } else {
-      setError('Something went wrong');
-    }
+        if (err.response?.data?.message) {
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setError(t(`errors:${err.message}`))
+        } else {
+            setError(t("errors:SOMETHING_WENT_WRONG"))
+        }
   }
 };
 
-
-export const getAllNotifications = async (setError , receiver_type  , setUserNotifications , setBusinessNotifications)=>{
+export const getAllNotifications = async (setError , receiver_type  , setUserNotifications , setBusinessNotifications , t)=>{
     try{
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/notifications/getAllNotfications/${receiver_type}`)
         const notificatoins = response.data.notifications
-        console.log(response.data);
-
         notificatoins&&receiver_type==='user'?setUserNotifications(notificatoins):setBusinessNotifications(notificatoins);
     }catch(err){
         if (err.response?.data?.message) {
-            setError(err.response.data.message)
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
         } else if (err.message) {
-            setError(err.message)
+            setError(t(`errors:${err.message}`))
         } else {
-            setError('Something went wrong')
+            setError(t("errors:SOMETHING_WENT_WRONG"))
         }
     }
 }
 
-export const getAllUsers = async (setError , setUsers)=>{
+export const getAllUsers = async (setError , setUsers , t)=>{
     try{
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/notifications/getAllUsers`)
         setUsers(response.data.users)
     }catch(err){
         if (err.response?.data?.message) {
-            setError(err.response.data.message)
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
         } else if (err.message) {
-            setError(err.message)
+            setError(t(`errors:${err.message}`))
         } else {
-            setError('Something went wrong')
+            setError(t("errors:SOMETHING_WENT_WRONG"))
         }
     }
 }
 
-export const getAllBusinesses = async (setError , setBusinesses)=>{
+export const getAllBusinesses = async (setError , setBusinesses , t)=>{
     try{
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/notifications/getAllBusinesses`)
         setBusinesses(response.data.businesses)
     }catch(err){
         if (err.response?.data?.message) {
-            setError(err.response.data.message)
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
         } else if (err.message) {
-            setError(err.message)
+            setError(t(`errors:${err.message}`))
         } else {
-            setError('Something went wrong')
+            setError(t("errors:SOMETHING_WENT_WRONG"))
         }
     }
 }
 
-export const fetchMyNotifications = async (receiver_type,setNotifications,setError) => {
+export const fetchMyNotifications = async (receiver_type,setNotifications,setError , t) => {
   try {
     const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/notifications/getMyNotifications/${receiver_type}`, {withCredentials:true})
-    console.log(res.data);
     setNotifications(res.data.notifications);
   } catch (err) {
-    if (err.response?.data?.message) {
-      setError(err.response.data.message);
-    } else if (err.message) {
-      setError(err.message);
-    } else {
-      setError("Something went wrong");
-    }
+        if (err.response?.data?.message) {
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setError(t(`errors:${err.message}`))
+        } else {
+            setError(t("errors:SOMETHING_WENT_WRONG"))
+        }
   }
 };
 
-export const fetchNotificationDetails = async (
-  notification_id,
-  setNotification,
-  setError
-) => {
+export const fetchNotificationDetails = async (notification_id,setNotification,setError , t) => {
   try {
     const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/notifications/getNotificationDetails/${notification_id}`);
-    console.log(res.data);
-
     setNotification(res.data.notification);
 
   } catch (err) {
-    if (err.response?.data?.message) {
-      setError(err.response.data.message);
-    } else if (err.message) {
-      setError(err.message);
-    } else {
-      setError("Something went wrong");
-    }
+        if (err.response?.data?.message) {
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setError(t(`errors:${err.message}`))
+        } else {
+            setError(t("errors:SOMETHING_WENT_WRONG"))
+        }
   }
 };
 
-export const fetchNotificationCount = async (
-  receiver_type,
-  setNotificationsCount,
-  setError
-) => {
+export const fetchNotificationCount = async (receiver_type,setNotificationsCount,setError , t) => {
   try {
     const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/notifications/getNotificationCount/${receiver_type}`, {withCredentials:true});
-    console.log(res.data);
     setNotificationsCount(res.data.count);
 
   } catch (err) {
-    if (err.response?.data?.message) {
-      setError(err.response.data.message);
-    } else if (err.message) {
-      setError(err.message);
-    } else {
-      setError("Something went wrong");
-    }
+        if (err.response?.data?.message) {
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setError(t(`errors:${err.message}`))
+        } else {
+            setError(t("errors:SOMETHING_WENT_WRONG"))
+        }
   }
 };
 
-export const markAllNotificationsAsRead = async (
-  receiver_type,
-  notifications,
-  setNotifications,
-  setError
-) => {
-  console.log('starting markin');
+export const markAllNotificationsAsRead = async (receiver_type,notifications,setNotifications,setError , t) => {
   const prevNotifications = notifications;
 
   // 🔹 optimistic update
@@ -243,12 +309,14 @@ export const markAllNotificationsAsRead = async (
     // 🔴 rollback
     setNotifications(prevNotifications);
 
-    if (err.response?.data?.message) {
-      setError(err.response.data.message);
-    } else if (err.message) {
-      setError(err.message);
-    } else {
-      setError("Something went wrong");
-    }
+        if (err.response?.data?.message) {
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setError(t(`errors:${err.message}`))
+        } else {
+            setError(t("errors:SOMETHING_WENT_WRONG"))
+        }
   }
 };

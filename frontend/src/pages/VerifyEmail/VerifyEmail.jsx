@@ -4,6 +4,7 @@ import axios from 'axios';
 import Loadiing from '../../components/Loadiing/Loadiing'
 import { useUser } from '../../context/userContext';
 import { verifyToken , handleResendEmail } from '../../api/auth';
+import { useTranslation } from 'react-i18next';
 
 export default function VerifyEmail() {
     const [isResending, setIsResending] = useState(false);
@@ -21,6 +22,7 @@ export default function VerifyEmail() {
     console.log('email',email);
     console.log('accountType', accountType);
     const calledRef = useRef(false);
+    const {t}=useTranslation('verfiyEmail')
 
   // Countdown timer effect
   useEffect(() => {
@@ -34,10 +36,10 @@ export default function VerifyEmail() {
 
 useEffect(()=>{
   if(token && !calledRef.current){
-    verifyToken(setLoading , setUser , setAccountType , setError)
+    verifyToken(setLoading , setUser , setAccountType , setError , token , t)
     calledRef.current = true;
   }
-},[])
+},[token])
 
 if(loading){
   <div className = "fixed inset-0">
@@ -86,18 +88,18 @@ if(loading){
 
               {/* Title */}
               <h1 className="text-3xl md:text-4xl font-bold text-center mb-4 bg-gradient-to-r from-[#007a36] via-[#009842] to-[#00b84f] bg-clip-text text-transparent">
-                Email Verified!
+                {t("EMAIL_VERIFIED_TITLE")}
               </h1>
 
               {/* Description */}
               <p className="text-gray-600 text-center mb-8 leading-relaxed">
-                Thank you for verifying your email address. Your account is now active and ready to use.
+                {t('EMAIL_VERIFIED_DESC')}
               </p>
 
               {/* Success message box */}
               <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-[#009842]/30 rounded-xl p-6 mb-6 text-center shadow-sm">
-                <p className="text-[#007a36] font-semibold mb-2">All set!</p>
-                <p className="text-gray-700 text-sm">You can now access all features of your account.</p>
+                <p className="text-[#007a36] font-semibold mb-2">{t("EMAIL_VERIFIED_SUCCESS_BOX_TITLE")}</p>
+                <p className="text-gray-700 text-sm">{t('EMAIL_VERIFIED_SUCCESS_BOX_DESC')}</p>
               </div>
 
               {/* Action button */}
@@ -105,7 +107,7 @@ if(loading){
                 to={accountType==='user'?"/client/feed":"/business/dashboard"}
                 className="w-full bg-gradient-to-r from-[#009842] to-[#007a36] hover:from-[#00b84f] hover:to-[#009842] text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl hover:shadow-[#009842]/30 flex items-center justify-center gap-2 group"
               >
-                Continue
+                {t('CONTINUE_BUTTON')}
                 <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
@@ -176,19 +178,19 @@ if(loading){
 
               {/* Title */}
               <h1 className="text-3xl md:text-4xl font-bold text-center mb-4 text-red-600">
-                Verification Failed
+                {t('VERIFICATION_FAILED_TITLE')}
               </h1>
 
               {/* Error message */}
               <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-6 shadow-sm">
-                <p className="text-red-800 text-center font-medium mb-2">Oops! Something went wrong</p>
+                <p className="text-red-800 text-center font-medium mb-2">{t('VERIFICATION_FAILED_DESC')}</p>
                 <p className="text-red-600 text-sm text-center">{error}</p>
               </div>
 
               {/* Action buttons */}
               <div className="space-y-3">
                 <button
-                  onClick={()=>{handleResendEmail(setIsResending , setResendSuccess , setCountdown , setError)}}
+                  onClick={()=>{handleResendEmail(setIsResending , setResendSuccess , setCountdown , setError , t , email , accountType)}}
                   disabled={isResending || resendSuccess || countdown > 0}
                   className="w-full bg-gradient-to-r from-[#009842] to-[#007a36] hover:from-[#00b84f] hover:to-[#009842] text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl hover:shadow-[#009842]/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 group"
                 >
@@ -198,21 +200,21 @@ if(loading){
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
-                      Sending...
+                      {t("SENDING")}
                     </>
                   ) : countdown > 0 ? (
                     <>
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
-                      Resend in {countdown}s
+                      {t('RESEND_IN' , {countdown})}
                     </>
                   ) : (
                     <>
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                       </svg>
-                      Request New Verification Email
+                      {t("REQUEST_NEW_EMAIL")}
                     </>
                   )}
                 </button>
@@ -221,7 +223,7 @@ if(loading){
                   to="/signup_as"
                   className="w-full bg-white hover:bg-gray-50 text-gray-700 font-semibold py-4 px-6 rounded-xl transition-all duration-300 border-2 border-gray-300 hover:border-gray-400 transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 shadow-sm"
                 >
-                  Go to Home
+                  {t("GO_TO_HOME")}
                 </Link>
               </div>
             </div>
@@ -291,12 +293,12 @@ if(loading){
 
             {/* Title */}
             <h1 className="text-3xl md:text-4xl font-bold text-center mb-4 bg-gradient-to-r from-[#007a36] via-[#009842] to-[#00b84f] bg-clip-text text-transparent">
-              Check Your Email
+              {t("CHECK_YOUR_EMAIL_TITLE")}
             </h1>
 
             {/* Description */}
             <p className="text-gray-600 text-center mb-8 leading-relaxed">
-              We've sent a verification link to your email address. Click the link to activate your account and get started.
+              {t("CHECK_YOUR_EMAIL_DESC")}
             </p>
 
             {/* Email display box */}
@@ -304,7 +306,7 @@ if(loading){
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#009842]/5 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
               <div className="text-[#007a36] text-xs uppercase tracking-wider font-semibold mb-1 flex items-center gap-2">
                 <div className="w-2 h-2 bg-[#009842] rounded-full animate-pulse"></div>
-                Sent to
+                {t('SENT_TO_LABEL')}
               </div>
               <div className="text-gray-900 font-medium break-all relative">
                 {email}
@@ -317,14 +319,14 @@ if(loading){
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                What to do next
+                {t('WHAT_TO_DO_NEXT')}
               </h3>
               <ul className="space-y-2">
                 {[
-                  'Open your email inbox',
-                  'Find the verification email (check spam if needed)',
-                  'Click the verification link',
-                  'Return here once verified'
+                  t('STEP_1'),
+                  t('STEP_2'),
+                  t('STEP_3'),
+                  t('STEP_4')
                 ].map((step, index) => (
                   <li key={index} className="text-gray-700 text-sm flex items-start gap-3">
                     <div className="mt-1 flex-shrink-0">
@@ -341,7 +343,7 @@ if(loading){
             {/* Action buttons */}
             <div className="space-y-3 mb-6">
               <button
-                onClick={handleResendEmail}
+                onClick={()=>{handleResendEmail(setIsResending , setResendSuccess , setCountdown , setError , t , email , accountType)}}
                 disabled={isResending || resendSuccess || countdown > 0}
                 className="w-full bg-gradient-to-r from-[#009842] to-[#007a36] hover:from-[#00b84f] hover:to-[#009842] text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl hover:shadow-[#009842]/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 group"
               >
@@ -351,28 +353,28 @@ if(loading){
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Sending...
+                    {t("SENDING")}
                   </>
                 ) : resendSuccess ? (
                   <>
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
-                    Email Sent!
+                    {t('EMAIL_SENT')}
                   </>
                 ) : countdown > 0 ? (
                   <>
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    Resend in {countdown}s
+                    {t('RESEND_IN' , {countdown})}
                   </>
                 ) : (
                   <>
                     <svg className="w-5 h-5 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                     </svg>
-                    Resend Verification Email
+                    {t("RESEND_VERIFICATION_EMAIL")}
                   </>
                 )}
               </button>
@@ -384,7 +386,7 @@ if(loading){
                 <svg className="w-5 h-5 group-hover:rotate-180 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                 </svg>
-                Use a Different Email
+                {t('USE_DIFFERENT_EMAIL')}
               </Link>
             </div>
 
@@ -395,7 +397,7 @@ if(loading){
         <div className="mt-6 text-center">
           <div className="inline-flex items-center gap-2 text-gray-500 text-sm">
             <div className="w-8 h-px bg-gradient-to-r from-transparent to-[#009842]/30"></div>
-            <span>Secure verification</span>
+            <span>{t('SECURE_VERIFICATION')}</span>
             <div className="w-8 h-px bg-gradient-to-l from-transparent to-[#009842]/30"></div>
           </div>
         </div>

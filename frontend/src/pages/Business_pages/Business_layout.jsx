@@ -6,12 +6,17 @@ import { TbBorderAll } from "react-icons/tb";
 import { IoMdSettings } from 'react-icons/io';
 import { Bell } from 'lucide-react';
 import socket from '../../Socket';
+import { useTranslation } from 'react-i18next';
+import { useUser } from '../../context/userContext';
+import { fetchNotificationCount } from '../../api/notifications';
 
 
 const Business_layout = () => {
+  const {user}=useUser()
   const location = useLocation();
   const [notificationsCount , setNotificationsCount] = useState(0)
-  
+  const {t}=useTranslation()
+  const [error , setError]=useState([])
 
     useEffect(() => {
     const onNotificationCreated = () => {
@@ -32,6 +37,19 @@ const Business_layout = () => {
       socket.off("notification_deleted", onNotificationDeleted);
     };
   }, [socket]);
+
+  useEffect(()=>{
+        if (!user) return;
+        const get = async ()=>{
+          try{
+            await fetchNotificationCount(user?.accountType , setNotificationsCount , setError)
+          }catch(err){
+            console.log(err);
+          }
+        }
+    
+        get()
+      },[user])
   
   return (
     <div>

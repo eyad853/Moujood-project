@@ -3,11 +3,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Clock } from 'lucide-react';
 import { fetchNotificationDetails } from '../../api/notifications';
 import Loadiing from '../Loadiing/Loadiing';
+import { useTranslation } from 'react-i18next';
+import PageError from '../PageError/PageError';
 
 const NotificationBottomSheet = ({ isOpen, onClose, notificationId }) => {
   const [notification, setNotification] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const {t}=useTranslation()
 
   const timeAgo = (dateString) => {
   const now = new Date();
@@ -43,15 +46,17 @@ const NotificationBottomSheet = ({ isOpen, onClose, notificationId }) => {
     const get = async()=>{
         try{
             setLoading(true)
-            await fetchNotificationDetails(notificationId , setNotification , setError);
+            await fetchNotificationDetails(notificationId , setNotification , setError , t);
         }catch(err){
-            if (err.response?.data?.message) {
-                setError(err.response.data.message);
-            } else if (err.message) {
-              setError(err.message);
-            } else {
-              setError("Something went wrong");
-            }
+        if (err.response?.data?.message) {
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setError(t(`errors:${err.message}`))
+        } else {
+            setError(t("errors:SOMETHING_WENT_WRONG"))
+        }
         }finally{
             setLoading(false)
         }
@@ -82,6 +87,8 @@ const NotificationBottomSheet = ({ isOpen, onClose, notificationId }) => {
           >
             {loading?(
               <Loadiing />
+            ): error ? (
+              <PageError error={error}/>
             ):
             (<>
             {/* Handle */}

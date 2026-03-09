@@ -1,4 +1,5 @@
 import { pool } from "../index.js";
+import ERRORS from "../config/errors.js";
 
 // CREATE a new category with full image URL
 export const createCategory = async (req, res) => {
@@ -7,7 +8,7 @@ export const createCategory = async (req, res) => {
     parent_id = parent_id === "" ? null : Number(parent_id);
     const image = req.file? `${process.env.backendURL}/${req.file.path.replace(/\\/g, '/')}`: null;
 
-    if (!image) return res.status(400).json({ message: "Image is required" });
+    if (!image) return res.status(400).json({ error:true,message: ERRORS.IMAGE_IS_REQUIRED });
 
     const insert = await pool.query(
       `INSERT INTO categories (name, image, parent_id)
@@ -46,7 +47,7 @@ export const createCategory = async (req, res) => {
     res.status(201).json({ message: "Category created", category });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Failed to create category" });
+    res.status(500).json({ message: ERRORS.SERVER_ERROR });
   }
 };
 
@@ -60,7 +61,7 @@ export const editCategory = async (req, res) => {
 
     // Fetch existing category to keep old image if no new image uploaded
     const existingRes = await pool.query(`SELECT * FROM categories WHERE id = $1`, [id]);
-    if (!existingRes.rows.length) return res.status(404).json({ message: "Category not found" });
+    if (!existingRes.rows.length) return res.status(404).json({ error:true , message: ERRORS.CATEGORY_NOT_FOUND });
 
     const updatedImage = newImage || existingRes.rows[0].image;
 
@@ -76,10 +77,9 @@ export const editCategory = async (req, res) => {
     res.json({ message: "Category updated", category: editedCategory });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Failed to update category" });
+    res.status(500).json({ message: ERRORS.SERVER_ERROR });
   }
 };
-
 
 // DELETE a category
 export const deleteCategory = async (req, res) => {
@@ -88,12 +88,12 @@ export const deleteCategory = async (req, res) => {
 
     const result = await pool.query(`DELETE FROM categories WHERE id = $1 RETURNING *`, [id]);
 
-    if (!result.rows.length) return res.status(404).json({ message: "Category not found" });
+    if (!result.rows.length) return res.status(404).json({error:true ,  message: ERRORS.CATEGORY_NOT_FOUND });
 
     res.json({ message: "Category deleted", category: result.rows[0] });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Failed to delete category" });
+    res.status(500).json({ message: ERRORS.SERVER_ERROR });
   }
 };
 
@@ -107,12 +107,19 @@ export const getAllCategories = async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Failed to fetch categories" });
+    res.status(500).json({ message: ERRORS.SERVER_ERROR });
   }
 };
 
 export const getSubCategories = async (req, res) => {
   const { category } = req.user;
+
+    if(!category){
+    return res.status(400).json({
+      error:true,
+      message:ERRORS.NOT_AUTHENTICATED
+    })
+  }
 
   try {
     const query = `
@@ -134,14 +141,11 @@ export const getSubCategories = async (req, res) => {
     const { rows } = await pool.query(query, [category]);
 
     return res.status(200).json({
-      success: true,
+      error: false,
       data: rows
     });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({
-      success: false,
-      message: 'Failed to get sub categories'
-    });
+    return res.status(500).json({message: ERRORS.SERVER_ERROR});
   }
 };

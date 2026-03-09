@@ -132,8 +132,7 @@ CREATE TABLE IF NOT EXISTS device_tokens (
   id SERIAL PRIMARY KEY,
   receiver_type VARCHAR(20) CHECK (receiver_type IN ('user', 'business')) NOT NULL,
   receiver_id INTEGER NOT NULL,
-  token TEXT UNIQUE NOT NULL,
-  is_active BOOLEAN DEFAULT true,
-  device_id TEXT NOT NULL,
+  token TEXT UNIQUE ,
+  device_id TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

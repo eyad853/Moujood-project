@@ -1,13 +1,6 @@
 import axios from "axios";
-// -----------------------------
-// LIKE OFFER (optimistic update)
-// -----------------------------
-export const likeOffer = async (
-  offerId,
-  offers,
-  setOffers,
-  setError
-) => {
+
+export const likeOffer = async (offerId,offers,setOffers,setError , t) => {
   // 🔹 Save previous state for rollback
   const prevOffers = structuredClone(offers);
 
@@ -39,25 +32,22 @@ export const likeOffer = async (
     // 🔁 Rollback on error
     setOffers(prevOffers);
 
-    if (err.response?.data?.message) {
-      setError(err.response.data.message);
-    } else if (err.message) {
-      setError(err.message);
-    } else {
-      setError("Something went wrong");
-    }
+        if (err.response?.data?.message) {
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setError(t(`errors:${err.message}`))
+        } else {
+            setError(t("errors:SOMETHING_WENT_WRONG"))
+        }
   }
 };
 
 // --------------------------------
 // UNLIKE OFFER (optimistic update)
 // --------------------------------
-export const unlikeOffer = async (
-  offerId,
-  offers,
-  setOffers,
-  setError
-) => {
+export const unlikeOffer = async (offerId,offers,setOffers,setError , t) => {
   // 🔹 Save previous state
   const prevOffers = structuredClone(offers);
 
@@ -86,12 +76,14 @@ export const unlikeOffer = async (
     // 🔁 Rollback
     setOffers(prevOffers);
 
-    if (err.response?.data?.message) {
-      setError(err.response.data.message);
-    } else if (err.message) {
-      setError(err.message);
-    } else {
-      setError("Something went wrong");
-    }
+        if (err.response?.data?.message) {
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setError(t(`errors:${err.message}`))
+        } else {
+            setError(t("errors:SOMETHING_WENT_WRONG"))
+        }
   }
 }

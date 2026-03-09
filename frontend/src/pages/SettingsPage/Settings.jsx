@@ -6,12 +6,14 @@ import { useUser } from '../../context/userContext';
 import EditProfileSheet from '../../components/EditProfileSheet/EditProfileSheet ';
 import PasswordEditSheet from '../../components/PasswordEditSheet/PasswordEditSheet';
 import { useTranslation } from 'react-i18next'
+import { useError } from '../../context/error';
+import SmallError from '../../components/SmallError/SmallError';
 
 
 
 const Settings = () => {
   const navigate = useNavigate();
-  const [error , setError]=useState('')
+  const {smallError , setSmallError}=useError()
   const [loading , setLoading]=useState(false)
   const {setUser} = useUser()
   const {t , i18n} = useTranslation('settings')
@@ -115,7 +117,7 @@ const Settings = () => {
         {/* Logout Button */}
         <button 
         onClick={()=>{
-          logout(setError , navigate , setUser , setLoading)
+          logout(setSmallError , navigate , setUser , setLoading , t)
         }}
         className="w-full bg-red-100 text-red-600 py-4 rounded-2xl font-semibold hover:bg-red-100 transition-colors">
           {t('logout')}
@@ -127,6 +129,11 @@ const Settings = () => {
         isOpen={isPasswordSheetOpen}
         onClose={() => setIsPasswordSheetOpen(false)}
       />
+  
+      {smallError&&(
+        <SmallError message={smallError} onClose={()=>{setSmallError('')}}/>
+        )
+      }
     </div>
   );
 };

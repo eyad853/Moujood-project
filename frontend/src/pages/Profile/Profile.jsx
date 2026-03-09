@@ -4,15 +4,17 @@ import { useNavigate } from 'react-router-dom';
 import { useUser } from '../../context/userContext';
 import EditProfileSheet from '../../components/EditProfileSheet/EditProfileSheet '
 import { FaUser } from 'react-icons/fa6';
-import { editAccount } from '../../api/auth';
 import Loadiing from '../../components/Loadiing/Loadiing'
 import PageError from '../../components/PageError/PageError';
 import { useTranslation } from 'react-i18next'
+import { useError } from '../../context/error';
+import SmallError from '../../components/SmallError/SmallError';
 
 
 const Profile = () => {
     const navigate = useNavigate();
     const {user , loading , error} = useUser() 
+    const {smallError , setSmallError}=useError()
     const [isEditProfileSheetOpen , setIsEditProfileSheetOpen]=useState(false)
     const [avatarPreview, setAvatarPreview] = useState(user?.avatar || user?.logo);
     const {t , i18n}=useTranslation('profile')
@@ -33,8 +35,8 @@ const Profile = () => {
   //       try{
   //         setLoading(true)
   //         await getUserPoints(setPoints , setPoints)
-  //       }catch(error){
-  //         setError(error)
+  //       }catch(err){
+  //         setError(err)
   //       }finally{
   //         setLoading(false)
   //       }
@@ -51,11 +53,16 @@ const Profile = () => {
       )
     }
 
+    if (error) {
+      return (
+        <div className="fixed inset-0">
+          <PageError error={error} />
+        </div>
+      );
+    }
+
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
-      {error?(
-        <PageError error={error} />
-      ):(<>
       {/* Header with Green Background */}
       <div className="bg-[#009842] pt-12 pb-24 px-5 relative">
         <h1 className="text-xl font-semibold text-white text-center">{t('title')}</h1>
@@ -146,7 +153,11 @@ const Profile = () => {
         </div>
       </div>
       <EditProfileSheet isOpen={isEditProfileSheetOpen} onClose={()=>{setIsEditProfileSheetOpen(false)}}/>
-        </>)}
+
+        {smallError&&(
+          <SmallError message={smallError} onClose={()=>{setSmallError('')}}/>
+          )
+        }
     </div>
   );
 };

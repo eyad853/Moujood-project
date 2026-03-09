@@ -1,6 +1,8 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
 import { getUser } from "../api/auth";
+import { handleCreateToken } from "../api/auth";
+import { useTranslation } from "react-i18next";
 
 const UserContext = createContext();
 
@@ -8,11 +10,28 @@ export const AccountProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading , setLoading]=useState(false)
   const [error , setError]=useState('')
+  const [token , setToken]=useState(null)
+  const {t} = useTranslation()
 
   // Fetch user once when app loads
   useEffect(() => {
-    getUser(setLoading , setUser , setError)
+    const getUserData = async()=>{
+      await getUser(setLoading , setUser , setError , setToken , t)
+    }
+    getUserData()
   }, []);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const syncToken = async () => {
+      await handleCreateToken();
+    };
+
+    syncToken();
+  }, [user]);
+
+  
 
   return (
     <UserContext.Provider value={{ user, setUser , loading , setLoading ,setError ,error}}>

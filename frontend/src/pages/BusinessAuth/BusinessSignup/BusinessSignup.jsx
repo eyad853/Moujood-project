@@ -5,11 +5,12 @@ import { businessAuth } from '../../../api/auth';
 import { getAllCategories } from '../../../api/categories';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
 import MapModal from '../../../components/modals/MapModal/MapModal';
 import { useMapProvider } from '../../../context/mapContext';
 import { useUser } from '../../../context/userContext';
 import { useTranslation } from 'react-i18next'
+import Loadiing from '../../../components/Loadiing/Loadiing'
+import PageError from '../../../components/PageError/PageError'
 
 const BusinessSignup = () => {
   const navigate = useNavigate();
@@ -19,6 +20,7 @@ const BusinessSignup = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [pageError , setPageError]=useState()
   const [fieldErrors, setFieldErrors] = useState({})
   const [logoPreview, setLogoPreview] = useState(null);
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
@@ -77,9 +79,17 @@ const BusinessSignup = () => {
   useEffect(()=>{
     const get= async()=>{
     try{
-      await getAllCategories(setError , setCategories)
-    }catch(error){
-      setError(error)
+      await getAllCategories(setPageError , setCategories , t)
+    }catch(err){
+        if (err.response?.data?.message) {
+            setPageError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setPageError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setPageError(t(`errors:${err.message}`))
+        } else {
+            setPageError(t("errors:SOMETHING_WENT_WRONG"))
+        }
     }}
 
     get()
@@ -133,6 +143,22 @@ const BusinessSignup = () => {
       }
     };
   }, [logoPreview]);
+
+  if(loading){
+    return (
+      <div className="fixed inset-0">
+        <Loadiing />
+      </div>
+  )
+  }
+
+  if (pageError) {
+  return (
+    <div className="fixed inset-0">
+      <PageError error={pageError} />
+    </div>
+  );
+}
 
   return (
     <div style={{
@@ -645,7 +671,7 @@ const BusinessSignup = () => {
         {/* Submit Button */}
         <button
           onClick={()=>{
-            businessAuth(setError, formData , navigate , setLoading , setUser , setFieldErrors)
+            businessAuth(setError, formData , navigate , setLoading , setUser , setFieldErrors , t)
           }}
           style={{
             width: '100%',

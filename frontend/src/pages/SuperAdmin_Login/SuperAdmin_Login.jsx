@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import Loadiing from '../../components/Loadiing/Loadiing';
-import { localAuth , handleGoogleAuth , handleFacebookAuth } from '../../api/auth';
+import { localAuth } from '../../api/auth';
 import { useNavigate } from 'react-router-dom';
 import {useUser} from '../../context/userContext'
+import { useTranslation } from 'react-i18next';
 
 const SuperAdminAuth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -13,7 +14,9 @@ const SuperAdminAuth = () => {
   const [error, setError] = useState('');
   const {setUser}=useUser()
   const [fieldErrors, setFieldErrors] = useState({})
+  const {t}=useTranslation()
   const [formData, setFormData] = useState({
+    name:"Super Admin",
     email: '',
     password: '',
     confirm_password:''
@@ -134,7 +137,7 @@ const SuperAdminAuth = () => {
           {/* Submit Button */}
           <button
             onClick={()=>{
-              localAuth(setError , formData , navigate , setLoading , true , setUser , setFieldErrors)
+              localAuth(setError , formData , navigate , setLoading , true , setUser , setFieldErrors , t)
             }}
             className="w-full cursor-pointer py-3.5 my-3 text-base font-semibold text-white bg-[#0A4D3C] rounded-xl hover:bg-[#083d30] transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-[#0A4D3C]/20"
           >

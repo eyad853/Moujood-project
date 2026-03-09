@@ -4,13 +4,16 @@ import { LayoutDashboard, Users, Grid3x3, Bell, FileText, Building2 ,Megaphone} 
 import { RiLogoutBoxLine } from "react-icons/ri";
 import { logout } from '../../api/auth';
 import { useUser } from '../../context/userContext';
+import { useTranslation } from 'react-i18next';
+import {useError} from '../../context/error'
 
 const SA_Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate()
-  const [error , setError]=useState('')
+  const {setSmallError}=useError
   const [loading , setLoading]=useState(false)
   const {setUser}=useUser()
+  const {t}=useTranslation()
 
   const menuItems = [
     {
@@ -88,7 +91,7 @@ const SA_Sidebar = () => {
             {/* Logout Button - at bottom */}
             <button
               onClick={() => {
-                logout(setError , navigate , setUser , setLoading)
+                logout(setSmallError , navigate , setUser , setLoading , t)
               }}
               className="flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-400 text-red-600 hover:bg-red-500 cursor-pointer hover:text-white mt-auto"
             >

@@ -1,7 +1,7 @@
 import dotenv from 'dotenv' 
 dotenv.config()
 import express from 'express'
-import {businessesSignup, editAccount, forgotPassword, getUser, handleFacebookAuth, handleGoogleAuth, localSignup, login, logout, resendVerificationEmail, resetPassword, verifyEmail } from '../controllers/auth.js'
+import {businessesSignup, createToken, editAccount, forgotPassword, getUser, handleFacebookAuth, handleGoogleAuth, localSignup, login, logout, resendVerificationEmail, resetPassword, verifyEmail } from '../controllers/auth.js'
 import { uploadFile } from '../utils/multer.js' 
 import ensureAuth from '../utils/ensureAuth.js'
 
@@ -20,4 +20,5 @@ authRouter.post("/verify-email/:token", verifyEmail);
 authRouter.post("/resend-verify-email", resendVerificationEmail);
 authRouter.post("/forgot-password", forgotPassword);
 authRouter.post("/reset-password/:token", resetPassword);
+authRouter.post("/createToken", createToken);
 export default authRouter

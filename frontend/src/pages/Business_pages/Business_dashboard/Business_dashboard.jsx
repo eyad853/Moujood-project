@@ -13,6 +13,7 @@ import { FaUser } from 'react-icons/fa6';
 import PageError from '../../../components/PageError/PageError';
 import SmallError from '../../../components/SmallError/SmallError';
 import { useTranslation } from 'react-i18next'
+import { useError } from '../../../context/error';
 
 
 
@@ -23,13 +24,12 @@ const Business_dashboard = () => {
   const [totalOffers , setTotalOffers]=useState(0)
   const [totalLikes , setTotalLikes]=useState(0)
   const [loading , setLoading]=useState(false)
-  const [error , setError]=useState(false)
   const {user} = useUser() 
   const [categories , setCategories]=useState([])
   const [isOfferDetailsOpen , setIsOffersDetailsOpen]=useState(false)
   const [notificationsCount , setNotificationsCount] = useState(0)
   const [pageError , setPageError]=useState('')
-  const [smallError , setSmallError]=useState('')
+  const {smallError , setSmallError}=useError()
   const { t , i18n} = useTranslation("businessDashboard")
   const isRTL = i18n.language === "ar"; // true if Arabic
 
@@ -67,9 +67,17 @@ const Business_dashboard = () => {
     const loadData =async ()=>{
       try{
         setLoading(true)
-        await getBusinessDashboardData(setError,setOffers,setTotalOffers,setTotalLikes , setCategories)
-      }catch(error){
-        setError(error)
+        await getBusinessDashboardData(setPageError,setOffers,setTotalOffers,setTotalLikes , setCategories , t)
+      }catch(err){
+        if (err.response?.data?.message) {
+            setPageError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setPageError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setPageError(t(`errors:${err.message}`))
+        } else {
+            setPageError(t("errors:SOMETHING_WENT_WRONG"))
+        }
       }finally{
         setLoading(false)
       }
@@ -98,11 +106,16 @@ useEffect(()=>{
     )
   }
 
+  if (pageError) {
+    return (
+      <div className="fixed inset-0">
+        <PageError error={pageError} />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
-      {pageError?(
-        <PageError />
-      ):(<>
       {/* Header */}
       <div className="bg-white px-5 py-4 flex items-center justify-between border-b border-gray-200">
         <div className="flex w-12 rounded-full overflow-hidden h-12 items-center gap-3">
@@ -244,7 +257,6 @@ useEffect(()=>{
         <SmallError message={smallError} onClose={()=>{setSmallError('')}}/>
       )
       }
-      </>)}
     </div>
   );
 };

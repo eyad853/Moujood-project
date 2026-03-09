@@ -1,1 +1,25 @@
-{}
+{
+    "EMAIL_VERIFIED_TITLE": "تم التحقق من البريد الإلكتروني!",
+    "EMAIL_VERIFIED_DESC": "شكرًا لتأكيد بريدك الإلكتروني. حسابك الآن مفعل وجاهز للاستخدام.",
+    "EMAIL_VERIFIED_SUCCESS_BOX_TITLE": "كل شيء جاهز!",
+    "EMAIL_VERIFIED_SUCCESS_BOX_DESC": "يمكنك الآن الوصول إلى جميع ميزات حسابك.",
+    "CONTINUE_BUTTON": "متابعة",
+    "VERIFICATION_FAILED_TITLE": "فشل التحقق",
+    "VERIFICATION_FAILED_DESC": "عذرًا! حدث خطأ ما",
+    "REQUEST_NEW_EMAIL": "إعادة إرسال البريد الإلكتروني للتحقق",
+    "SENDING": "جاري الإرسال...",
+    "EMAIL_SENT": "تم إرسال البريد!",
+    "RESEND_IN": "إعادة الإرسال خلال {{countdown}} ثوانٍ",
+    "GO_TO_HOME": "العودة للصفحة الرئيسية",
+    "CHECK_YOUR_EMAIL_TITLE": "تحقق من بريدك الإلكتروني",
+    "CHECK_YOUR_EMAIL_DESC": "لقد أرسلنا رابط التحقق إلى بريدك الإلكتروني. اضغط على الرابط لتفعيل حسابك والبدء في الاستخدام.",
+    "SENT_TO_LABEL": "أرسل إلى",
+    "WHAT_TO_DO_NEXT": "ماذا تفعل بعد ذلك",
+    "STEP_1": "افتح صندوق الوارد الخاص بك",
+    "STEP_2": "ابحث عن البريد الإلكتروني للتحقق (تحقق من البريد المزعج إذا لزم الأمر)",
+    "STEP_3": "اضغط على رابط التحقق",
+    "STEP_4": "ارجع هنا بعد التحقق",
+    "USE_DIFFERENT_EMAIL": "استخدام بريد إلكتروني مختلف",
+    "SECURE_VERIFICATION": "التحقق الآمن",
+    "RESEND_VERIFICATION_EMAIL":"أعد إرسال البريد الإلكتروني"
+}

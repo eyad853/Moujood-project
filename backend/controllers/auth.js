@@ -37,7 +37,7 @@ export const localSignup = async (req, res, next) => {
         const result = await pool.query(
           `INSERT INTO users (name, email, password, gender, governorate, user_type , auth_provider)
            VALUES ($1, $2, $3, $4, $5, $6 , $7) RETURNING id , name , email , user_type`,
-          ['Super Admin', email, hashedPassword, 'male', 'Cairo', 'super_admin' , 'local']
+          [name, email, hashedPassword, 'male', 'Cairo', 'super_admin' , 'local']
         );
         newUser = result.rows[0];
       }
@@ -59,7 +59,7 @@ export const localSignup = async (req, res, next) => {
     // Check if email already exists
     const exists = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
     if (exists.rows.length > 0) 
-      return res.status(400).json({ message: 'Email already registered' });
+      return res.status(400).json({error:true, message:ERRORS.EMAIL_ALREADY_EXISTED  });
 
     const insertData = {
       name,
@@ -101,7 +101,7 @@ export const localSignup = async (req, res, next) => {
 
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: ERRORS.SERVER_ERROR });
   }
 };
 
@@ -128,7 +128,8 @@ export const businessesSignup = async (req, res, next) => {
         try{
           parsedLocations= JSON.parse(locations)
         }catch(error){
-          console.log('failed to parse locations');
+          console.log(error);
+          return res.status(500).json({error:true , message:ERRORS.SERVER_ERROR})
         }
       }
 
@@ -138,7 +139,10 @@ export const businessesSignup = async (req, res, next) => {
       [email]
     );
     if (existingUser.rows.length > 0) {
-      return res.status(400).json({ message: "Email already registered" });
+      return res.status(400).json({ 
+        error:true,
+        message: ERRORS.EMAIL_ALREADY_EXISTED 
+      });
     }
 
     // 2️⃣ Hash password
@@ -184,8 +188,8 @@ export const businessesSignup = async (req, res, next) => {
     });
 
   } catch (err) {
-    console.error("❌ Signup error:", err);
-    res.status(500).json({ message: "Server error" });
+    console.error(err);
+    res.status(500).json({ message: ERRORS.SERVER_ERROR });
   }
 };
 
@@ -240,7 +244,10 @@ export const login = async (req, res, next) => {
       );
 
       if (result.rows.length === 0) {
-        return res.status(400).json({ message: "Invalid email or password" });
+        return res.status(400).json({ 
+          error:true,
+          message: ERRORS.INVALID_EMAIL_OR_PASSWORD 
+        });
       }
 
       account = result.rows[0];
@@ -250,7 +257,10 @@ export const login = async (req, res, next) => {
     // 3️⃣ Validate password
     const match = await bcrypt.compare(password, account.password);
     if (!match) {
-      return res.status(400).json({ message: "Invalid email or password" });
+      return res.status(400).json({ 
+        error:true,
+        message: ERRORS.INVALID_EMAIL_OR_PASSWORD 
+      });
     }
 
     // 4️⃣ Check email verification
@@ -275,7 +285,7 @@ export const login = async (req, res, next) => {
     
       return res.status(403).json({
         error:true,
-        message: "Your account is not verified. A new verification email has been sent."
+        message: ERRORS.ACCOUNT_NOT_VERIFIED
       });
     }
 
@@ -286,7 +296,7 @@ export const login = async (req, res, next) => {
 
     const {error , message} = await registerDeviceToken(deviceToken , deviceId , fullAccount.id , fullAccount.accountType)
     if(error){
-      return res.status(500).json({
+      return res.status(400).json({
         error:true,
         message
       })
@@ -305,7 +315,7 @@ export const login = async (req, res, next) => {
 
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: ERRORS.SERVER_ERROR });
   }
 };
 
@@ -313,8 +323,19 @@ export const getUser = async (req, res) => {
   try {
     const { id, accountType } = req.user;
 
+      if(!id || !accountType){
+    return res.status(400).json({
+      error:true,
+      message:ERRORS.NOT_AUTHENTICATED
+    })
+  }
+
+    const tokenResult = await pool.query(`SELECT id FROM device_tokens WHERE receiver_type=$1 AND receiver_id=$2` , [accountType , id])
+
+      const hasToken = tokenResult.rows.length>0
+
     if (!id) {
-      return res.status(401).json({ message: "Not authenticated" });
+      return res.status(401).json({error:true , message: ERRORS.NOT_AUTHENTICATED });
     }
 
     if (accountType === 'user' || accountType=== 'super_admin') {
@@ -325,9 +346,12 @@ export const getUser = async (req, res) => {
       );
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ message: "User not found" });
+        return res.status(404).json({ 
+          error:true,
+          message: ERRORS.USER_NOT_FOUND
+        });
       }
-      return res.json({ ...result.rows[0], accountType });
+      return res.json({account:{ ...result.rows[0], accountType } , hasToken});
 
     } else if (accountType === 'business') {
       // Fetch business and its locations in a single query
@@ -340,6 +364,7 @@ export const getUser = async (req, res) => {
           b.category,
           b.logo,
           b.description,
+          b.active,
           b.number,
           COALESCE(
             json_agg(
@@ -360,19 +385,24 @@ export const getUser = async (req, res) => {
       );
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ message: "Business not found" });
+        return res.status(404).json({ 
+          error:true,
+          message: ERRORS.BUSINESS_NOT_FOUND
+        });
       }
 
       const businessData = result.rows[0];
       // If no locations exist, json_agg returns [null], fix it
       businessData.locations = businessData.locations[0] === null ? [] : businessData.locations;
 
-      return res.json({ ...businessData, accountType });
+      return res.json({ 
+        hasToken,
+        account:{...businessData, accountType} });
     }
 
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: ERRORS.SERVER_ERROR });
   }
 };
 
@@ -382,6 +412,12 @@ export const editAccount = async (req, res, next) => {
 
   try {
     const { id, accountType } = req.user;
+      if(!id , !accountType){
+    return res.status(400).json({
+      error:true,
+      message:ERRORS.NOT_AUTHENTICATED
+    })
+  }
     await client.query("BEGIN");
 
     let accountPassword
@@ -413,7 +449,7 @@ export const editAccount = async (req, res, next) => {
         if(!checkPassword){
           return res.status(400).json({
             error:true,
-            message:'Current password is incorrect'
+            message:ERRORS.PASSWORD_IS_NOT_CORRECT
           })
         }
       }
@@ -473,7 +509,7 @@ export const editAccount = async (req, res, next) => {
         if(!checkPassword){
           return res.status(400).json({
             error:true,
-            message:'Current password is incorrect'
+            message:ERRORS.PASSWORD_IS_NOT_CORRECT
           })
         }
       }
@@ -486,7 +522,10 @@ export const editAccount = async (req, res, next) => {
       if (locations) {
         try {
           parsedLocations = JSON.parse(locations);
-        } catch {}
+        } catch (error){
+          console.log(error);
+          return res.status(500).json({error:true ,message:ERRORS.SERVER_ERROR})
+        }
       }
 
       await client.query(
@@ -572,31 +611,43 @@ export const editAccount = async (req, res, next) => {
 
   } catch (err) {
     await client.query("ROLLBACK");
-    next(err);
+    console.log(err);
+    return res.status(500).json({message: ERRORS.SERVER_ERROR})
   } finally {
     client.release();
   }
 };
 
 export const logout = (req, res) => {
-  req.session.destroy((err) => {
+  try{
+    req.session.destroy((err) => {
     if (err) {
       return res.status(500).json({
-        message: "Failed to logout",
+        error:true,
+        message: ERRORS.FAILED_TO_LOGOUT,
       });
     }
 
     res.clearCookie("connect.sid"); // default session cookie name
 
     return res.status(200).json({
+      errro:false,
       message: "Logged out successfully",
     });
   });
+  }catch(error){
+    console.log(error);
+    return res.status(500).json({message:ERRORS.SERVER_ERROR})
+  }
+  
 };
 
 export const verifyEmail = async (req, res) => {
   const { token } = req.params;
   const { deviceToken, deviceId } = req.body
+  console.log("token" , token);
+  console.log("deviceId" , deviceId);
+  console.log("deviceToken" , deviceToken);
 
   try {
     const result = await pool.query(
@@ -607,7 +658,7 @@ export const verifyEmail = async (req, res) => {
     if (result.rows.length === 0) 
       return res.status(400).json({
         error:true,
-        message:  "Invalid or expired link"
+        message:ERRORS.INVALID_OR_EXPIRED_LINK
   });
 
     const record = result.rows[0];
@@ -680,7 +731,10 @@ export const verifyEmail = async (req, res) => {
 
     // ⚡ Automatically login session
     req.login(fullAccount, (err) => {
-      if (err) return res.status(500).send("Login failed");
+      if (err) return res.status(500).json({
+        error:true,
+        message:ERRORS.SERVER_ERROR
+      });
 
       // Delete token
       pool.query("DELETE FROM email_verification_tokens WHERE token=$1", [token]);
@@ -694,7 +748,7 @@ export const verifyEmail = async (req, res) => {
 
   } catch (err) {
     console.error(err);
-    res.status(500).json({error:true,message:err.message});
+    res.status(500).json({message:ERRORS.SERVER_ERROR});
   }
 };
 
@@ -705,20 +759,33 @@ export const resendVerificationEmail = async (req, res) => {
     // 1️⃣ Get account
     let account;
     if (accountType === "user") {
+
       const result = await pool.query("SELECT id, is_verified FROM users WHERE email=$1", [email]);
-      if (result.rows.length === 0) return res.status(400).json({ message: "Account not found" });
+
+      if (result.rows.length === 0) return res.status(400).json({ 
+        error:true,
+        message: ERRORS.ACCOUNT_NOT_FOUND 
+      });
+
       account = result.rows[0];
+
     } else if (accountType === "business") {
+
       const result = await pool.query("SELECT id, is_verified FROM businesses WHERE email=$1", [email]);
-      if (result.rows.length === 0) return res.status(400).json({ message: "Account not found" });
+
+      if (result.rows.length === 0) return res.status(400).json({ 
+        error:true,
+        message: ERRORS.ACCOUNT_NOT_FOUND 
+      });
+      
       account = result.rows[0];
     } else {
-      return res.status(400).json({ message: "Invalid account type" });
+      return res.status(400).json({ error:true , message: ERRORS.INVALID_ACCOUNT_TYPE });
     }
 
     // 2️⃣ Already verified?
     if (account.is_verified) {
-      return res.status(400).json({ message: "Account is already verified" });
+      return res.status(400).json({ error:true , message: ERRORS.ACCOUNT_ALREADY_VERIFIED });
     }
 
     // 3️⃣ Generate new token & save
@@ -735,7 +802,7 @@ export const resendVerificationEmail = async (req, res) => {
 
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: ERRORS.SERVER_ERROR });
   }
 };
 
@@ -755,7 +822,10 @@ export const handleGoogleAuth = async (req , res)=>{
     const email = payload?.email;
     const avatar = payload?.picture
 
-    if (!email) return res.status(500).json({error:true,message:'No email from Google'})
+    if (!email) return res.status(500).json({
+      error:true,
+      message:ERRORS.NO_EMAIL_FROM_GOOGLE
+    })
 
     const userResult = await pool.query(
       `SELECT id , name , email , gender , governorate , avatar , user_type FROM users WHERE email = $1`,
@@ -790,7 +860,8 @@ export const handleGoogleAuth = async (req , res)=>{
     })
 
   }catch(error){
-    res.status(500).json({ message: "Server error" });
+    console.log(error);
+    res.status(500).json({ message:ERRORS.SERVER_ERROR });
   }
 }
 
@@ -809,7 +880,10 @@ export const handleFacebookAuth = async (req , res)=>{
     const email = payload?.email
     const avatar = payload?.picture?.data?.url
 
-    if (!email) return res.status(500).json({error:true,message:'No email from Facebook'})
+    if (!email) return res.status(500).json({
+      error:true,
+      message:ERRORS.NO_EMAIL_FROM_FACEBOOK
+    })
 
     const userResult = await pool.query(
       `SELECT id , name , email , gender , governorate , avatar , user_type FROM users WHERE email = $1`,
@@ -844,7 +918,8 @@ export const handleFacebookAuth = async (req , res)=>{
     })
 
   }catch(error){
-    res.status(500).json({ message: "Server error" });
+    console.log(error);
+    res.status(500).json({ message:ERRORS.SERVER_ERROR });
   }
 }
 
@@ -880,7 +955,10 @@ export const forgotPassword = async (req, res) => {
     // IMPORTANT security trick 🔒
     // never reveal if email exists or not
     if (!account)
-      return res.json({ message: "If email exists, link sent" });
+      return res.status(400).json({ 
+        error:true,
+        message: ERRORS.NO_EMAIL_FROM_FACEBOOK 
+      });
 
     // generate token
     const token = generateVerificationToken();
@@ -897,7 +975,7 @@ export const forgotPassword = async (req, res) => {
     });
   } catch (err) {
     console.log(err);
-    res.status(500).json({ error: true });
+    res.status(500).json({ message: ERRORS.SERVER_ERROR });
   }
 };
 
@@ -913,13 +991,13 @@ export const resetPassword = async (req, res) => {
     ); 
 
     if (tokenResult.rows.length === 0)
-      return res.status(400).json({ message: "Invalid or expired link" });
+      return res.status(400).json({ error:true,message: ERRORS.INVALID_OR_EXPIRED_LINK });
 
     const resetToken = tokenResult.rows[0];
 
     // 2️⃣ Check expiration
     if (new Date(resetToken.expires_at) < new Date())
-      return res.status(400).json({ message: "Token expired" });
+      return res.status(400).json({error:true , message: ERRORS.TOKEN_EXPIRED });
 
     // 3️⃣ Hash new password
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -951,6 +1029,49 @@ export const resetPassword = async (req, res) => {
 
   } catch (err) {
     console.log(err);
-    res.status(500).json({ error: true });
+    res.status(500).json({ message: ERRORS.SERVER_ERROR });
+  }
+};
+
+export const createToken = async (req, res) => {
+  try {
+    const { id, accountType } = req.user;
+    const { token, deviceId } = req.body;
+
+    if (!token || !deviceId) {
+      return res.status(400).json({
+        error: true,
+        message: ERRORS.TOKEN_DEVICEID_REQUIRED
+      });
+    }
+
+    if (!id || !accountType) {
+      return res.status(401).json({
+        error: true,
+        message: ERRORS.NOT_AUTHENTICATED
+      });
+    }
+
+    await pool.query(
+      `
+      INSERT INTO device_tokens (receiver_type, receiver_id, token, device_id)
+      VALUES ($1, $2, $3, $4)
+      ON CONFLICT (token)
+      DO UPDATE SET
+        receiver_type = EXCLUDED.receiver_type,
+        receiver_id = EXCLUDED.receiver_id,
+        device_id = EXCLUDED.device_id
+      `,
+      [accountType, id, token, deviceId]
+    );
+
+    return res.json({
+      error: false,
+      message: "Device token saved successfully"
+    });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({message: ERRORS.SERVER_ERROR});
   }
 };

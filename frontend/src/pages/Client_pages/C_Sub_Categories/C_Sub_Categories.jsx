@@ -14,7 +14,7 @@ const C_Sub_Categories = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [ads , setAds]=useState([])
   const [loading , setLoading]=useState(false)
-  const [error , setError]=useState('')
+  const [pageError , setPageError]=useState('')
   const [categories , setCategories]=useState([])
   const [currentSlide, setCurrentSlide] = useState(1);
   const [sliderElement, setSliderElement] = useState(null);
@@ -41,11 +41,18 @@ const C_Sub_Categories = () => {
       const get = async ()=>{
         try{
           setLoading(true)
-          // await getAllCategories(setError , setCategories)
-          await getAds(setError , setAds)
-          await getSubCategoriesOfCategory(setError , setCategories , categoryId)
-        }catch(error){
-          setError(error)
+          await getAds(setPageError , setAds , t)
+          await getSubCategoriesOfCategory(setPageError , setCategories , categoryId , t)
+        }catch(err){
+        if (err.response?.data?.message) {
+            setPageError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setPageError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setPageError(t(`errors:${err.message}`))
+        } else {
+            setPageError(t("errors:SOMETHING_WENT_WRONG"))
+        }
         }finally{
           setLoading(false)
         }
@@ -126,15 +133,20 @@ useEffect(() => {
       )
     }
 
+    if (pageError) {
+      return (
+        <div className="fixed inset-0">
+          <PageError error={pageError} />
+        </div>
+      );
+    }
+
   const filteredCategories = categories.filter(category =>
     category.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
-      {error?(
-        <PageError error={error}/>
-      ):(<>
       {/* Header */}
       <div className="bg-white px-5 py-4 border-b border-gray-200 sticky top-0 z-20">
         <div className="flex items-center justify-center relative mb-4">
@@ -228,7 +240,6 @@ useEffect(() => {
           </div>
         )}
       </div>
-      </>)}
     </div>
   );
 };

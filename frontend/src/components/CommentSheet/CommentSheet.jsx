@@ -5,26 +5,37 @@ import Loadiing from '../Loadiing/Loadiing'
 import { getOfferComments , createComment , updateComment , deleteComment } from '../../api/comments';
 import { useUser } from '../../context/userContext';
 import { useTranslation } from 'react-i18next';
+import {useError} from '../../context/error'
+import PageError from '../PageError/PageError'
 
 
 const CommentSheet = ({ isOpen, onClose, offerId , setOffers }) => {
     const [content, setContent] = useState('');
     const [editingCommentId, setEditingCommentId] = useState(null);
     const [editingText, setEditingText] = useState('');
-    const [error ,setError]=useState('')
     const [loading , setLoading]=useState(false)
     const [comments, setComments] = useState([]);
     const {user} = useUser() 
     const {t , i18n}=useTranslation('commentsSheet')
     const isRTL = i18n.language==='ar'
+    const {setSmallError}=useError()
+    const [pageError , setPageError]=useState()
 
   useEffect(()=>{
     const get = async ()=>{
       try{
         setLoading(true)
-        await getOfferComments(offerId , setComments , setError)
-      }catch(error){
-        setError(error)
+        await getOfferComments(offerId , setComments , setPageError , t)
+      }catch(err){
+        if (err.response?.data?.message) {
+            setPageError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setPageError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setPageError(t(`errors:${err.message}`))
+        } else {
+            setPageError(t("errors:SOMETHING_WENT_WRONG"))
+        }
       }finally{
         setLoading(false)
       }
@@ -39,7 +50,7 @@ const CommentSheet = ({ isOpen, onClose, offerId , setOffers }) => {
   };
 
   const handleSaveEdit = () => {
-        updateComment(editingCommentId , editingText , comments , setComments , setError)
+        updateComment(editingCommentId , editingText , comments , setComments , setSmallError , t)
         setEditingCommentId(null);
         setEditingText('');
   };
@@ -74,7 +85,7 @@ const CommentSheet = ({ isOpen, onClose, offerId , setOffers }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/5  z-40"
+            className="fixed inset-0 bg-black/5 z-40"
           />
 
           {/* Bottom Sheet */}
@@ -87,6 +98,8 @@ const CommentSheet = ({ isOpen, onClose, offerId , setOffers }) => {
           >
             {loading?(
               <Loadiing />
+            ):pageError?(
+                <PageError />
             ):(
               <>
             {/* Header */}
@@ -172,7 +185,7 @@ const CommentSheet = ({ isOpen, onClose, offerId , setOffers }) => {
                                     </button>
                                     <button
                                       onClick={() => {
-                                        deleteComment(comment.id , comments , setComments , setError)
+                                        deleteComment(comment.id , comments , setComments , setSmallError , t)
                                         setOffers(prev => prev.map(o => 
                                           o.offer_id === offerId ? { ...o, comments_count: Number(o.comments_count) - 1 } : o
                                         ));
@@ -216,16 +229,6 @@ const CommentSheet = ({ isOpen, onClose, offerId , setOffers }) => {
                   <textarea
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        createComment(offerId , content , comments , setComments , setError , user)
-                        setOffers(prev => prev.map(o => 
-                          o.offer_id === offerId ? { ...o, comments_count: Number(o.comments_count) + 1 } : o
-                        ));
-                        setContent('')
-                      }
-                    }}
                     placeholder={t("placeholder")}
                     rows="1"
                     dir={isRTL?"rtl":"ltr"}
@@ -234,7 +237,7 @@ const CommentSheet = ({ isOpen, onClose, offerId , setOffers }) => {
                   />
                   <button
                     onClick={()=>{
-                        createComment(offerId , content , comments , setComments , setError , user)
+                        createComment(offerId , content , comments , setComments , setSmallError , user , t)
                         setOffers(prev => prev.map(o => 
                           o.offer_id === offerId ? { ...o, comments_count: Number(o.comments_count) + 1 } : o
                         ));

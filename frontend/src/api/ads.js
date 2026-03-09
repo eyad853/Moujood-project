@@ -2,8 +2,14 @@ import axios from "axios";
 
 const API = `${import.meta.env.VITE_BACKEND_URL}/ads`;
 
-export const addAd = async (file, ads, setAds, setError) => {
+export const addAd = async (file, ads, setAds, setError , t) => {
   try {
+
+    if (!file) {
+      setError(t(`limits:IMAGE_REQUIRED`));
+      return;
+    }
+
     const tempId = Date.now();
     const tempAd = { id: tempId, image: URL.createObjectURL(file) };
 
@@ -23,40 +29,45 @@ export const addAd = async (file, ads, setAds, setError) => {
 
     return res.data;
   } catch (err) {
-    if (err.response?.data?.message) {
-        setError(err.response.data.message)
-    } else if (err.message) {
-        setError(err.message)
-    } else {
-        setError('Something went wrong')
-    }
+        if (err.response?.data?.message) {
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setError(t(`errors:${err.message}`))
+        } else {
+            setError(t("errors:SOMETHING_WENT_WRONG"))
+        }
     // Rollback
     setAds((prev) => prev.filter((ad) => ad.id !== tempId));
   }
 };
 
-/* ============================
-   GET ADS
-============================ */
-export const getAds = async (setError , setAds) => {
+export const getAds = async (setError , setAds , t) => {
   try {
     const res = await axios.get(`${API}/get`);
     setAds(res.data)
   } catch (err) {
-    if (err.response?.data?.message) {
-        setError(err.response.data.message)
-    } else if (err.message) {
-        setError(err.message)
-    } else {
-        setError('Something went wrong')
-    }
+        if (err.response?.data?.message) {
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setError(t(`errors:${err.message}`))
+        } else {
+            setError(t("errors:SOMETHING_WENT_WRONG"))
+        }
   }
 };
 
-
-export const editAd = async (id, file, ads, setAds, setError) => {
+export const editAd = async (id, file, ads, setAds, setError , t) => {
     const oldAd = ads.find((a) => a.id === id);
   try {
+
+    if (!file) {
+      setError(t("limits:IMAGE_REQUIRED"));
+      return;
+    }
 
     const tempImage = URL.createObjectURL(file);
 
@@ -79,13 +90,15 @@ export const editAd = async (id, file, ads, setAds, setError) => {
     );
 
   } catch (err) {
-    if (err.response?.data?.message) {
-        setError(err.response.data.message)
-    } else if (err.message) {
-        setError(err.message)
-    } else {
-        setError('Something went wrong')
-    }
+        if (err.response?.data?.message) {
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setError(t(`errors:${err.message}`))
+        } else {
+            setError(t("errors:SOMETHING_WENT_WRONG"))
+        }
 
     // Rollback
     setAds((prev) =>
@@ -94,7 +107,7 @@ export const editAd = async (id, file, ads, setAds, setError) => {
   }
 };
 
-export const deleteAd = async (id, ads, setAds, setError) => {
+export const deleteAd = async (id, ads, setAds, setError , t) => {
   try {
     const oldAds = [...ads];
 
@@ -106,13 +119,15 @@ export const deleteAd = async (id, ads, setAds, setError) => {
     });
 
   } catch (err) {
-    if (err.response?.data?.message) {
-        setError(err.response.data.message)
-    } else if (err.message) {
-        setError(err.message)
-    } else {
-        setError('Something went wrong')
-    }
+        if (err.response?.data?.message) {
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setError(t(`errors:${err.message}`))
+        } else {
+            setError(t("errors:SOMETHING_WENT_WRONG"))
+        }
 
     // Rollback
     setAds(oldAds);

@@ -1,8 +1,16 @@
 import { pool } from "../index.js";
+import ERRORS from "../config/errors.js";
 
 export const getBusinessDashboardData = async (req, res) => {
   try {
     const business_id = req.user.id;
+
+      if(!business_id){
+        return res.status(400).json({
+          error:true,
+          message:ERRORS.NOT_AUTHENTICATED
+        })
+      }
 
     // Total offers the business created
     const offersResult = await pool.query(
@@ -11,8 +19,6 @@ export const getBusinessDashboardData = async (req, res) => {
        WHERE business_id = $1`,
       [business_id]
     );
-
-    
 
     // Total likes on all offers of this business
     const likesResult = await pool.query(
@@ -65,13 +71,21 @@ export const getBusinessDashboardData = async (req, res) => {
     });
 
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.log(err);
+    res.status(500).json({ message:ERRORS.SERVER_ERROR  });
   }
 };
 
 export const getBusinessOffers = async (req, res) => {
   try {
     const business_id = req.user.id;
+
+      if(!business_id){
+    return res.status(400).json({
+      error:true,
+      message:ERRORS.NOT_AUTHENTICATED
+    })
+  }
 
     // 1️⃣ Get all offers for this business
     const offersResult = await pool.query(
@@ -118,6 +132,7 @@ export const getBusinessOffers = async (req, res) => {
     });
 
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.log(err);
+    res.status(500).json({ message: ERRORS.SERVER_ERROR });
   }
 };

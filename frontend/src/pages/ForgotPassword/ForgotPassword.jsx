@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import {useTranslation}from 'react-i18next'
 
 const ForgotPassword = () => {
   const [searchParams] = useSearchParams();
@@ -22,6 +23,9 @@ const ForgotPassword = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  const {t , i18n}=useTranslation('forgotPassword')
+  const isRTL=i18n.language==='ar'
+
   // Reset error when user types
   useEffect(() => {
     setError('');
@@ -38,22 +42,18 @@ const ForgotPassword = () => {
         `${import.meta.env.VITE_BACKEND_URL}/auth/forgot-password`,
         { email }
       );
-
-      if (!response.data.error) {
+      
         setEmailSent(true);
-      } else {
-        setError(response.data.error || 'Something went wrong. Please try again.');
-      }
     } catch (err) {
-      if (err.response?.data?.message) {
-        setError(err.response.data.message);
-      } else if (err.response?.data?.error) {
-        setError(err.response.data.error);
-      } else if (err.message) {
-        setError(err.message);
-      } else {
-        setError('Network error. Please check your connection and try again.');
-      }
+        if (err.response?.data?.message) {
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setError(t(`errors:${err.message}`))
+        } else {
+            setError(t("errors:SOMETHING_WENT_WRONG"))
+        }
     } finally {
       setLoading(false);
     }
@@ -83,25 +83,21 @@ const ForgotPassword = () => {
         { password: newPassword }
       );
 
-      if (!response.data.error) {
         setPasswordReset(true);
         // Redirect to login after 3 seconds
         setTimeout(() => {
           navigate('/login');
         }, 3000);
-      } else {
-        setError(response.data.error || 'Something went wrong. Please try again.');
-      }
     } catch (err) {
-      if (err.response?.data?.message) {
-        setError(err.response.data.message);
-      } else if (err.response?.data?.error) {
-        setError(err.response.data.error);
-      } else if (err.message) {
-        setError(err.message);
-      } else {
-        setError('Network error. Please check your connection and try again.');
-      }
+        if (err.response?.data?.message) {
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setError(t(`errors:${err.message}`))
+        } else {
+            setError(t("errors:SOMETHING_WENT_WRONG"))
+        }
     } finally {
       setLoading(false);
     }
@@ -139,13 +135,13 @@ const ForgotPassword = () => {
 
             {/* Success Message */}
             <h2 className="text-2xl font-bold text-gray-800 text-center mb-4">
-              Check Your Email
+              {t('EMAIL_SENT_SUCCESS_TITLE')}
             </h2>
             <p className="text-gray-600 text-center mb-6">
-              We've sent a password reset link to <span className="font-semibold text-[#009842]">{email}</span>
+              {t('EMAIL_SENT_SUCCESS_DESC')} <span className="font-semibold text-[#009842]">{email}</span>
             </p>
             <p className="text-sm text-gray-500 text-center mb-8">
-              The link will expire in 1 hour. If you don't see the email, check your spam folder.
+              {t('EMAIL_SENT_NOTE')}
             </p>
 
             {/* Back to Login */}
@@ -153,7 +149,7 @@ const ForgotPassword = () => {
               onClick={() => navigate('/login')}
               className="w-full bg-gradient-to-r from-[#009842] to-[#007a36] text-white font-semibold py-3 rounded-lg hover:shadow-lg transition-all duration-200"
             >
-              Back to Login
+              {t('BACK_TO_LOGIN')}
             </button>
           </div>
         </div>
@@ -193,10 +189,10 @@ const ForgotPassword = () => {
 
             {/* Success Message */}
             <h2 className="text-2xl font-bold text-gray-800 text-center mb-4">
-              Password Reset Successful!
+              {t('PASSWORD_RESET_SUCCESS_TITLE')}
             </h2>
             <p className="text-gray-600 text-center mb-8">
-              Your password has been successfully reset. You can now log in with your new password.
+              {t('PASSWORD_RESET_SUCCESS_DESC')}
             </p>
 
             {/* Redirecting Message */}
@@ -221,7 +217,7 @@ const ForgotPassword = () => {
                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                 ></path>
               </svg>
-              Redirecting to login...
+              {t('REDIRECTING_LOGIN')}
             </div>
 
             {/* Manual Login Button */}
@@ -229,7 +225,7 @@ const ForgotPassword = () => {
               onClick={() => navigate('/login')}
               className="w-full bg-gradient-to-r from-[#009842] to-[#007a36] text-white font-semibold py-3 rounded-lg hover:shadow-lg transition-all duration-200"
             >
-              Go to Login
+              {t("BACK_TO_LOGIN")}
             </button>
           </div>
         </div>
@@ -249,8 +245,8 @@ const ForgotPassword = () => {
 
           {/* Header */}
           <div className="text-center mb-6">
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">Reset Your Password</h1>
-            <p className="text-gray-600">Create a new password for your account. Make sure it's strong and secure.</p>
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">{t('TITLE_RESET_STEP')}</h1>
+            <p className="text-gray-600">{t("DESC_RESET_STEP")}</p>
           </div>
 
           {/* Form Card */}
@@ -278,24 +274,25 @@ const ForgotPassword = () => {
 
               {/* New Password Input */}
               <div>
-                <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                  New Password
+                <label htmlFor="newPassword" className={`block ${isRTL?"text-right":""} text-sm font-medium text-gray-700 mb-2`}>
+                  {t("NEW_PASSWORD_LABEL")}
                 </label>
                 <div className="relative">
                   <input
                     type={showPassword ? 'text' : 'password'}
                     id="newPassword"
                     value={newPassword}
+                    dir={isRTL?"rtl":"ltr"}
                     onChange={(e) => setNewPassword(e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009842] focus:border-transparent outline-none transition-all"
-                    placeholder="Enter new password"
+                    placeholder={t('PLACEHOLDERS.NEW_PASSWORD')}
                     required
                     disabled={loading}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    className={`absolute ${isRTL?"left-3":"right-3"} top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700`}
                     disabled={loading}
                   >
                     {showPassword ? (
@@ -310,29 +307,30 @@ const ForgotPassword = () => {
                     )}
                   </button>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">Must be at least 8 characters</p>
+                <p className={`text-xs text-gray-500 mt-1 ${isRTL?"text-right":""}`}>{t('PASSWORD_TOO_SHORT')}</p>
               </div>
 
               {/* Confirm Password Input */}
               <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                  Confirm Password
+                <label htmlFor="confirmPassword" className={`block ${isRTL?"text-right":""} text-sm font-medium text-gray-700 mb-2`}>
+                  {t("CONFIRM_PASSWORD_LABEL")}
                 </label>
                 <div className="relative">
                   <input
                     type={showConfirmPassword ? 'text' : 'password'}
                     id="confirmPassword"
                     value={confirmPassword}
+                    dir={isRTL?"rtl":"ltr"}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009842] focus:border-transparent outline-none transition-all"
-                    placeholder="Confirm new password"
+                    placeholder={t('PLACEHOLDERS.CONFIRM_NEW_PASSWORD')}
                     required
                     disabled={loading}
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    className={`absolute ${isRTL?"left-3":"right-3"} top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700`}
                     disabled={loading}
                   >
                     {showConfirmPassword ? (
@@ -377,10 +375,10 @@ const ForgotPassword = () => {
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                       ></path>
                     </svg>
-                    Resetting...
+                    {t('RESETTING')}
                   </>
                 ) : (
-                  'Reset Password'
+                  t('RESET_BUTTON')
                 )}
               </button>
             </form>
@@ -401,9 +399,9 @@ const ForgotPassword = () => {
 
         {/* Header */}
         <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Forgot Password?</h1>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">{t('TITLE_EMAIL_STEP')}</h1>
           <p className="text-gray-600">
-            No worries! Enter your email address below and we'll send you a link to reset your password.
+            {t('DESC_EMAIL_STEP')}
           </p>
         </div>
 
@@ -432,11 +430,11 @@ const ForgotPassword = () => {
 
             {/* Email Input */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                Email Address
+              <label htmlFor="email" className={`block text-sm font-medium text-gray-700 mb-2 ${isRTL?"text-right":""}`}>
+                {t('EMAIL_LABEL')}
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div className={`absolute inset-y-0 ${isRTL?"right-0 pr-3":"left-0 pl-3"}  flex items-center pointer-events-none`}>
                   <svg
                     className="h-5 w-5 text-gray-400"
                     fill="none"
@@ -455,9 +453,10 @@ const ForgotPassword = () => {
                   type="email"
                   id="email"
                   value={email}
+                  dir={isRTL?"rtl":"ltr"}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009842] focus:border-transparent outline-none transition-all"
-                  placeholder="your.email@example.com"
+                  className={`w-full ${isRTL?"pr-10":"pl-10"} pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009842] focus:border-transparent outline-none transition-all`}
+                  placeholder={t('PLACEHOLDERS.YOUR_EMAIL')}
                   required
                   disabled={loading}
                 />
@@ -492,10 +491,10 @@ const ForgotPassword = () => {
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     ></path>
                   </svg>
-                  Sending...
+                  {t('SENDING')}
                 </>
               ) : (
-                'Send Reset Link'
+                t('SEND_LINK_BUTTON')
               )}
             </button>
 
@@ -520,7 +519,7 @@ const ForgotPassword = () => {
                     d="M10 19l-7-7m0 0l7-7m-7 7h18"
                   />
                 </svg>
-                Back to Login
+                {t('BACK_TO_LOGIN')}
               </button>
             </div>
           </form>

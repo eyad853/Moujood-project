@@ -1,3 +1,4 @@
+import ERRORS from "../config/errors.js";
 import admin from "../config/firebase.js";
 import { pool } from "../index.js"
 import { sendNotification } from "../services/firebase.js";
@@ -31,7 +32,7 @@ export const createNotification = async (req, res) => {
 
     
     if (!title || !message || !receiver_type || !filter_type) {
-      return res.status(400).json({ message: "Missing required fields" });
+      return res.status(400).json({error:true, message: ERRORS.MISSING_REQUIRED_FIELDS });
     }
 
     await client.query("BEGIN");
@@ -139,7 +140,7 @@ export const createNotification = async (req, res) => {
   } catch (err) {
     await client.query("ROLLBACK");
     console.error(err);
-    res.status(500).json({ message: "Failed to create notification" });
+    res.status(500).json({ message: ERRORS.SERVER_ERROR });
   } finally {
     client.release();
   }
@@ -160,7 +161,7 @@ export const editNotification = async (req, res) => {
     } = req.body;
 
     if (!receiver_type || !filter_type) {
-      return res.status(400).json({ message: "receiver_type and filter_type are required" });
+      return res.status(400).json({error:true, message: ERRORS.RECIEVER_TYPE_AND_FILTER_TYPE_ARE_REQUIRED });
     }
 
     await client.query("BEGIN");
@@ -182,7 +183,7 @@ export const editNotification = async (req, res) => {
 
     if (!notification) {
       await client.query("ROLLBACK");
-      return res.status(404).json({ message: "Notification not found" });
+      return res.status(404).json({ error:true,message: ERRORS.NOTIFICATION_NOT_FOUND });
     }
 
     // 2️⃣ Delete old targets
@@ -264,7 +265,7 @@ export const editNotification = async (req, res) => {
   } catch (err) {
     await client.query("ROLLBACK");
     console.error(err);
-    res.status(500).json({ message: "Failed to edit notification" });
+    res.status(500).json({ message: ERRORS.SERVER_ERROR });
   } finally {
     client.release();
   }
@@ -277,6 +278,13 @@ export const deleteNotification = async (req, res) => {
 
   const { id: notification_id } = req.params;
   const { id: receiver_id, accountType } = req.user;
+  
+    if(!receiver_id || !accountType){
+    return res.status(400).json({
+      error:true,
+      message:ERRORS.NOT_AUTHENTICATED
+    })
+  }
 
   try {
     await client.query("BEGIN");
@@ -300,7 +308,7 @@ export const deleteNotification = async (req, res) => {
 
       if (!result.rows.length) {
         await client.query("ROLLBACK");
-        return res.status(404).json({ message: "Notification not found" });
+        return res.status(404).json({error:true, message: ERRORS.NOTIFICATION_NOT_FOUND });
       }
 
       await client.query("COMMIT");
@@ -324,7 +332,7 @@ export const deleteNotification = async (req, res) => {
 
     if (!result.rows.length) {
       await client.query("ROLLBACK");
-      return res.status(404).json({ message: "Notification not found for this account" });
+      return res.status(404).json({error:true ,message: ERRORS.NOTIFICATION_NOT_FOUND });
     }
 
     await client.query("COMMIT");
@@ -333,7 +341,7 @@ export const deleteNotification = async (req, res) => {
   } catch (err) {
     await client.query("ROLLBACK");
     console.error(err);
-    res.status(500).json({ message: "Failed to delete notification" });
+    res.status(500).json({ message: ERRORS.SERVER_ERROR });
   } finally {
     client.release();
   }
@@ -346,7 +354,7 @@ export const getAllNotifications = async (req, res) => {
     const { receiver_type } = req.params; // 'user' or 'business'
 
     if (!receiver_type) {
-      return res.status(400).json({ message: "receiver_type is required" });
+      return res.status(400).json({error:true, message: ERRORS.RECIEVER_TYPE_IS_REQUIRED});
     }
 
     // Fetch notifications and count receivers from notification_targets
@@ -398,7 +406,7 @@ export const getAllNotifications = async (req, res) => {
 
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Failed to fetch notifications" });
+    res.status(500).json({ message: ERRORS.SERVER_ERROR });
   }
 };
 
@@ -425,9 +433,10 @@ export const getAllUsers = async (req, res) => {
       users: result.rows
     });
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       error: true,
-      message: error.message
+      message: ERRORS.SERVER_ERROR
     });
   }
 };
@@ -458,9 +467,10 @@ export const getAllBusinesses = async (req, res) => {
       businesses: result.rows
     });
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       error: true,
-      message: error.message
+      message: ERRORS.SERVER_ERROR
     });
   }
 };
@@ -470,8 +480,15 @@ export const getMyNotifications = async (req, res) => {
     const { receiver_type} = req.params;
     const receiver_id = req.user.id
 
+      if(!receiver_id){
+    return res.status(400).json({
+      error:true,
+      message:ERRORS.NOT_AUTHENTICATED
+    })
+  }
+
     if (!receiver_type || !receiver_id) {
-      return res.status(400).json({ message: "receiver_type and receiver_id are required" });
+      return res.status(400).json({error:true, message: ERRORS.RECIEVER_TYPE_AND_RECIEVER_ID_ARE_REQUIRED });
     }
 
     // get account creation date
@@ -483,7 +500,7 @@ export const getMyNotifications = async (req, res) => {
     );
 
     if (!accountResult.rows.length) {
-      return res.status(404).json({ message: "Account not found" });
+      return res.status(404).json({error:true, message: ERRORS.ACCOUNT_NOT_FOUND });
     }
 
     const createdAt = accountResult.rows[0].created_at;
@@ -514,7 +531,7 @@ export const getMyNotifications = async (req, res) => {
 
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Failed to fetch notifications" });
+    res.status(500).json({ message: ERRORS.SERVER_ERROR });
   }
 };
 
@@ -536,7 +553,7 @@ export const getNotificationDetails = async (req, res) => {
     );
 
     if (!result.rows.length) {
-      return res.status(404).json({ message: "Notification not found" });
+      return res.status(404).json({error:true, message: ERRORS.NOTIFICATION_NOT_FOUND });
     }
 
     res.json({
@@ -546,7 +563,7 @@ export const getNotificationDetails = async (req, res) => {
 
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Failed to fetch notification details" });
+    res.status(500).json({ message: ERRORS.SERVER_ERROR });
   }
 };
 
@@ -556,9 +573,18 @@ export const getNotificationCount = async (req, res) => {
   try {
     const { receiver_type } = req.params;
     const receiver_id = req.user.id;
+    console.log(receiver_id);
+    console.log(receiver_type);
+
+      if(!receiver_id){
+    return res.status(400).json({
+      error:true,
+      message:ERRORS.NOT_AUTHENTICATED
+    })
+  }
 
     if (!receiver_type || !receiver_id) {
-      return res.status(400).json({ message: "Missing receiver data" });
+      return res.status(400).json({error:true, message: ERRORS.RECIEVER_TYPE_AND_RECIEVER_ID_ARE_REQUIRED });
     }
 
     // 1️⃣ Get account creation date
@@ -569,7 +595,7 @@ export const getNotificationCount = async (req, res) => {
     );
 
     if (!accountResult.rows.length) {
-      return res.status(404).json({ message: "Account not found" });
+      return res.status(404).json({error:true, message: ERRORS.ACCOUNT_NOT_FOUND });
     }
 
     const accountCreatedAt = accountResult.rows[0].created_at;
@@ -595,7 +621,7 @@ export const getNotificationCount = async (req, res) => {
 
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: true, message: "Server error" });
+    res.status(500).json({ error: true, message: ERRORS.SERVER_ERROR });
   } finally {
     client.release();
   }
@@ -608,8 +634,15 @@ export const markAllNotificationsAsRead = async (req, res) => {
     const { receiver_type} = req.params;
     const receiver_id = req.user.id
 
+      if(!receiver_id){
+    return res.status(400).json({
+      error:true,
+      message:ERRORS.NOT_AUTHENTICATED
+    })
+  }
+
     if (!receiver_type || !receiver_id) {
-      return res.status(400).json({ message: "Missing receiver data" });
+      return res.status(400).json({error:true, message: ERRORS.RECIEVER_TYPE_AND_RECIEVER_ID_ARE_REQUIRED });
     }
 
     const result = await client.query(
@@ -630,7 +663,7 @@ export const markAllNotificationsAsRead = async (req, res) => {
 
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: true, message: "Server error" });
+    res.status(500).json({ error: true, message: ERRORS.SERVER_ERROR });
   } finally {
     client.release();
   }

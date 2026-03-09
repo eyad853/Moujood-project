@@ -1,21 +1,24 @@
 import axios from 'axios'
 
-export const getBusinessPageData = async (setError , setBusinesses)=>{
+export const getBusinessPageData = async (setError , setBusinesses, t)=>{
     try{
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/super_admin/getBusinessPageData`)
         console.log(response.data);
         setBusinesses(response.data)
     }catch(err){
         if (err.response?.data?.message) {
-            setError(err.response.data.message)
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
         } else if (err.message) {
-            setError(err.message)
+            setError(t(`errors:${err.message}`))
         } else {
-            setError('Something went wrong')
+            setError(t("errors:SOMETHING_WENT_WRONG"))
         }
     }
 }
-export const editBusinessActivity = async (setError ,businesses, business , setBusinesses)=>{
+
+export const editBusinessActivity = async (setError ,businesses, business , setBusinesses, t)=>{
     const oldBusinesses = [...businesses]; // rollback backup
     try{
 
@@ -27,19 +30,22 @@ export const editBusinessActivity = async (setError ,businesses, business , setB
           : item
       )
     );
-        const response = await axios.patch(`${import.meta.env.VITE_BACKEND_URL}/super_admin/editBusinessActivity/${business.id}`)
+        const response = await axios.patch(`${import.meta.env.VITE_BACKEND_URL}/super_admin/editBusinessActivity/${business.id}` , {} , {withCredentials:true})
     }catch(err){
         setBusinesses(oldBusinesses);
         if (err.response?.data?.message) {
-            setError(err.response.data.message)
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
         } else if (err.message) {
-            setError(err.message)
+            setError(t(`errors:${err.message}`))
         } else {
-            setError('Something went wrong')
+            setError(t("errors:SOMETHING_WENT_WRONG"))
         }
     }
 }
-export const getUserPageData = async (setError , setUsers , setTotalPercantage , setMalePercantage , setFemalePercantage)=>{
+
+export const getUserPageData = async (setError , setUsers , setTotalPercantage , setMalePercantage , setFemalePercantage, t)=>{
     try{
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/super_admin/getUserPageData`)
         console.log(response.data);
@@ -47,17 +53,20 @@ export const getUserPageData = async (setError , setUsers , setTotalPercantage ,
         setTotalPercantage(response.data.percentage_total)
         setMalePercantage(response.data.percentage_male)
         setFemalePercantage(response.data.percentage_female)
-    }catch(error){
+    }catch(err){
         if (err.response?.data?.message) {
-            setError(err.response.data.message)
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
         } else if (err.message) {
-            setError(err.message)
+            setError(t(`errors:${err.message}`))
         } else {
-            setError('Something went wrong')
+            setError(t("errors:SOMETHING_WENT_WRONG"))
         }
     }
 }
-export const getDashboardPageData = async (setError, setPercentages , setTotalUsers , setTotalBusinesses , setTotalScans , setTotalSales , setSalesChartData)=>{
+
+export const getDashboardPageData = async (setError, setPercentages , setTotalUsers , setTotalBusinesses , setTotalScans , setTotalSales , setSalesChartData, t)=>{
     try{
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/super_admin/getDashboardPageData`)
         console.log(response.data);
@@ -69,16 +78,18 @@ export const getDashboardPageData = async (setError, setPercentages , setTotalUs
         setSalesChartData(response.data.salesChartData)
     }catch(err){
         if (err.response?.data?.message) {
-            setError(err.response.data.message)
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
         } else if (err.message) {
-            setError(err.message)
+            setError(t(`errors:${err.message}`))
         } else {
-            setError('Something went wrong')
+            setError(t("errors:SOMETHING_WENT_WRONG"))
         }
     }
 }
 
-export const getCategoriesPageData = async (setError , setCategories)=>{
+export const getCategoriesPageData = async (setError , setCategories, t)=>{
     try{
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/super_admin/getCategoriesPageData`)
         if(response){
@@ -88,27 +99,31 @@ export const getCategoriesPageData = async (setError , setCategories)=>{
         }
     }catch(err){
         if (err.response?.data?.message) {
-            setError(err.response.data.message)
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
         } else if (err.message) {
-            setError(err.message)
+            setError(t(`errors:${err.message}`))
         } else {
-            setError('Something went wrong')
+            setError(t("errors:SOMETHING_WENT_WRONG"))
         }
     }
 }
 
-export const getOffersPageData = async (setError , setOffers) => {
+export const getOffersPageData = async (setError , setOffers, t)=>{
     try{
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/super_admin/getOffersPageData`)
         console.log(response.data);
         setOffers(response.data)
     }catch(err){
         if (err.response?.data?.message) {
-            setError(err.response.data.message)
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
         } else if (err.message) {
-            setError(err.message)
+            setError(t(`errors:${err.message}`))
         } else {
-            setError('Something went wrong')
+            setError(t("errors:SOMETHING_WENT_WRONG"))
         }
     }
 }

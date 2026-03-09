@@ -1,3 +1,4 @@
+import ERRORS from "../config/errors.js";
 import { pool } from "../index.js";
 
 const B_SA =  async (req, res, next) => {
@@ -11,7 +12,7 @@ const B_SA =  async (req, res, next) => {
   );
 
   if (result.rows.length === 0) {
-    return res.status(404).json({ message: "Offer not found" });
+    return res.status(404).json({ error:true, message: ERRORS.OFFER_NOT_FOUND });
   }
 
   const offer = result.rows[0];
@@ -22,12 +23,13 @@ const B_SA =  async (req, res, next) => {
   }
 
   // BUSINESS CAN ONLY EDIT THEIR OWN OFFERS
-  if (user.id === offer.business_id) {
+  if (user.accountType==='business' && user.id === offer.business_id) {
     return next();
   }
 
   return res.status(403).json({ 
-    message: "You do not have permission to edit this offer" 
+    error:true,
+    message: ERRORS.YOU_DONT_HAVE_PREMMISSION_TO_EDIT_THIS_OFFER
   });
 };
 

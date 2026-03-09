@@ -145,7 +145,7 @@ const ClientLogin = () => {
           {/* Submit Button */}
           <button
             onClick={()=>{
-              login(setError , formData , navigate , setLoading ,setUser, setFieldErrors)
+              login(setError , formData , navigate , setLoading ,setUser, setFieldErrors , t)
             }}
             className="w-full py-4 text-base font-semibold text-white bg-[#1A423A] rounded-full hover:bg-[#083d30] transition-colors mb-4"
           >

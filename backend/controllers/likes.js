@@ -1,8 +1,16 @@
+import ERRORS from "../config/errors.js";
 import { pool } from "../index.js";
 
 export const createLike = async (req, res) => {
   const user_id = req.user.id;
   const { offer_id } = req.params;
+
+    if(!user_id){
+    return res.status(400).json({
+      error:true,
+      message:ERRORS.NOT_AUTHENTICATED
+    })
+  }
 
   try {
     // Create like (unique constraint prevents duplicates)
@@ -27,13 +35,20 @@ export const createLike = async (req, res) => {
 
   } catch (err) {
     console.log(err);
-    return res.status(500).json({ message: "server_error" });
+    return res.status(500).json({ message: ERRORS.SERVER_ERROR });
   }
 };
 
 export const deleteLike = async (req, res) => {
   const user_id = req.user.id;
   const { offer_id } = req.params;
+
+    if(!user_id){
+    return res.status(400).json({
+      error:true,
+      message:ERRORS.NOT_AUTHENTICATED
+    })
+  }
 
   try {
     const result = await pool.query(
@@ -46,13 +61,13 @@ export const deleteLike = async (req, res) => {
     );
 
     if (result.rowCount === 0) {
-      return res.status(404).json({ message: "not_liked_yet" });
+      return res.status(404).json({error:true, message: ERRORS.NOT_LIKED_YET });
     }
 
     res.status(200).json({ message: "like_removed" });
 
   } catch (err) {
     console.log(err);
-    return res.status(500).json({ message: "server_error" });
+    return res.status(500).json({ message: ERRORS.SERVER_ERROR });
   }
 };

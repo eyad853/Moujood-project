@@ -12,10 +12,13 @@ import socket from '../../Socket';
 import { deleteNotification } from '../../api/notifications';
 import PageError from '../../components/PageError/PageError';
 import { useTranslation } from 'react-i18next'
+import { useError } from '../../context/error';
+import SmallError from '../../components/SmallError/SmallError';
 
 const Notifications = () => {
   const navigate = useNavigate();
-  const [error ,setError]=useState('')
+  const [pageError , setPageError]=useState('')
+  const {smallError , setSmallError}=useError()
   const [loading , setLoading]=useState(false)
   const [notifications , setNotifications]=useState([])
   const {user}=useUser()
@@ -28,12 +31,20 @@ const Notifications = () => {
   const get = async () => {
     try {
       setLoading(true);
-      await fetchMyNotifications(user?.accountType,setNotifications,setError);
+      await fetchMyNotifications(user?.accountType,setNotifications,setPageError , t);
       if(notifications.length>0){
-        await markAllNotificationsAsRead(user?.accountType,notifications,setNotifications,setError);
+        await markAllNotificationsAsRead(user?.accountType,notifications,setNotifications,setPageError , t);
       }
     } catch (err) {
-      setError(err);
+        if (err.response?.data?.message) {
+            setPageError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setPageError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setPageError(t(`errors:${err.message}`))
+        } else {
+            setPageError(t("errors:SOMETHING_WENT_WRONG"))
+        }
     } finally {
       setLoading(false);
     }
@@ -85,40 +96,45 @@ const Notifications = () => {
       )
     }
 
+    if (pageError) {
+      return (
+        <div className="fixed inset-0">
+          <PageError error={pageError} />
+        </div>
+      );
+    }
+
     const timeAgo = (dateString) => {
-  const now = new Date();
-  const date = new Date(dateString);
-  const seconds = Math.floor((now - date) / 1000);
+      const now = new Date();
+      const date = new Date(dateString);
+      const seconds = Math.floor((now - date) / 1000);
 
-  const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
+      const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
 
-  if (seconds < 60) return rtf.format(-seconds, "second");
+      if (seconds < 60) return rtf.format(-seconds, "second");
 
-  const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return rtf.format(-minutes, "minute");
+      const minutes = Math.floor(seconds / 60);
+      if (minutes < 60) return rtf.format(-minutes, "minute");
 
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return rtf.format(-hours, "hour");
+      const hours = Math.floor(minutes / 60);
+      if (hours < 24) return rtf.format(-hours, "hour");
 
-  const days = Math.floor(hours / 24);
-  if (days < 7) return rtf.format(-days, "day");
+      const days = Math.floor(hours / 24);
+      if (days < 7) return rtf.format(-days, "day");
 
-  const weeks = Math.floor(days / 7);
-  if (weeks < 4) return rtf.format(-weeks, "week");
+      const weeks = Math.floor(days / 7);
+      if (weeks < 4) return rtf.format(-weeks, "week");
 
-  const months = Math.floor(days / 30);
-  if (months < 12) return rtf.format(-months, "month");
+      const months = Math.floor(days / 30);
+      if (months < 12) return rtf.format(-months, "month");
 
-  const years = Math.floor(days / 365);
-  return rtf.format(-years, "year");
-};
+      const years = Math.floor(days / 365);
+      return rtf.format(-years, "year");
+    };
 
 
   return (
     <div className="min-h-screen bg-white pb-20">
-      {error?(
-        <PageError />
-      ):(<>
       {/* Header */}
       <div className="bg-white px-5 py-4 border-b border-gray-200 sticky top-0 z-20">
         <div className="flex items-center justify-center relative">
@@ -154,7 +170,7 @@ const Notifications = () => {
                 <div 
                 onClick={(e)=>{
                   e.stopPropagation()
-                  deleteNotification(notification?.id , user?.accountType , setError , setNotifications)
+                  deleteNotification(notification?.id , user?.accountType , setSmallError , setNotifications , t)
                 }}
                 className="p-1.5"><X size={16}/></div>
               </div>
@@ -190,7 +206,11 @@ const Notifications = () => {
         }}
         notificationId={selectedNotification?.id}
       />)}
-      </>)}
+
+      {smallError&&(
+        <SmallError message={smallError} onClose={()=>{setSmallError('')}}/>
+        )
+      }
     </div>
   );
 };

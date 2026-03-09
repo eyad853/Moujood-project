@@ -1,3 +1,4 @@
+import ERRORS from "../config/errors.js";
 import { pool } from "../index.js"
 
 // 1️⃣ Get all businesses with total per business
@@ -21,8 +22,8 @@ export const getBusinessPageData = async (req, res) => {
 
     res.json(rows);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Failed to fetch businesses data" });
+    console.log(err);
+    res.status(500).json({ message: ERRORS.SERVER_ERROR });
   }
 };
 
@@ -129,8 +130,8 @@ export const getUserPageData = async (req, res) => {
       percentage_female
     });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Failed to fetch users data" });
+    console.log(err);
+    res.status(500).json({ message: ERRORS.SERVER_ERROR });
   }
 };
 
@@ -189,8 +190,8 @@ export const getDashboardPageData = async (req, res) => {
     });
 
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Failed to fetch dashboard data" });
+    console.log(err);
+    res.status(500).json({ message: ERRORS.SERVER_ERROR });
   }
 };
 
@@ -201,7 +202,7 @@ export const editBusinessActivity = async (req, res) => {
     // get current status
     const businessRes = await pool.query(`SELECT active FROM businesses WHERE id=$1`, [businessId]);
     if (businessRes.rows.length === 0)
-      return res.status(404).json({ message: "Business not found" });
+      return res.status(404).json({error:true, message: ERRORS.BUSINESS_NOT_FOUND });
 
     const currentStatus = businessRes.rows[0].active;
     const newStatus = !currentStatus;
@@ -210,8 +211,8 @@ export const editBusinessActivity = async (req, res) => {
 
     res.json({ message: `Business is now ${newStatus ? "active" : "inactive"}`, active: newStatus });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Failed to update business activity" });
+    console.log(err);
+    res.status(500).json({ message: ERRORS.SERVER_ERROR });
   }
 };
 
@@ -249,10 +250,10 @@ export const getCategoriesPageData = async (req, res) => {
     });
 
   } catch (err) {
-    console.error(err);
+    console.log(err);
     res.status(500).json({
       error: true,
-      message: "Failed to load categories page"
+      message: ERRORS.SERVER_ERROR
     });
   }
 };
@@ -286,7 +287,7 @@ export const getOffersPageData = async (req, res) => {
 
     res.status(200).json(result.rows);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Failed to load offers page data' });
+    console.log(err);
+    res.status(500).json({ message: ERRORS.SERVER_ERROR });
   }
 };

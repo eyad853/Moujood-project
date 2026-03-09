@@ -7,7 +7,7 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const phoneRegex = /^[0-9]{10,15}$/;
 const passwordRegex =/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&^#()_\-+=])[A-Za-z\d@$!%*?&^#()_\-+=]{10,64}$/;
 
-export const localAuth = async(setError , data ,navigate , setLoading , fromSuperAdminPage , setUser , setFieldErrors)=>{
+export const localAuth = async(setError , data ,navigate , setLoading , fromSuperAdminPage , setUser , setFieldErrors , t) => {
     try{
       setLoading(true)
       setError('')
@@ -15,82 +15,97 @@ export const localAuth = async(setError , data ,navigate , setLoading , fromSupe
 
     // Name
     if (!fromSuperAdminPage&&!data.name || data?.name?.trim().length < 3) {
-      setError('Name must be at least 3 characters');
-      setFieldErrors({ name: true });
+      setError(t('limits:NAME_MIN'));
+      setFieldErrors(prev=>({...prev ,  name: true }));
       return;
     }
 
     // Email
     if (!data.email || !emailRegex.test(data.email)) {
-      setError('Please enter a valid email (example@gmail.com)');
-      setFieldErrors({ email: true });
+      setError(t('limits:EMAIL_INVALID'));
+      setFieldErrors(prev=>({...prev , email: true }));
       return;
     }
 
-    // Password
-    if (!data.password || data.password.length < 6) {
-      setError('Password must be at least 6 characters');
-      setFieldErrors({ password: true });
-      return;
+    const errors = [];
+
+    if (!data.password || data.password.length < 8) {
+      errors.push(t("limits:PASSWORD_MIN"));
     }
 
-    if (!data.confirm_password || data.confirm_password.length < 6) {
-      setError('Confirm password must be at least 6 characters long');
-      setFieldErrors({ confirm_password: true });
+    if (!/[a-z]/.test(data.password)) {
+      errors.push(t("limits:PASSWORD_LOWERCASE"));
+    }
+
+    if (!/[A-Z]/.test(data.password)) {
+      errors.push(t('limits:PASSWORD_UPPERCASE'));
+    }
+
+    if (!/[@$!%*?&^#()_\-+=]/.test(data.password)) {
+      errors.push(t('limits:PASSWORD_SPECIAL'));
+    }
+
+    if (errors.length > 0) {
+      setError(errors.join("\n"));
+      setFieldErrors(prev => ({ ...prev, password: true }));
       return;
     }
 
     // Confirm password
-    if (data.confirm_password&&data.password !== data.confirm_password) {
-      setError('Password and confirm password do not match');
-      setFieldErrors({ confirm_password: true });
+    if (data.confirm_password && data.password !== data.confirm_password) {
+      setError(t('limits:PASSWORD_CONFIRM_MATCH'));
+      setFieldErrors(prev=>({...prev , confirm_password: true }));
       return;
     }
 
     // Gender
     if (!fromSuperAdminPage&&!data.gender) {
-      setError('Please select your gender');
-      setFieldErrors({ gender: true });
+      setError(t('limits:GENDER_REQUIRED'));
+      setFieldErrors(prev=>({...prev , gender: true }));
       return;
     }
 
     // Governorate
     if (!fromSuperAdminPage&&!data.governorate) {
-      setError('Please select your governorate');
-      setFieldErrors({ governorate: true });
+      setError(t('limits:GOVERNORATE_REQUIRED'));
+      setFieldErrors(prev=>({...prev, governorate: true }));
       return;
     }
 
     // Terms
     if (!fromSuperAdminPage && !data.acceptTerms) {
-      setError('Please accept the terms and conditions');
+      setError(t('limits:TERMS_REQUIRED'));
       return;
     }
 
         const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/local` , data , {withCredentials:true})
         
-        if(!response.error){
+        if(!response?.data?.account){
             navigate(`/verify_email`, {
               state:{
                 email:data.email,
                 accountType:'user'
               }
             })
+        }else{
+          navigate('/super_admin/dashboard')
         }
     }catch(err){
         if (err.response?.data?.message) {
-            setError(err.response.data.message)
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
         } else if (err.message) {
-            setError(err.message)
+            setError(t(`errors:${err.message}`))
         } else {
-            setError('Something went wrong')
+            setError(t("errors:SOMETHING_WENT_WRONG"))
         }
     } finally{
       setLoading(false)
     }
 }
 
-export const login = async (setError, data, navigate , setLoading , setUser , setFieldErrors) => {
+export const login = async (setError, data, navigate , setLoading , setUser , setFieldErrors , t) => {
   try {
     setLoading(true)
     setError('')
@@ -100,14 +115,14 @@ export const login = async (setError, data, navigate , setLoading , setUser , se
 
 
     if (!data.email || !emailRegex.test(data.email)) {
-      setError('Please enter a valid email (example@gmail.com)');
-      setFieldErrors({ email: true });
+      setError(t('limits:EMAIL_INVALID'));
+      setFieldErrors(prev=>({...prev , email: true }));
       return;
     }
 
-    if (!data.password || data.password.length < 6) {
-      setError('Password must be at least 6 characters');
-      setFieldErrors({ password: true });
+    if (!data.password) {
+      setError(t('limits:PASSWORD_REQUIRED'));
+      setFieldErrors(prev=>({...prev , password: true }));
       return;
     }
 
@@ -130,19 +145,21 @@ export const login = async (setError, data, navigate , setLoading , setUser , se
     }
 
   } catch (err) {
-    if (err.response?.data?.message) {
-      setError(err.response.data.message);
-    } else if (err.message) {
-      setError(err.message);
-    } else {
-      setError("Something went wrong");
-    }
+        if (err.response?.data?.message) {
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setError(t(`errors:${err.message}`))
+        } else {
+            setError(t("errors:SOMETHING_WENT_WRONG"))
+        }
   }finally{
     setLoading(false)
   }
 };
 
-export const businessAuth = async(setError , data ,navigate , setLoading , setUser , setFieldErrors)=>{
+export const businessAuth = async(setError , data ,navigate , setLoading , setUser , setFieldErrors , t)=>{
     try{
 
       setLoading(true)
@@ -150,61 +167,80 @@ export const businessAuth = async(setError , data ,navigate , setLoading , setUs
       setFieldErrors({});
 
       if (!data.name || data.name.trim().length < 3) {
-      setError('Business name must be at least 3 characters');
-      setFieldErrors({ name: true });
+        setError(t('limits:BUSINESS_NAME_MIN'));
+        setFieldErrors(prev=>({...prev ,  name: true }));
+        return;
+      }
+
+      if (!data.email || !emailRegex.test(data.email)) {
+        setError(t('limits:EMAIL_INVALID'));
+        setFieldErrors(prev=>({...prev , email: true }));
+        return;
+      }
+
+    const errors = [];
+
+    if (!data.password || data.password.length < 8) {
+      errors.push(t("limits:PASSWORD_MIN"));
+    }
+
+    if (!/[a-z]/.test(data.password)) {
+      errors.push(t("limits:PASSWORD_LOWERCASE"));
+    }
+
+    if (!/[A-Z]/.test(data.password)) {
+      errors.push(t('limits:PASSWORD_UPPERCASE'));
+    }
+
+    if (!/[@$!%*?&^#()_\-+=]/.test(data.password)) {
+      errors.push(t('limits:PASSWORD_SPECIAL'));
+    }
+
+    if (errors.length > 0) {
+      setError(errors.join("\n"));
+      setFieldErrors(prev => ({ ...prev, password: true }));
       return;
     }
 
-    if (!data.email || !emailRegex.test(data.email)) {
-      setError('Please enter a valid email (example@gmail.com)');
-      setFieldErrors({ email: true });
-      return;
-    }
-
-    if (!data.password || data.password.length < 6) {
-      setError('Password must be at least 6 characters');
-      setFieldErrors({ password: true });
-      return;
-    }
-
-    if (!data.confirm_password || data.confirm_password.length < 6) {
-      setError('Confirm password must be at least 6 characters long');
-      setFieldErrors({ confirm_password: true });
-      return;
-    }
-
-    if (data.confirm_password&&data.password !== data.confirm_password) {
-      setError('Passwords do not match');
-      setFieldErrors({ confirm_password: true });
+    // Confirm password
+    if (data.confirm_password && data.password !== data.confirm_password) {
+      setError(t('limits:PASSWORD_CONFIRM_MATCH'));
+      setFieldErrors(prev=>({...prev , confirm_password: true }));
       return;
     }
 
     if (!data.category) {
-      setError('Please select a category');
-      setFieldErrors({ category: true });
+      setError(t('limits:CATEGORY_SELECT'));
+      setFieldErrors(prev=>({...prev ,  category: true }));
       return;
     }
 
     if (!data.logo) {
-      setError('Please upload a logo');
-      setFieldErrors({ logo: true });
+      setError(t('limits:LOGO_REQUIRED'));
+      setFieldErrors(prev=>({...prev ,  logo: true }));
       return;
     }
 
     if (!data.description || data.description.length < 10) {
-      setError('Description must be at least 10 characters');
-      setFieldErrors({ description: true });
+      setError(t('limits:DESCRIPTION_MIN'));
+      setFieldErrors(prev=>({...prev ,  description: true }));
       return;
     }
 
     if (!data.number) {
-      setError('Please enter a phone number');
-      setFieldErrors({ number: true });
+      setError(t("limits:PHONE_REQUIRED"));
+      setFieldErrors(prev => ({ ...prev, number: true }));
+      return;
+    }
+    
+    if (!phoneRegex.test(data.number)) {
+      setError(t("limits:PHONE_INVALID"));
+      setFieldErrors(prev => ({ ...prev, number: true }));
       return;
     }
 
     if (!data.acceptTerms) {
-      setError('Please accept the terms and conditions');
+      setError(t('limits:TERMS_REQUIRED'));
       return;
     }
 
@@ -234,11 +270,13 @@ export const businessAuth = async(setError , data ,navigate , setLoading , setUs
         }
     }catch(err){
         if (err.response?.data?.message) {
-            setError(err.response.data.message)
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
         } else if (err.message) {
-            setError(err.message)
+            setError(t(`errors:${err.message}`))
         } else {
-            setError('Something went wrong')
+            setError(t("errors:SOMETHING_WENT_WRONG"))
         }
     } finally{
       setLoading(false)
@@ -281,7 +319,7 @@ export const handleFacebookAuth =async (navigate , setUser)=>{
   }
 }
 
-export const getUser = async(setLoading , setUser , setError)=>{
+export const getUser = async(setLoading , setUser , setError , setToken , t)=>{
   try {
     setLoading(true)
     setError('')
@@ -289,94 +327,112 @@ export const getUser = async(setLoading , setUser , setError)=>{
     const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/auth/me`,{
       withCredentials: true 
     });
-
-    setUser(response.data); 
-
-    console.log(response.data);
+    console.log(response.data.account);
+    setUser(response.data.account); 
+    setToken(response.data.hasToken)
+    
+    console.log(response.data.account);
   } catch (err) {
       setUser(null);
 
-    if (err.response?.data?.message) {
-        setError(err.response.data.message)
-    } else if (err.message) {
-        setError(err.message)
-    } else {
-        setError('Something went wrong')
-    }
+        if (err.response?.data?.message) {
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setError(t(`errors:${err.message}`))
+        } else {
+            setError(t("errors:SOMETHING_WENT_WRONG"))
+        }
     
-      } finally{
-        setLoading(false)
-      }
-    }
+  } finally{
+    setLoading(false)
+  }
+}
 
-export const editAccount = async (formData, setLoading, setError , setUser , user , setFieldErrors , setFullError , isFromProfile) => {
+export const editAccount = async (formData, setLoading, setError , setUser , user , setFieldErrors , isFromProfile , t) => {
   try {
     setLoading(true)
     setError('')
-    setFullError('')
     setFieldErrors({});
 
     // --- General Validations ---
     if (isFromProfile&&!formData.name) {
-      setError('Name is required');
+      setError(t("limits:NAME_REQUIRED"));
       setFieldErrors(prev=>({...prev , name:true}))
       return;
     }
 
     if (isFromProfile&&!formData.email || !emailRegex.test(formData.email)) {
-      setError('Email is required');
+      setError(t("limits:EMAIL_REQUIRED"));
       setFieldErrors(prev=>({...prev , email:true}))
       return;
     }
 
-      if (!isFromProfile&&!formData.password) {
-        setError('Current password is required to change password');
-        setFieldErrors(prev=>({...prev , password:true}))
+      if (!isFromProfile && !formData.password) {
+        setError(t("limits:CURRENT_PASSWORD_REQUIRED"));
+        setFieldErrors(prev => ({ ...prev, password: true }));
         return;
       }
-      if (!isFromProfile&&!formData.newPassword) {
-        setError('New password is required');
-        setFieldErrors(prev=>({...prev , newPassword:true}))
+
+      if (!isFromProfile && !formData.newPassword) {
+        setError(t("limits:NEW_PASSWORD_REQUIRED"));
+        setFieldErrors(prev => ({ ...prev, newPassword: true }));
         return;
       }
-      if (!isFromProfile&&!formData.confirmPassword) {
-        setError('Please confirm your new password');
-        setFieldErrors(prev=>({...prev , confirmPassword:true}))
+
+      if (!isFromProfile && !passwordRegex.test(formData.newPassword)) {
+        setError(t("limits:NEW_PASSWORD_LIMITS"));
+        setFieldErrors(prev => ({ ...prev, newPassword: true }));
         return;
       }
+
+      if (!isFromProfile && !formData.confirmPassword) {
+        setError(t("limits:CONFIRM_PASSWORD_REQUIRED"));
+        setFieldErrors(prev => ({ ...prev, confirmPassword: true }));
+        return;
+      }
+
       if (formData.newPassword !== formData.confirmPassword) {
-        setError('Confirm password does not match the new password');
+        setError(t('limits:CONFIRM_PASSWORD_MATCH'));
+        setFieldErrors(prev => ({ ...prev, confirmPassword: true }));
         return;
       }
 
     // --- Account Type Specific Validations ---
     if (isFromProfile&&user?.accountType === 'user') {
       if (!formData.gender) {
-        setError('Gender is required');
+        setError(t('limits:GENDER_REQUIRED'));
         setFieldErrors(prev=>({...prev , gender:true}))
         return;
       }
       if (!formData.governorate) {
-        setError('Governorate is required');
+        setError(t('limits:GOVERNORATE_REQUIRED'));
         setFieldErrors(prev=>({...prev , governorate:true}))
         return;
       }
     } else if (isFromProfile&&user?.accountType === 'business') {
       if (!formData.category) {
-        setError('Category is required');
+        setError(t('limits:CATEGORY_REQUIRED'));
         setFieldErrors(prev=>({...prev , category:true}))
         return;
       }
       if (!formData.description) {
-        setError('Description is required');
+        setError(t('limits:DESCRIPTION_REQUIRED'));
         setFieldErrors(prev=>({...prev , description:true}))
         return;
       }
-      if (!formData.number) {
-        setError('Number is required');
-        setFieldErrors(prev=>({...prev , number:true}))
-        return;
-      }
+          if (!formData.number) {
+            setError(t("limits:PHONE_REQUIRED"));
+            setFieldErrors(prev => ({ ...prev, number: true }));
+            return;
+          }
+
+          if (!phoneRegex.test(formData.number)) {
+            setError(t("limits:PHONE_INVALID"));
+            setFieldErrors(prev => ({ ...prev, number: true }));
+            return;
+          }
     }
 
     const fm = new FormData()
@@ -440,29 +496,24 @@ export const editAccount = async (formData, setLoading, setError , setUser , use
       return { success: true, message: response.data.message }
     }
 
-    console.log(response);
-
     
   } catch (err) {
-    if (err.response?.data?.message) {
-      setFullError(err.response.data.message);
-    } else if (err.message) {
-      setFullError(err.message);
-    } else {
-      setFullError("Something went wrong");
-    }
+        if (err.response?.data?.message) {
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setError(t(`errors:${err.message}`))
+        } else {
+            setError(t("errors:SOMETHING_WENT_WRONG"))
+        }
     return { success: false };
   } finally {
     setLoading(false);
   }
 };
 
-export const logout = async (
-  setError,
-  navigate,
-  setUser,
-  setLoading
-) => {
+export const logout = async (setError,navigate,setUser,setLoading , t) => {
   try {
     setLoading(true);
 
@@ -478,19 +529,21 @@ export const logout = async (
     // navigate after successful logout
     navigate("/login");
   } catch (err) {
-    if (err.response?.data?.message) {
-      setError(err.response.data.message);
-    } else if (err.message) {
-      setError(err.message);
-    } else {
-      setError("Something went wrong");
-    }
+        if (err.response?.data?.message) {
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setError(t(`errors:${err.message}`))
+        } else {
+            setError(t("errors:SOMETHING_WENT_WRONG"))
+        }
   } finally {
     setLoading(false);
   }
 };
 
-export const handleResendEmail = async (setIsResending , setResendSuccess , setCountdown , setError) => {
+export const handleResendEmail = async (setIsResending , setResendSuccess , setCountdown , setError , t , email , accountType) => {
   setIsResending(true);
 
   try {
@@ -498,7 +551,7 @@ export const handleResendEmail = async (setIsResending , setResendSuccess , setC
       `${import.meta.env.VITE_BACKEND_URL}/auth/resend-verify-email`,
       {
         email,
-        accountType, // "user" or "business"
+        accountType,
       }
     );
 
@@ -514,28 +567,47 @@ export const handleResendEmail = async (setIsResending , setResendSuccess , setC
 
   } catch (err) {
     console.error(err);
-    if (err.response?.data?.message) {
-      setError(error.response?.data?.message || 'Verification failed. The link may be invalid or expired.');
-    } else {
-      setError(error.response?.message || 'Verification failed. The link may be invalid or expired.');
-    }
+        if (err.response?.data?.message) {
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setError(t(`errors:${err.message}`))
+        } else {
+            setError(t("errors:SOMETHING_WENT_WRONG"))
+        }
   }
 };
 
-export const verifyToken = async(setLoading , setUser , setAccountType , setError)=>{
+export const verifyToken = async(setLoading , setUser , setAccountType , setError , token , t)=>{
   try{
     setLoading(true)
       const { deviceToken, deviceId } = await getDeviceInfo();
       const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/verify-email/${token}` , {deviceId , deviceToken} , {withCredentials:true})
-      if(!response.data.error){
         console.log(response.data.account)
         setUser(response.data.account)
         setAccountType(response.data.account.accountType)
-      }
-    }catch(error){
-      console.log(error);
-      setError(error.response?.data?.message || 'Verification failed. The link may be invalid or expired.');
+    }catch(err){
+      console.log(err);
+        if (err.response?.data?.message) {
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setError(t(`errors:${err.message}`))
+        } else {
+            setError(t("errors:SOMETHING_WENT_WRONG"))
+        }
     }finally{
       setLoading(false)
     }
+}
+
+export const handleCreateToken = async()=>{
+  try{
+    const { deviceToken, deviceId } = await getDeviceInfo();
+    const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/createToken` , {deviceId , deviceToken}, {withCredentials:true})
+  }catch(error){
+    console.log(error);
   }
+}

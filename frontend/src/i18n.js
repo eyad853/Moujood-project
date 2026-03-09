@@ -19,6 +19,9 @@ import enOfferDetailsSheet from './locales/en/offerDetailsSheet.json'
 import enOfferSheet from './locales/en/offerSheet.json'
 import enPasswordEditSheet from './locales/en/passwordEditSheet.json'
 import enVerifyEmail from './locales/en/verify_email.json'
+import enErrors from './locales/en/errors.json'
+import enLimits from './locales/en/limits.json'
+import enForgotPassword from './locales/en/forgotPassword.json'
 
 
 import arSignupAs from './locales/ar/signupAs.json'
@@ -38,6 +41,9 @@ import arOfferDetailsSheet from './locales/ar/offerDetailsSheet.json'
 import arOfferSheet from './locales/ar/offerSheet.json'
 import arPasswordEditSheet from './locales/ar/passwordEditSheet.json'
 import arVerifyEmail from './locales/ar/verify_email.json'
+import arErrors from './locales/ar/errors.json'
+import arLimits from './locales/ar/limits.json'
+import arForgotPassword from './locales/ar/forgotPassword.json'
 
 
 
@@ -64,7 +70,10 @@ i18n
             offerDetailsSheet:arOfferDetailsSheet,
             offerSheet:arOfferSheet,
             passwordEditSheet:arPasswordEditSheet,
-            verfiyEmail:arVerifyEmail
+            verfiyEmail:arVerifyEmail,
+            errors:arErrors,
+            limits:arLimits,
+            forgotPassword:arForgotPassword
         },
 
         en:{
@@ -84,11 +93,14 @@ i18n
             offerDetailsSheet:enOfferDetailsSheet,
             offerSheet:enOfferSheet,
             passwordEditSheet:enPasswordEditSheet,
-            verfiyEmail:enVerifyEmail
+            verfiyEmail:enVerifyEmail,
+            errors:enErrors,
+            limits:enLimits,
+            forgotPassword:enForgotPassword
         }
     },
     fallbackLng:"ar", 
-    ns: ['signupAs' , 'clientAuth' , 'businessAuth' , 'login' , 'settings', 'notification' , 'profile' , 'feed' , 'businessDashboard' , 'businessOffers','commentsSheet' , 'editProfileSheet' , 'offerDetailsSheet' , 'offerSheet' , 'passwordEditSheet' , 'verfiyEmail'],
+    ns: ['signupAs' , 'clientAuth' , 'businessAuth' , 'login' , 'settings', 'notification' , 'profile' , 'feed' , 'businessDashboard' , 'businessOffers','commentsSheet' , 'editProfileSheet' , 'offerDetailsSheet' , 'offerSheet' , 'passwordEditSheet' , 'verfiyEmail' , 'errors' , 'limits' , 'forgotPassword'],
     defaultNS:"signupAs",
     interpolation: { escapeValue: false }
 })

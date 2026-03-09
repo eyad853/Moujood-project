@@ -4,6 +4,8 @@ import { getCategoriesPageData } from '../../../api/super_admin_data';
 import Loadiing from '../../../components/Loadiing/Loadiing';
 import { createCategory , editCategory , deleteCategory } from '../../../api/categories';
 import PageError from '../../../components/PageError/PageError';
+import { useTranslation } from 'react-i18next';
+import { useError } from '../../../context/error';
 
 const SA_Categories = () => {
   const [view, setView] = useState('list'); // 'list' or 'form'
@@ -13,10 +15,10 @@ const SA_Categories = () => {
   const [editingCategory, setEditingCategory] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [categories , setCategories]=useState([])
-  const [error , setError]=useState(false)
   const [pageError , setPageError]=useState('')
-  const [smallError , setSmallError]=useState('')
+  const {setSmallError}=useError()
   const [loading , setLoading]=useState(false)
+  const {t}=useTranslation()
   const [formData, setFormData] = useState({
     name: '',
     image: null,
@@ -85,9 +87,17 @@ const SA_Categories = () => {
     const fetchData = async () => {
     try {
       setLoading(true);
-      await getCategoriesPageData(setError, setCategories);
-    } catch (error) {
-      console.log(error);
+      await getCategoriesPageData(setPageError, setCategories , t);
+    } catch (err) {
+        if (err.response?.data?.message) {
+            setPageError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setPageError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setPageError(t(`errors:${err.message}`))
+        } else {
+            setPageError(t("errors:SOMETHING_WENT_WRONG"))
+        }
     } finally {
       setLoading(false);
     }
@@ -97,8 +107,16 @@ const SA_Categories = () => {
   },[])
 
   if(loading){
-    return <Loadiing />
+    return <div className="w-full h-full">
+      <Loadiing />
+    </div> 
   }
+
+  if (pageError) {
+  return (
+      <PageError error={pageError} />
+  );
+}
 
   // Form View
   if (view === 'form') {
@@ -206,10 +224,10 @@ const SA_Categories = () => {
             <button
               onClick={()=>{
                 if(formMode==='add'){
-                  createCategory(setError , formData , imagePreview , setCategories)
+                  createCategory(setSmallError , formData , imagePreview , setCategories , t)
                   setView('list')
                 }else{
-                  editCategory(setError , formData , imagePreview ,editingCategory.id, setCategories)
+                  editCategory(setSmallError , formData , imagePreview ,editingCategory.id, setCategories , t)
                   setView('list')
                 }
               }}
@@ -232,11 +250,6 @@ const SA_Categories = () => {
   // List View
   return (
     <div className="w-full max-w-full overflow-hidden">
-      {pageError?(
-        <div className="w-full h-full">
-          <PageError />
-        </div>
-      ):(<>
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <h1 className="text-3xl font-bold text-gray-900">Categories</h1>
@@ -343,7 +356,7 @@ const SA_Categories = () => {
                     {/* Delete */}
                     <div className="col-span-1">
                       <button
-                        onClick={() => deleteCategory(setError,category.id,setCategories)}
+                        onClick={() => deleteCategory(setSmallError,category.id,setCategories , t)}
                         className="p-2 hover:bg-red-50 rounded-lg transition-colors"
                       >
                         <Trash2 size={18} className="text-gray-600" />
@@ -394,7 +407,7 @@ const SA_Categories = () => {
                       {/* Delete */}
                       <div className="col-span-1">
                         <button
-                          onClick={() => deleteCategory(setError , subcategory.id , setCategories)}
+                          onClick={() => deleteCategory(setSmallError , subcategory.id , setCategories , t)}
                           className="p-2 hover:bg-red-50 rounded-lg transition-colors"
                         >
                           <Trash2 size={18} className="text-gray-600" />
@@ -422,7 +435,6 @@ const SA_Categories = () => {
           <div className="flex justify-center items-center  font-bold text-gray-500">There's Not Any Categories Yet...</div>
         )}
       </div>
-      </>)}
     </div>
   );
 };

@@ -12,7 +12,6 @@ import { Server } from 'socket.io';
 import fs from 'fs'
 import authRouter from './routes/auth.js';
 import notificationsRouter from './routes/notifications.js';
-import settingsRouter from './routes/settings.js';
 import offersRouter from './routes/offers.js';
 import clientsRouter from './routes/clients.js';
 import businessRouter from './routes/business.js';
@@ -31,8 +30,7 @@ const app = express()
 const server = http.createServer(app);
 const io = new Server(server , {
   cors: {
-    origin:"*",
-    // [process.env.frontendURL, "https://localhost", "http://192.168.1.5:5173"]
+    origin:[process.env.frontendURL, "https://localhost", "http://192.168.1.5:5173"],
     credentials: true// Allow requests from this origin
   },
 });
@@ -133,7 +131,6 @@ io.on("connection", (socket) => {
 // Routers
 app.use('/auth', authRouter)
 app.use('/notifications', notificationsRouter)
-app.use('/settings', settingsRouter)
 app.use('/offers', offersRouter)
 app.use('/clients', clientsRouter)
 app.use('/businesses', businessRouter)
