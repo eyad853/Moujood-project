@@ -652,13 +652,13 @@ const BusinessSignup = () => {
           />
           <label htmlFor="acceptTerms" className="text-sm text-gray-600 leading-relaxed cursor-pointer">
               {t('terms.prefix')}{' '}
-              <a href="#" className="text-[#00875A] underline">
+              <Link to={'/business_Terms-&-Conditions'} href="#" className="text-[#00875A] underline">
                 {t('terms.termsLink')}
-              </a>{' '}
+              </Link>{' '}
               {t('terms.and')}{' '}
-              <a href="#" className="text-[#00875A] underline">
+              <Link to={'/business_Privacy_Policy'} href="#" className="text-[#00875A] underline">
                 {t('terms.privacyLink')}
-              </a>
+              </Link>
             </label>
         </div>
 

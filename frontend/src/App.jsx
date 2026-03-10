@@ -40,6 +40,12 @@ import VerifyEmail from './pages/VerifyEmail/VerifyEmail'
 import ForgotPassword from './pages/ForgotPassword/ForgotPassword';
 import { useState } from 'react';
 import { checkForAppUpdate } from './utils/check_version';
+import UpdateModal from './components/modals/UpdateModal/UpdateModal'
+import Client_Terms_And_Conditions from './pages/Terms_&_Conditions/Client_Terms_And_Conditions';
+import Business_Terms_And_Conditions from './pages/Terms_&_Conditions/Business_Terms_And_Conditions';
+import Client_Privacy_Policy from './pages/Privacy_Policy/Client_Privacy_Policy';
+import Business_Privacy_Policy from './pages/Privacy_Policy/Business_Privacy_Policy';
+console.log(import.meta.env.VITE_BACKEND_URL);
 
 
 const handleBackButton = () => {
@@ -66,6 +72,22 @@ const routes = [
     element:(
         <SignupAs />
   )
+  },
+  {
+    path:"/client_Terms-&-Conditions",
+    element:<Client_Terms_And_Conditions />
+  },
+  {
+    path:"/business_Terms-&-Conditions",
+    element:<Business_Terms_And_Conditions />
+  },
+  {
+    path:"/client_Privacy_Policy",
+    element:<Client_Privacy_Policy />
+  },
+  {
+    path:"/business_Privacy_Policy",
+    element:<Business_Privacy_Policy />
   },
   {
     path:'/client_sign_up',

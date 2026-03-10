@@ -157,6 +157,7 @@ export const getAllCategories = async (setError , setCategories , t)=>{
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/categories/getAllCategories`)
         setCategories(response.data.categories)
     }catch(err){
+        console.log(err);
         if (err.response?.data?.message) {
             setError(t(`errors:${err.response.data.message}`))
         } else if (err.message === "Network Error") {

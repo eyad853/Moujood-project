@@ -8,7 +8,7 @@ const UserContext = createContext();
 
 export const AccountProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading , setLoading]=useState(false)
+  const [loading , setLoading]=useState(true)
   const [error , setError]=useState('')
   const [token , setToken]=useState(null)
   const {t} = useTranslation()

@@ -30,7 +30,7 @@ const app = express()
 const server = http.createServer(app);
 const io = new Server(server , {
   cors: {
-    origin:[process.env.frontendURL, "https://localhost", "http://192.168.1.5:5173"],
+    origin:[process.env.frontendURL , 'http://localhost:5173'],
     credentials: true// Allow requests from this origin
   },
 });
@@ -46,7 +46,7 @@ export const pool = new Pool({
 app.set('io' , io)
 
 app.use(cors({
-    origin:[process.env.frontendURL, "https://localhost", "http://192.168.1.5:5173"],
+    origin:[process.env.frontendURL , 'http://localhost:5173'],
     credentials: true
 }))
 

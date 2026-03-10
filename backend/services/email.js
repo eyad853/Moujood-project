@@ -3,7 +3,7 @@ dotenv.config()
 import { transporter } from "../config/mail.js";
 
 export const sendVerificationEmail = async (email, token) => {
-  const verificationLink = `${process.env.frontendURL}/verify_email?token=${token}`;
+  const verificationLink = `https://moujood-project.vercel.app/verify_email?token=${token}`;
 
   const mailOptions = {
     to: email,
@@ -197,7 +197,7 @@ export const sendVerificationEmail = async (email, token) => {
 };
 
 export const sendForgotPasswordEmail = async (email, token) => {
-  const resetLink = `${process.env.frontendURL}/forgot-password?token=${token}`;
+  const resetLink = `https://moujood-project.vercel.app/forgot-password?token=${token}`;
 
   const mailOptions = {
     to: email,
