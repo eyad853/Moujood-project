@@ -319,18 +319,29 @@ const App = () => {
   }, [])
 
   
+  // CapApp.addListener("appUrlOpen", (event) => {
+  //     try {
+  //       const path = event.url.split("app")[1]; // "/business/home"
+  //       if (path) {
+  //         router.navigate(path);
+  //       }
+  //     } catch (err) {
+  //       console.log("Deep link error:", err);
+  //     }
+  // });
+
+
   CapApp.addListener("appUrlOpen", (event) => {
-      try {
-        const path = event.url.split("app")[1]; // "/business/home"
-        if (path) {
-          router.navigate(path);
-        }
-      } catch (err) {
-        console.log("Deep link error:", err);
-      }
-  });
+  try {
+    const url = new URL(event.url);
 
+    const path = url.pathname + url.search;
 
+    router.navigate(path);
+  } catch (err) {
+    console.log("Deep link error:", err);
+  }
+});
 
   return (
     <>
