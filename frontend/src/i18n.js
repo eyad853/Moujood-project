@@ -22,6 +22,7 @@ import enVerifyEmail from './locales/en/verify_email.json'
 import enErrors from './locales/en/errors.json'
 import enLimits from './locales/en/limits.json'
 import enForgotPassword from './locales/en/forgotPassword.json'
+import enUpdateModal from './locales/en/updateModal.json'
 
 
 import arSignupAs from './locales/ar/signupAs.json'
@@ -44,6 +45,7 @@ import arVerifyEmail from './locales/ar/verify_email.json'
 import arErrors from './locales/ar/errors.json'
 import arLimits from './locales/ar/limits.json'
 import arForgotPassword from './locales/ar/forgotPassword.json'
+import arUpdateModal from './locales/ar/updateModal.json'
 
 
 
@@ -73,7 +75,8 @@ i18n
             verfiyEmail:arVerifyEmail,
             errors:arErrors,
             limits:arLimits,
-            forgotPassword:arForgotPassword
+            forgotPassword:arForgotPassword,
+            updateModal:arUpdateModal
         },
 
         en:{
@@ -96,11 +99,12 @@ i18n
             verfiyEmail:enVerifyEmail,
             errors:enErrors,
             limits:enLimits,
-            forgotPassword:enForgotPassword
+            forgotPassword:enForgotPassword,
+            updateModal:enUpdateModal
         }
     },
     fallbackLng:"ar", 
-    ns: ['signupAs' , 'clientAuth' , 'businessAuth' , 'login' , 'settings', 'notification' , 'profile' , 'feed' , 'businessDashboard' , 'businessOffers','commentsSheet' , 'editProfileSheet' , 'offerDetailsSheet' , 'offerSheet' , 'passwordEditSheet' , 'verfiyEmail' , 'errors' , 'limits' , 'forgotPassword'],
+    ns: ['signupAs' , 'clientAuth' , 'businessAuth' , 'login' , 'settings', 'notification' , 'profile' , 'feed' , 'businessDashboard' , 'businessOffers','commentsSheet' , 'editProfileSheet' , 'offerDetailsSheet' , 'offerSheet' , 'passwordEditSheet' , 'verfiyEmail' , 'errors' , 'limits' , 'forgotPassword' , 'updateModal'],
     defaultNS:"signupAs",
     interpolation: { escapeValue: false }
 })

@@ -285,16 +285,30 @@ export const businessAuth = async(setError , data ,navigate , setLoading , setUs
 
 export const handleGoogleAuth = async (navigate , setUser)=>{
   try{
+    if(SocialLogin) return
+
     const res = await SocialLogin.login({
       provider: 'google',
-      options: {}
+      options: {
+        scopes: ['email', 'profile'],
+      }
     })
-    const idToken = res.result.idToken
+    console.log(res);
 
-    const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/google` , idToken)
-    if(!response.data.error){
+    if (!res?.result?.idToken) {
+      console.log("Google login failed: no idToken returned");
+      return; // stop the function
+    }
+
+    const idToken = res.result.idToken;
+    console.log("idToken : ",idToken);
+
+    const { deviceToken, deviceId } = await getDeviceInfo();
+
+    const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/google` , {idToken , deviceId , deviceToken} , {withCredentials:true})
+    if(response?.data?.account){
       setUser(response.data.account)
-      navigate('/client/feed')
+      navigate(response.data.account.accountType==='user'?'/client/feed':"/business/dashboard")
     }
   }catch(error){
     console.log(error);
@@ -303,16 +317,32 @@ export const handleGoogleAuth = async (navigate , setUser)=>{
 
 export const handleFacebookAuth =async (navigate , setUser)=>{
     try{
+      if(SocialLogin) return
+
+
     const res = await SocialLogin.login({
       provider: 'facebook',
-      options: {}
+      options: {
+        permissions: ['email', 'public_profile'],
+      }
     })
-    const accessToken = res.result.accessToken
+    console.log(res);
 
-    const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/facebook` , accessToken)
-    if(!response.data.error){
+
+    if(!res?.result?.accessToken){
+      console.log('facebook login faile: no accessToken returned');
+      return
+    }
+
+    const accessToken = res.result.accessToken
+    console.log("accessToken : ",accessToken);
+
+    const { deviceToken, deviceId } = await getDeviceInfo();
+
+    const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/facebook` , {accessToken , deviceToken , deviceId} , {withCredentials:true})
+    if(response?.data?.account){
       setUser(response.data.account)
-      navigate('/client/feed')
+      navigate(response.data.account.accountType==='user'?'/client/feed':"/business/dashboard")
     }
   }catch(error){
     console.log(error);
@@ -333,18 +363,7 @@ export const getUser = async(setLoading , setUser , setError , setToken , t)=>{
     
     console.log(response.data.account);
   } catch (err) {
-      setUser(null);
-
-        if (err.response?.data?.message) {
-            setError(t(`errors:${err.response.data.message}`))
-        } else if (err.message === "Network Error") {
-            setError(t("errors:NETWORK_ERROR"))
-        } else if (err.message) {
-            setError(t(`errors:${err.message}`))
-        } else {
-            setError(t("errors:SOMETHING_WENT_WRONG"))
-        }
-    
+      setUser(null);    
   } finally{
     setLoading(false)
   }
@@ -584,9 +603,10 @@ export const verifyToken = async(setLoading , setUser , setAccountType , setErro
     setLoading(true)
       const { deviceToken, deviceId } = await getDeviceInfo();
       const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/verify-email/${token}` , {deviceId , deviceToken} , {withCredentials:true})
-        console.log(response.data.account)
-        setUser(response.data.account)
-        setAccountType(response.data.account.accountType)
+      console.log('response :' , response);
+      console.log("account :"  , response.data.account)
+      setUser(response.data.account)
+      setAccountType(response.data.account.accountType)
     }catch(err){
       console.log(err);
         if (err.response?.data?.message) {

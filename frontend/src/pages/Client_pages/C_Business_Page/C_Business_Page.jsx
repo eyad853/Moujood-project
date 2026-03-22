@@ -29,8 +29,7 @@ const C_Business_Page = ({businessId}) => {
   const { t } = useTranslation("categories")
   
 
-  const fullUrl =
-  window.location.origin + location.pathname;
+  const fullUrl = import.meta.env.VITE_DEEP_LINKS + location.pathname;
 
    useEffect(()=>{
     const get = async ()=>{
@@ -167,12 +166,14 @@ const filteredOffers = offers.filter(offer => {
       {/* Header Image/Cover */}
       <div className="relative h-44 bg-[#009842]">
         {/* Back Button */}
-        {user?.accountType!=='super_admin'&&(<button
+        {user?.accountType!=='super_admin'&&(
+        <button
           onClick={() => navigate(-1)}
           className="absolute top-4 left-4 p-2 bg-white/90 hover:bg-white rounded-lg transition-colors"
         >
           <ArrowLeft size={24} className="text-gray-700" />
-        </button>)}
+        </button>
+        )}
       </div>
 
       {/* Business Info Card */}
@@ -201,7 +202,8 @@ const filteredOffers = offers.filter(offer => {
                   className="p-2 bg-[#009842] rounded-full hover:bg-[#007a36] transition-colors"
                 >
                   <Share2 size={18} className="text-white" />
-                </button>)}
+                </button>
+              )}
               </div>
             </div>
           </div>

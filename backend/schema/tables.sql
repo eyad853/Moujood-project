@@ -29,7 +29,7 @@
         logo VARCHAR(500),
         description TEXT,
         number VARCHAR(50),
-        active BOOLEAN DEFAULT FALSE,
+        active BOOLEAN DEFAULT TRUE,
         is_verified BOOLEAN DEFAULT FALSE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
@@ -72,7 +72,7 @@
 
       CREATE TABLE IF NOT EXISTS likes (
         id SERIAL PRIMARY KEY,
-        offer_id INTEGER REFERENCES offers(offer_id),
+        offer_id INTEGER REFERENCES offers(offer_id) ON DELETE CASCADE,
         user_id INT REFERENCES users(id),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         UNIQUE(offer_id, user_id)
@@ -80,7 +80,7 @@
 
       CREATE TABLE IF NOT EXISTS comments (
         id SERIAL PRIMARY KEY,
-        offer_id INTEGER REFERENCES offers(offer_id),
+        offer_id INTEGER REFERENCES offers(offer_id) ON DELETE CASCADE,
         user_id INTEGER REFERENCES users(id),
         content TEXT NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -103,18 +103,6 @@
         receiver_id INTEGER NOT NULL,
         is_read BOOLEAN DEFAULT false
       );
-
-    CREATE TABLE IF NOT EXISTS settings (
-      id SERIAL PRIMARY KEY,
-      owner_type VARCHAR(20) CHECK (owner_type IN ('user', 'business')) NOT NULL,
-      owner_id INT NOT NULL,
-      language VARCHAR(10) DEFAULT 'en',
-      notifications BOOLEAN DEFAULT true,
-      sounds BOOLEAN DEFAULT true,
-      vibrate BOOLEAN DEFAULT true,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      UNIQUE(owner_type, owner_id)
-  );
 
   CREATE TABLE IF NOT EXISTS user_categories (
   id SERIAL PRIMARY KEY,

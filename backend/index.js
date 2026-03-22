@@ -30,7 +30,7 @@ const app = express()
 const server = http.createServer(app);
 const io = new Server(server , {
   cors: {
-    origin:[process.env.frontendURL , 'http://localhost:5173'],
+    origin:[process.env.frontendURL , 'http://localhost:5173' , 'https://moujood-project.vercel.app' , 'capacitor://localhost'],
     credentials: true// Allow requests from this origin
   },
 });
@@ -46,7 +46,7 @@ export const pool = new Pool({
 app.set('io' , io)
 
 app.use(cors({
-    origin:[process.env.frontendURL , 'http://localhost:5173'],
+    origin:[process.env.frontendURL , 'http://localhost:5173' , 'https://moujood-project.vercel.app' , 'capacitor://localhost'],
     credentials: true
 }))
 
@@ -68,6 +68,7 @@ const sessionMiddleware = session({
   cookie: { 
     httpOnly: true,
     secure: false,
+    sameSite: "lax",
     maxAge: 1000 * 60 * 60 * 24 * 30 * 12
   },
   store: new PgSession({
@@ -77,6 +78,8 @@ const sessionMiddleware = session({
   resave: false,
   saveUninitialized: false
 });
+
+app.set("trust proxy", 1);
 
 app.use(sessionMiddleware)
 

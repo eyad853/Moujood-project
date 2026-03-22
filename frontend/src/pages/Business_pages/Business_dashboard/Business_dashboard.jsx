@@ -209,7 +209,7 @@ useEffect(()=>{
                   }}
                   className="relative bg-[#01a347] rounded-md overflow-hidden shadow-lg aspect-square"
                 >
-                  <img src={offer.image} className='w-full h-full object-contain' />
+                  <img src={offer.image} className='w-full h-full object-cover' />
                 </div>
               ))}
             </div>
@@ -217,7 +217,7 @@ useEffect(()=>{
         ) : null}
 
         {/* Add New Offer Button */}
-        <div className="px-3">
+        <div className={`px-3 ${!hasOffers ? 'fixed bottom-32 left-0 right-0' : ''}`}>
           <button 
             onClick={()=>{
               setSelectedOffer(null); 

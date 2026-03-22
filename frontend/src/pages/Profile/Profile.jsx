@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ArrowLeft, Edit, CreditCard, Languages, Users, MessageSquare, Lock, Edit2 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useUser } from '../../context/userContext';
 import EditProfileSheet from '../../components/EditProfileSheet/EditProfileSheet '
 import { FaUser } from 'react-icons/fa6';
@@ -26,8 +26,8 @@ const Profile = () => {
   ];
 
   const bottomMenuItems = [
-    { id: 2, icon: MessageSquare, label: t('contact'), onClick: () => console.log('Contact') },
-    { id: 3, icon: Lock, label: t('privacyPolicy'), onClick: () => console.log('Privacy') },
+    { id: 2, icon: MessageSquare, label: t('Terms_And_Conditions') , to: user?.accountType==='user'?"/client_Terms-&-Conditions":"/business_Terms-&-Conditions" },
+    { id: 3, icon: Lock, label: t('privacyPolicy') , to: user?.accountType==='user'?"/client_Privacy_Policy":"/business_Privacy_Policy" },
   ];
 
   // useEffect(()=>{
@@ -102,7 +102,7 @@ const Profile = () => {
                 <button
                   key={item.id}
                   onClick={item.onClick}
-                  className="w-full flex items-center justify-between px-4 py-4 hover:bg-gray-50 rounded-xl transition-colors"
+                  className={`w-full flex items-center ${isRTL?" justify-end":""} justify-between px-4 py-4 hover:bg-gray-50 rounded-xl transition-colors`}
                 >
                   <div className={`flex items-center gap-3 ${isRTL?"flex-row-reverse":"flex-row"}`}>
                     <Icon size={20} className="text-gray-700" />
@@ -138,16 +138,16 @@ const Profile = () => {
           {bottomMenuItems.map((item, index) => {
             const Icon = item.icon;
             return (
-              <button
+              <Link
+                to={item.to}
                 key={item.id}
-                onClick={item.onClick}
                 className={`w-full flex ${isRTL?"flex-row-reverse":"flex-row"} items-center gap-3 px-6 py-4 hover:bg-gray-50 transition-colors ${
                   index !== bottomMenuItems.length - 1 ? 'border-b border-gray-100' : ''
                 }`}
               >
                 <Icon size={20} className="text-gray-700" />
                 <span className="text-gray-900 font-medium">{item.label}</span>
-              </button>
+              </Link>
             );
           })}
         </div>

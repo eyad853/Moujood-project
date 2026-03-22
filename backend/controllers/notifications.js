@@ -93,10 +93,11 @@ export const createNotification = async (req, res) => {
     const receiverIds = receivers.rows.map(r => r.id);
     const deviceTokensRes = await pool.query(
       `SELECT token FROM device_tokens 
-      WHERE receiver_type = $1 AND receiver_id = ANY($2::int[]) AND is_active = true`,
+      WHERE receiver_type = $1 AND receiver_id = ANY($2::int[])`,
       [receiver_type, receiverIds]
     );
     const tokens = deviceTokensRes.rows.map(r => r.token);
+    console.log('those are the tokens:' , tokens)
 
     // 3️⃣ insert notification_targets
     for (const r of receivers.rows) {
@@ -129,7 +130,14 @@ export const createNotification = async (req, res) => {
     }
 
     if (tokens.length > 0) {
-      sendNotification(title , message , tokens)
+      const result =await sendNotification(title , message , tokens)
+
+      if(result.error){
+        return res.status(400).json({
+          error:true,
+          message: result.message
+        })
+      }
     }
 
     res.json({
@@ -451,7 +459,6 @@ export const getAllBusinesses = async (req, res) => {
         b.logo,
         b.description,
         b.number,
-        b.qr_code,
         b.active,
         b.is_verified,
         b.created_at,

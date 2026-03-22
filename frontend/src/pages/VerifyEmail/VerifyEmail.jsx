@@ -18,9 +18,7 @@ export default function VerifyEmail() {
     const [searchParams] = useSearchParams()
     const token = searchParams.get('token')
     const {setUser}=useUser()
-    console.log('token',token);
-    console.log('email',email);
-    console.log('accountType', accountType);
+    console.log(window.location.origin);
     const calledRef = useRef(false);
     const {t}=useTranslation('verfiyEmail')
 
@@ -42,9 +40,10 @@ useEffect(()=>{
 },[token])
 
 if(loading){
+  return(
   <div className = "fixed inset-0">
     <Loadiing />
-  </div>
+  </div>)
 }
 
   if(token && !error && !loading){

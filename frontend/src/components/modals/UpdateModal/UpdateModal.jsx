@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import Modal from 'react-modal';
-import { Link } from 'react-router-dom';
 import { useUser } from '../../../context/userContext';
+import { useTranslation } from 'react-i18next';
 
-const UpdateModal = ({isOpen , onClose}) => {
+const UpdateModal = ({isOpen , onClose , router}) => {
   const {user}=useUser()
+  const {t}=useTranslation('updateModal')
 
   const handleUpdate = ()=>{
     const url = import.meta.env.ANDROIDURL
@@ -25,18 +26,18 @@ const UpdateModal = ({isOpen , onClose}) => {
           <img 
             src="/logo.svg" 
             alt="Logo" 
-            className="w-20 h-20 object-contain mx-auto" 
+            className="w-28 h-28 object-contain mx-auto" 
           />
         </div>
 
         {/* Title */}
         <h2 className="text-[22px] font-semibold text-gray-900 mb-3 text-center leading-tight">
-          Update Available
+          {t('title')}
         </h2>
 
         {/* Message */}
         <p className="text-[15px] text-gray-600 leading-relaxed text-center mb-7">
-          A new version of the app is available. Update now to get the latest features and improvements.
+          {t("message")}
         </p>
 
         {/* Buttons */}
@@ -48,16 +49,23 @@ const UpdateModal = ({isOpen , onClose}) => {
             }}
             className="w-full py-3.5 px-6 text-base font-semibold text-white bg-[#009842] rounded-xl shadow-[0_2px_8px_rgba(0,152,66,0.2)] active:scale-[0.98] active:bg-[#007a36] transition-all duration-200"
           >
-            Update Now
+            {t('updateButton')}
           </button>
 
           {/* Continue Button */}
-          <Link
-          to={user?user.accountType==='user'?"/cleint/feed":"/business/dashboard":"/signup_as"}
+          <button
+            onClick={() => {
+              if (user) {
+                router.navigate(user.accountType === "user" ? "/cleint/feed" : "/business/dashboard");
+              } else {
+                router.navigate("/signup_as");
+              }
+              onClose();
+            }}
             className="w-full py-3.5 px-6 text-base font-semibold text-white bg-[#00875A] rounded-xl active:scale-[0.98] active:bg-[#006d48] transition-all duration-200"
           >
-            Continue Without Updating
-          </Link>
+            {t('continueButton')}
+          </button>
         </div>
       </div>
     </Modal>

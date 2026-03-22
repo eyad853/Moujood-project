@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 const sections = [
   {
@@ -104,6 +104,7 @@ const Business_Terms_And_Conditions = () => {
   const [openSection, setOpenSection] = useState(null)
   const [accepted, setAccepted] = useState(false)
   const [activeFilter, setActiveFilter] = useState('All')
+  const navigate = useNavigate()
 
   const toggle = (id) => setOpenSection(openSection === id ? null : id)
 
@@ -119,11 +120,15 @@ const Business_Terms_And_Conditions = () => {
       >
         {/* Back + Logo */}
         <div className="flex items-center justify-between mb-6">
-          <Link to={'/business_sign_up'} className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.2)' }}>
+          <div 
+          onClick={()=>{
+            navigate(-1)
+          }}
+          className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.2)' }}>
             <svg width="18" height="18" fill="none" stroke="white" strokeWidth="2.5" viewBox="0 0 24 24">
               <path d="M15 18l-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-          </Link>
+          </div>
           <div className="w-9" />
         </div>
 

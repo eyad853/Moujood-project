@@ -22,6 +22,8 @@ export const checkForAppUpdate = async () => {
   try {
     const installedVersion = await getAppVersion();
     const serverData = await fetchAppVersion();
+    console.log(installedVersion);
+    console.log(serverData);
 
     if (!serverData) return { update: false };
 
@@ -32,7 +34,6 @@ export const checkForAppUpdate = async () => {
 
     return {
       update: needsUpdate,
-      androidUrl: import.meta.env.ANDROIDURL,
     };
   } catch (err) {
     console.log(err);

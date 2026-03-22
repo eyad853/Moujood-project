@@ -12,8 +12,6 @@ import SmallError from '../../../components/SmallError/SmallError';
 import { useTranslation } from 'react-i18next'
 import { useError } from '../../../context/error';
 
-
-
 const Business_offers = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
@@ -83,7 +81,7 @@ if (pageError) {
     <div className="min-h-screen bg-gray-50 pb-24">
       {/* Header */}
       <div className="bg-white px-5 py-4 flex items-center justify-center relative border-b border-gray-200">
-        <h1 className="text-xl font-semibold text-gray-900">Offers</h1>
+        <h1 className="text-xl font-semibold text-gray-900">{t("title")}</h1>
       </div>
 
       {/* Content */}
@@ -192,7 +190,7 @@ if (pageError) {
             setSelectedOffer(null); 
             setIsOfferSheetOpen(true);
           }}
-          className="fixed bottom-20 left-3 right-3 bg-[#009842] text-white py-4 font-semibold rounded-md flex items-center justify-center gap-2 hover:bg-[#007a36] transition-colors shadow-xl z-30"
+          className="fixed bottom-32 left-3 right-3 bg-[#009842] text-white py-4 font-semibold rounded-md flex items-center justify-center gap-2 hover:bg-[#007a36] transition-colors shadow-xl z-30"
         >
           <span className="text-2xl">+</span>
           <span>{t('addBtn')}</span>

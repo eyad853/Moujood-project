@@ -209,9 +209,10 @@ const SA_Businesses = () => {
         {/* Header */}
         {businesses.length>0&&(<div className="grid grid-cols-11 gap-4 px-4 sm:px-6 py-4 bg-gray-50 border-b border-gray-200">
           <div className="col-span-1 text-sm font-semibold text-gray-700">Logo</div>
-          <div className="col-span-5 text-sm font-semibold text-gray-700">Business Name</div>
+          <div className="col-span-3 text-sm font-semibold text-gray-700">Business Name</div>
           <div className="col-span-3 text-sm font-semibold text-gray-700">Category</div>
           <div className="col-span-2 text-sm font-semibold text-gray-700">STATUS</div>
+          <div className="col-span-2 text-sm font-semibold text-gray-700">Number</div>
         </div>)}
 
         {/* Businesses Items */}
@@ -236,7 +237,7 @@ const SA_Businesses = () => {
               </div>
 
               {/* Business Name */}
-              <div className="col-span-5">
+              <div className="col-span-3">
                 <span className="font-medium text-gray-900 text-sm">{business.name}</span>
               </div>
 
@@ -260,6 +261,8 @@ const SA_Businesses = () => {
                   {business.active ? 'Active' : 'Not Active'}
                 </span>
               </div>
+
+              <div className="col-span-2 font-semibold text-gray-600">{business.number}</div>
             </div>
           ))}
         </div>

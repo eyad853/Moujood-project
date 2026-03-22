@@ -45,7 +45,6 @@ import Client_Terms_And_Conditions from './pages/Terms_&_Conditions/Client_Terms
 import Business_Terms_And_Conditions from './pages/Terms_&_Conditions/Business_Terms_And_Conditions';
 import Client_Privacy_Policy from './pages/Privacy_Policy/Client_Privacy_Policy';
 import Business_Privacy_Policy from './pages/Privacy_Policy/Business_Privacy_Policy';
-console.log(import.meta.env.VITE_BACKEND_URL);
 
 
 const handleBackButton = () => {
@@ -57,8 +56,6 @@ const handleBackButton = () => {
     CapApp.exitApp();
   }
 };
-
-CapApp.addListener('backButton', handleBackButton);
 
 const routes = [
   {
@@ -259,89 +256,75 @@ const routes = [
 const router = createBrowserRouter(routes)
 
 const App = () => {
-    const [updateInfo, setUpdateInfo] = useState(null);
-    const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
 
-
-  useEffect(()=> {
-    SocialLogin.initialize({
+  useEffect(() => {
+  const init = async () => {
+    // Initialize social login
+    await SocialLogin.initialize({
       google: {
-        webClientId: '1052525713737-uvbc9cv2d4ncndl5f198dq2l3qg7qkop.apps.googleusercontent.com',
+        webClientId: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+        mode: "online"
+      },
+      facebook: {
+        appId: import.meta.env.VITE_FACEBOOK_CLIENT_ID,
+        clientToken: import.meta.env.VITE_FACEBOOK_CLIENT_TOKEN 
       }
-    })
+    });
 
-    PushNotifications.requestPermissions().then((result) => {
+    // Push notification permissions
+    const result = await PushNotifications.requestPermissions();
     if (result.receive === 'granted') {
-      // Register with Apple / Google to receive push via APNS/FCM
-      PushNotifications.register();
+      await PushNotifications.register();
     } else {
       alert("Push notification permission not granted");
     }
-    
-    // On success, we should be able to receive notifications
-    PushNotifications.addListener('registration', async (token) => {
-      const savedToken = await Preferences.get({ key:"pushToken"});
+
+    // Push notification listeners
+    const registrationListener = PushNotifications.addListener('registration', async (token) => {
+      const savedToken = await Preferences.get({ key: "pushToken" });
       if (savedToken.value !== token.value) {
-        //TODO: send token to backend
-        alert(token.value + deviceId.identifier);
-        await Preferences.set({ key: "pushToken", value: token.value});
+        await Preferences.set({ key: "pushToken", value: token.value });
       }
     });
 
-    // Some issue with our setup and push will not work
-    PushNotifications.addListener('registrationError', (error) => {
+    const errorListener = PushNotifications.addListener('registrationError', (error) => {
       alert('Error on registration: ' + JSON.stringify(error));
     });
 
-    // Show us the notification payload if the app is open on our device
-    // PushNotifications.addListener('pushNotificationReceived', (notification) => {
-
-    // });
-
-    // Method called when tapping on a notification
-    PushNotifications.addListener('pushNotificationActionPerformed', (notification) => {
-        router.navigate('/notifications');
-      });
+    const actionListener = PushNotifications.addListener('pushNotificationActionPerformed', () => {
+      router.navigate('/notifications');
     });
 
-    const initApp = async () => {
-      console.log('start the update check');
-    // ⭐ check update first
-    const result = await checkForAppUpdate();
+    // Check for updates
+    const updateResult = await checkForAppUpdate();
+    if (updateResult.update) setShowUpdateModal(true);
 
-    if (result.update) {
-      setUpdateInfo(result);
-      setShowUpdateModal(true);
-    }
+    // Back button & URL listeners
+    const backHandler = CapApp.addListener('backButton', handleBackButton);
+    const urlHandler = CapApp.addListener('appUrlOpen', (event) => {
+      try {
+        const url = new URL(event.url);
+        router.navigate(url.pathname + url.search);
+      } catch (err) {
+        console.log("Deep link error:", err);
+      }
+    });
+
+    // Cleanup listeners when component unmounts
+    return () => {
+      registrationListener.remove();
+      errorListener.remove();
+      actionListener.remove();
+      backHandler.remove();
+      urlHandler.remove();
+    };
   };
 
-  initApp();
-  }, [])
-
-  
-  // CapApp.addListener("appUrlOpen", (event) => {
-  //     try {
-  //       const path = event.url.split("app")[1]; // "/business/home"
-  //       if (path) {
-  //         router.navigate(path);
-  //       }
-  //     } catch (err) {
-  //       console.log("Deep link error:", err);
-  //     }
-  // });
+  init();
+}, []);
 
 
-  CapApp.addListener("appUrlOpen", (event) => {
-  try {
-    const url = new URL(event.url);
-
-    const path = url.pathname + url.search;
-
-    router.navigate(path);
-  } catch (err) {
-    console.log("Deep link error:", err);
-  }
-});
 
   return (
     <>
@@ -349,8 +332,9 @@ const App = () => {
 
       {showUpdateModal && (
         <UpdateModal
-          ioOpen={showUpdateModal}
+          isOpen={showUpdateModal}
           onClose={() => setShowUpdateModal(false)}
+          router={router}
         />
       )}
     </>

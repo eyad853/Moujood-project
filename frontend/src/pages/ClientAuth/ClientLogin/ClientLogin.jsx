@@ -47,7 +47,7 @@ const ClientLogin = () => {
         {/* Social Login Buttons */}
         <div className="flex gap-3 mb-6">
           <button
-            onClick={handleGoogleAuth}
+            onClick={()=>{handleGoogleAuth(navigate , setUser)}}
             className="flex-1 bg-[#009842] text-white py-3.5 px-4 rounded-xl font-semibold flex items-center justify-center gap-2 text-base"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="white">
@@ -59,7 +59,7 @@ const ClientLogin = () => {
             {t('social.google')}
           </button>
           <button
-            onClick={handleFacebookAuth}
+            onClick={()=>{handleFacebookAuth(navigate , setUser)}}
             className="flex-1 bg-[#009842] text-white py-3.5 px-4 rounded-xl font-semibold flex items-center justify-center gap-2 text-base"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="white">

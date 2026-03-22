@@ -547,7 +547,8 @@ const SA_Notifications = () => {
       {/* Notifications List */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
         {/* Header */}
-        {notifications.length>0&&(<div className="grid grid-cols-12 gap-4 px-4 sm:px-6 py-4 bg-gray-50 border-b border-gray-200">
+        {notifications.length>0&&(
+        <div className="grid grid-cols-12 gap-4 px-4 sm:px-6 py-4 bg-gray-50 border-b border-gray-200">
           <div className="col-span-2  text-sm font-semibold text-gray-700">Title</div>
           <div className="col-span-2 flex justify-center text-sm font-semibold text-gray-700">Message</div>
           <div className="col-span-3 flex justify-center text-sm font-semibold text-gray-700">Target</div>

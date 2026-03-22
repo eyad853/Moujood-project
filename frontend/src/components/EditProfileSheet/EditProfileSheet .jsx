@@ -684,13 +684,13 @@ const EditProfileSheet = ({ isOpen, onClose }) => {
 
               {/* Error Message */}
             <div className="px-4">
-              {error && (
+              {pageError && (
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="p-4 mb-5 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm"
                 >
-                  {error}
+                  {pageError}
                 </motion.div>
               )}
             </div>

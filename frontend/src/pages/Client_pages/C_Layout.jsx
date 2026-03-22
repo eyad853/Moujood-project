@@ -69,7 +69,9 @@ const C_Layout = () => {
       <Outlet />
 
       {/* the paages buttons */}
-      <div className="fixed z-30 bottom-0 w-full border-t bg-white border-neutral-200 h-16 flex justify-around items-center">
+      <div 
+      style={{ height: `calc(4rem + env(safe-area-inset-bottom))`, paddingBottom: 'env(safe-area-inset-bottom)' }}
+      className="fixed z-30 bottom-0 w-full border-t bg-white border-neutral-200 h-16 flex justify-around items-center">
         {/* dashboard */}
         <Link
         to={`/client/feed`} 

@@ -31,8 +31,9 @@ const Notifications = () => {
   const get = async () => {
     try {
       setLoading(true);
-      await fetchMyNotifications(user?.accountType,setNotifications,setPageError , t);
-      if(notifications.length>0){
+      const data = await fetchMyNotifications(user?.accountType,setNotifications,setPageError , t);
+      
+      if(data?.notifications?.length>0){
         await markAllNotificationsAsRead(user?.accountType,notifications,setNotifications,setPageError , t);
       }
     } catch (err) {

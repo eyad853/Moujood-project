@@ -8,7 +8,7 @@ const latestVersion =  process.env.LATEST_VERSION
 
 // GET /api/version
 appRouter.get('/version', (req, res) => {
-  res.json({
+  res.status(200).json({
     error:false,
     latestVersion
   });

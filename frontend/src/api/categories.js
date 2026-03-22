@@ -155,6 +155,7 @@ export const deleteCategory = async (setError ,categoryId, setCategories , t)=>{
 export const getAllCategories = async (setError , setCategories , t)=>{
     try{
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/categories/getAllCategories`)
+        console.log(response.data.categories);
         setCategories(response.data.categories)
     }catch(err){
         console.log(err);

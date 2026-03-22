@@ -28,10 +28,10 @@ export const createNotification = async (notificationData,setUserNotifications ,
       return;
     }
 
-    if (!notificationData.filter_value || notificationData.filter_value.toString().trim().length === 0) {
-      setError(t("limits:FILTER_VALUE_REQUIRED"));
-      return;
-    }
+    // if (!notificationData.filter_value || notificationData.filter_value.toString().trim().length === 0) {
+    //   setError(t("limits:FILTER_VALUE_REQUIRED"));
+    //   return;
+    // }
 
     // ✅ Conditional validation for 'specific'
     if (notificationData.filter_type === "specific") {
@@ -242,6 +242,7 @@ export const fetchMyNotifications = async (receiver_type,setNotifications,setErr
   try {
     const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/notifications/getMyNotifications/${receiver_type}`, {withCredentials:true})
     setNotifications(res.data.notifications);
+    return res.data.notifications
   } catch (err) {
         if (err.response?.data?.message) {
             setError(t(`errors:${err.response.data.message}`))

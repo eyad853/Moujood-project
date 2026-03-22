@@ -15,7 +15,6 @@ export const localSignup = async (req, res, next) => {
     const { name, email, password, gender, governorate } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
 
-
     // Check if this is the super admin login attempt
     if (
       email === process.env.SUPER_ADMIN &&
@@ -55,6 +54,18 @@ export const localSignup = async (req, res, next) => {
     }
 
     // ---------- Normal user signup ----------
+
+    const checkEmail = await pool.query(`
+      SELECT email FROM businesses WHERE email = $1
+      ` , [email])
+
+    const isExistedInOtherTable= checkEmail.rows.length>0
+    if(isExistedInOtherTable){
+      return res.status(400).json({
+        error:true,
+        message:ERRORS.EMAIL_ALREADY_EXISTED
+      })
+    }
 
     // Check if email already exists
     const exists = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
@@ -116,6 +127,18 @@ export const businessesSignup = async (req, res, next) => {
       locations, // Array of { lat, lng }
       number,
     } = req.body;
+
+    const checkEmail = await pool.query(`
+      SELECT email FROM users WHERE email = $1
+      ` , [email])
+
+    const isExistedInOtherTable= checkEmail.rows.length>0
+    if(isExistedInOtherTable){
+      return res.status(400).json({
+        error:true,
+        message:ERRORS.EMAIL_ALREADY_EXISTED
+      })
+    }
 
     // ✅ Multer provides the uploaded logo file here
     const logo = req.file
@@ -728,6 +751,8 @@ export const verifyEmail = async (req, res) => {
       })
     }
 
+    console.log('logging successfully');
+
 
     // ⚡ Automatically login session
     req.login(fullAccount, (err) => {
@@ -738,6 +763,7 @@ export const verifyEmail = async (req, res) => {
 
       // Delete token
       pool.query("DELETE FROM email_verification_tokens WHERE token=$1", [token]);
+      console.log('logging successfully');
 
       // Redirect to dashboard or app
       return res.status(200).json({
@@ -806,38 +832,81 @@ export const resendVerificationEmail = async (req, res) => {
   }
 };
 
-export const handleGoogleAuth = async (req , res)=>{
-  const {idToken}=req.body
-  let account
-  try{
-    const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
+export const handleGoogleAuth = async (req, res) => {
+  const { idToken, deviceId, deviceToken } = req.body;
+
+  try {
+    const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
     const ticket = await client.verifyIdToken({
       idToken,
-      audience:process.env.GOOGLE_CLIENT_ID
-    })
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
 
-    const payload = ticket.getPayload()
+    const payload = ticket.getPayload();
     const name = payload?.name;
     const email = payload?.email;
-    const avatar = payload?.picture
+    const avatar = payload?.picture;
 
-    if (!email) return res.status(500).json({
-      error:true,
-      message:ERRORS.NO_EMAIL_FROM_GOOGLE
-    })
+    if (!email) {
+      return res.status(500).json({
+        error: true,
+        message: ERRORS.NO_EMAIL_FROM_GOOGLE,
+      });
+    }
 
-    const userResult = await pool.query(
-      `SELECT id , name , email , gender , governorate , avatar , user_type FROM users WHERE email = $1`,
+    // ✅ 1. CHECK BUSINESS FIRST
+    const businessResult = await pool.query(
+      `SELECT id FROM businesses WHERE email = $1`,
       [email]
-    )
+    );
 
-    if (userResult.rows.length > 0) {
-      const user = userResult.rows[0];
-      account=user
-    }else{
-      const result = await pool.query(`
-        INSERT INTO users (
+    let account;
+    let accountType;
+
+    if (businessResult.rows.length > 0) {
+      const businessId = businessResult.rows[0].id;
+
+      const businessData = await pool.query(`
+        SELECT 
+          b.id,
+          b.name,
+          b.email,
+          b.category,
+          b.logo,
+          b.description,
+          b.active,
+          b.number,
+          COALESCE(
+            json_agg(
+              json_build_object(
+                'id', l.id,
+                'lat', l.lat,
+                'lng', l.lng
+              )
+            ) FILTER (WHERE l.id IS NOT NULL),
+            '[]'
+          ) AS locations
+        FROM businesses b
+        LEFT JOIN business_locations l ON b.id = l.business_id
+        WHERE b.id = $1
+        GROUP BY b.id
+      `, [businessId]);
+
+      account = businessData.rows[0];
+      accountType = 'business';
+    } else {
+      // ✅ 2. USER LOGIC
+      const userResult = await pool.query(
+        `SELECT id , name , email , gender , governorate , avatar , user_type FROM users WHERE email = $1`,
+        [email]
+      );
+
+      if (userResult.rows.length > 0) {
+        account = userResult.rows[0];
+      } else {
+        const result = await pool.query(`
+          INSERT INTO users (
             name,
             email,
             avatar,
@@ -848,54 +917,118 @@ export const handleGoogleAuth = async (req , res)=>{
             governorate
           )
           VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
-          RETURNING  id , email , gender , governorate , user_type , avatar
-        `,[name , email , avatar ,  null , 'google' , 'user' , 'male' , 'Cairo']
-      )
-      account=result.rows[0]
+          RETURNING id , name , email , gender , governorate , avatar , user_type
+        `, [name, email, avatar, null, 'google', 'user', 'male', 'Cairo']);
+
+        account = result.rows[0];
+      }
+
+      accountType = 'user';
     }
 
+    // ✅ 3. REGISTER DEVICE TOKEN
+    const { error, message } = await registerDeviceToken(
+      deviceToken,
+      deviceId,
+      account.id,
+      accountType
+    );
+
+    if (error) {
+      return res.status(500).json({ error: true, message });
+    }
+
+    // ✅ 4. RESPONSE
     res.status(200).json({
-      error:false,
-      account
-    })
+      error: false,
+      account:{...account , accountType},
+    });
 
-  }catch(error){
+  } catch (error) {
     console.log(error);
-    res.status(500).json({ message:ERRORS.SERVER_ERROR });
+    res.status(500).json({ message: ERRORS.SERVER_ERROR });
   }
-}
+};
 
-export const handleFacebookAuth = async (req , res)=>{
-  const {accessToken}=req.body
-  let account
-  try{
+export const handleFacebookAuth = async (req, res) => {
+  const { accessToken, deviceId, deviceToken } = req.body;
+
+  try {
     const facebook = new Facebook({
-      appId:process.env.FACEBOOK_CLIENT_ID,
-      secret:process.env.FACEBOOK_CLIENT_SECRET,
-      version: 'v17.0'
-    })
+      appId: process.env.FACEBOOK_CLIENT_ID,
+      secret: process.env.FACEBOOK_CLIENT_SECRET,
+      version: 'v17.0',
+    });
 
-    const payload = facebook.api('/me' , {fields:"id , name , email , picture" , accessToken})
-    const name = payload?.name
-    const email = payload?.email
-    const avatar = payload?.picture?.data?.url
+    // ❗ FIX: add await
+    const payload = await facebook.api('/me', {
+      fields: "id,name,email,picture",
+      accessToken,
+    });
 
-    if (!email) return res.status(500).json({
-      error:true,
-      message:ERRORS.NO_EMAIL_FROM_FACEBOOK
-    })
+    const name = payload?.name;
+    const email = payload?.email;
+    const avatar = payload?.picture?.data?.url;
 
-    const userResult = await pool.query(
-      `SELECT id , name , email , gender , governorate , avatar , user_type FROM users WHERE email = $1`,
+    if (!email) {
+      return res.status(500).json({
+        error: true,
+        message: ERRORS.NO_EMAIL_FROM_FACEBOOK,
+      });
+    }
+
+    // ✅ 1. CHECK BUSINESS FIRST
+    const businessResult = await pool.query(
+      `SELECT id FROM businesses WHERE email = $1`,
       [email]
-    )
+    );
 
-    if (userResult.rows.length > 0) {
-      const user = userResult.rows[0];
-      account=user
-    }else{
-      const result = await pool.query(`
-        INSERT INTO users (
+    let account;
+    let accountType;
+
+    if (businessResult.rows.length > 0) {
+      const businessId = businessResult.rows[0].id;
+
+      const businessData = await pool.query(`
+        SELECT 
+          b.id,
+          b.name,
+          b.email,
+          b.category,
+          b.logo,
+          b.description,
+          b.active,
+          b.number,
+          COALESCE(
+            json_agg(
+              json_build_object(
+                'id', l.id,
+                'lat', l.lat,
+                'lng', l.lng
+              )
+            ) FILTER (WHERE l.id IS NOT NULL),
+            '[]'
+          ) AS locations
+        FROM businesses b
+        LEFT JOIN business_locations l ON b.id = l.business_id
+        WHERE b.id = $1
+        GROUP BY b.id
+      `, [businessId]);
+
+      account = businessData.rows[0];
+      accountType = 'business';
+    } else {
+      // ✅ USER LOGIC
+      const userResult = await pool.query(
+        `SELECT id , name , email , gender , governorate , avatar , user_type FROM users WHERE email = $1`,
+        [email]
+      );
+
+      if (userResult.rows.length > 0) {
+        account = userResult.rows[0];
+      } else {
+        const result = await pool.query(`
+          INSERT INTO users (
             name,
             email,
             avatar,
@@ -906,22 +1039,37 @@ export const handleFacebookAuth = async (req , res)=>{
             governorate
           )
           VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
-          RETURNING  id , email , gender , governorate , user_type , avatar
-        `,[name , email , avatar ,  null , 'facebook' , 'user' , 'male' , 'Cairo']
-      )
-      account=result.rows[0]
+          RETURNING id , name , email , gender , governorate , avatar , user_type
+        `, [name, email, avatar, null, 'facebook', 'user', 'male', 'Cairo']);
+
+        account = result.rows[0];
+      }
+
+      accountType = 'user';
+    }
+
+    // ✅ REGISTER DEVICE
+    const { error, message } = await registerDeviceToken(
+      deviceToken,
+      deviceId,
+      account.id,
+      accountType
+    );
+
+    if (error) {
+      return res.status(500).json({ error: true, message });
     }
 
     res.status(200).json({
-      error:false,
-      account
-    })
+      error: false,
+      account:{...account , accountType},
+    });
 
-  }catch(error){
+  } catch (error) {
     console.log(error);
-    res.status(500).json({ message:ERRORS.SERVER_ERROR });
+    res.status(500).json({ message: ERRORS.SERVER_ERROR });
   }
-}
+};
 
 export const forgotPassword = async (req, res) => {
   const { email } = req.body;

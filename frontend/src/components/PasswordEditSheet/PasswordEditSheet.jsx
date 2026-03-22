@@ -17,7 +17,6 @@ import ShowSuccess from '../ShowSuccess/ShowSuccess';
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const {setSmallError}=useError()
-  const [fullError, setFullError] = useState('');
   const [fieldErrors, setFieldErrors] = useState({})
   const [loading , setLoading]= useState(false)
   const [success, setSuccess] = useState('');
@@ -36,7 +35,6 @@ import ShowSuccess from '../ShowSuccess/ShowSuccess';
     setShowConfirmPassword(false);
     onClose();
     setFieldErrors({})
-    setFullError('')
   };
 
   useEffect(() => {
@@ -230,13 +228,13 @@ import ShowSuccess from '../ShowSuccess/ShowSuccess';
 
             {/* Error Message */}
             <div className="px-4">
-              {error && (
+              {pageError && (
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm"
                 >
-                  {error}
+                  {pageError}
                 </motion.div>
               )}
             </div>

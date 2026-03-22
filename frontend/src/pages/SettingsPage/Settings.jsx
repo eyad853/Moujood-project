@@ -115,13 +115,15 @@ const Settings = () => {
         </div>
 
         {/* Logout Button */}
-        <button 
-        onClick={()=>{
-          logout(setSmallError , navigate , setUser , setLoading , t)
-        }}
-        className="w-full bg-red-100 text-red-600 py-4 rounded-2xl font-semibold hover:bg-red-100 transition-colors">
-          {t('logout')}
-        </button>
+        <div className="fixed bottom-32 left-0 right-0 px-5 z-10">
+          <button 
+            onClick={()=>{
+              logout(setSmallError , navigate , setUser , setLoading , t)
+            }}
+            className="w-full bg-red-100 text-red-600 py-4 rounded-2xl font-semibold hover:bg-red-100 transition-colors">
+            {t('logout')}
+          </button>
+        </div>
       </div>
 
       {/* Password Edit Sheet */}

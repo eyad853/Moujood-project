@@ -22,8 +22,8 @@ export const AccountProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    if (!user) return;
-
+    if(!user)return
+    
     const syncToken = async () => {
       await handleCreateToken();
     };
