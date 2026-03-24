@@ -382,7 +382,7 @@ export const editAccount = async (formData, setLoading, setPageError , setUser ,
       return;
     }
 
-    if (isFromProfile&&!formData.email || !emailRegex.test(formData.email)) {
+    if (isFromProfile&& (!formData.email || !emailRegex.test(formData.email))) {
       setError(t("limits:EMAIL_REQUIRED"));
       setFieldErrors(prev=>({...prev , email:true}))
       return;

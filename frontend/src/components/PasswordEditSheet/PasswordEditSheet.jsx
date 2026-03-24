@@ -5,7 +5,6 @@ import { editAccount } from '../../api/auth';
 import { useUser } from '../../context/userContext';
 import Loadiing from '../Loadiing/Loadiing'
 import { useTranslation } from 'react-i18next';
-import {useError} from '../../context/error'
 import PageError from '../PageError/PageError';
 import ShowSuccess from '../ShowSuccess/ShowSuccess';
 
@@ -16,31 +15,33 @@ import ShowSuccess from '../ShowSuccess/ShowSuccess';
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const {setSmallError}=useError()
   const [fieldErrors, setFieldErrors] = useState({})
   const [loading , setLoading]= useState(false)
   const [success, setSuccess] = useState('');
   const {user, setUser}=useUser()
   const {t , i18n}=useTranslation('passwordEditSheet')
   const [pageError , setPageError]=useState('')
+  const [error , setError]=useState('')
   const isRTL = i18n.language==='ar'
 
   const handleClose = () => {
     setOldPassword('');
     setNewPassword('');
     setConfirmPassword('');
-    setSmallError('');
     setShowOldPassword(false);
     setShowNewPassword(false);
     setShowConfirmPassword(false);
+    setPageError('')
     onClose();
+    setError('')
     setFieldErrors({})
   };
 
   useEffect(() => {
     if (!isOpen) {
       setSuccess('');
-      setSmallError('');
+      setPageError("")
+      setError('')
     }
   }, [isOpen]);
 
@@ -53,7 +54,7 @@ import ShowSuccess from '../ShowSuccess/ShowSuccess';
 
   const handleEditAccount = async ()=>{
     try{
-      const result = await editAccount(formdata , setLoading , setPageError , setUser , user , setFieldErrors , false , t) 
+      const result = await editAccount(formdata , setLoading , setPageError , setUser , user , setFieldErrors , false , t , setError) 
       
       if (result?.success) {
         setSuccess('Profile updated successfully');
@@ -65,13 +66,13 @@ import ShowSuccess from '../ShowSuccess/ShowSuccess';
       }
     }catch(err){
         if (err.response?.data?.message) {
-            setSmallError(t(`errors:${err.response.data.message}`))
+            setPageError(t(`errors:${err.response.data.message}`))
         } else if (err.message === "Network Error") {
-            setSmallError(t("errors:NETWORK_ERROR"))
+            setPageError(t("errors:NETWORK_ERROR"))
         } else if (err.message) {
-            setSmallError(t(`errors:${err.message}`))
+            setPageError(t(`errors:${err.message}`))
         } else {
-            setSmallError(t("errors:SOMETHING_WENT_WRONG"))
+            setPageError(t("errors:SOMETHING_WENT_WRONG"))
         }
     }
   }
@@ -105,7 +106,11 @@ import ShowSuccess from '../ShowSuccess/ShowSuccess';
               <div className="h-full flex items-center justify-center pb-[env(safe-area-inset-bottom)]">
                 <ShowSuccess message={success} onClose={() => setSuccess('')} />
               </div>
-            ) :(
+            ) :pageError ? (
+              <div className="h-full flex items-center justify-center pb-[env(safe-area-inset-bottom)]">
+                <PageError error={pageError} />
+              </div>
+            ) : (
             <>
             {/* Handle bar */}
             <div className="flex justify-center pt-4 pb-2">
@@ -230,13 +235,13 @@ import ShowSuccess from '../ShowSuccess/ShowSuccess';
 
             {/* Error Message */}
             <div className="px-4">
-              {pageError && (
+              {error && (
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm"
                 >
-                  {pageError}
+                  {error}
                 </motion.div>
               )}
             </div>
