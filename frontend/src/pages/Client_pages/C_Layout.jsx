@@ -50,7 +50,7 @@ const C_Layout = () => {
       if (!user) return;
       const get = async ()=>{
         try{
-          await fetchNotificationCount(user?.accountType , setNotificationsCount , setPageError)
+          await fetchNotificationCount(user?.accountType , setNotificationsCount , setPageError , t)
         }catch(err){
           if (err.response?.data?.message) {
               setPageError(t(err.response.data.message))

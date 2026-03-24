@@ -12,7 +12,7 @@ const C_ALL_Categories = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [ads , setAds]=useState([])
-  const [loading , setLoading]=useState(false)
+  const [loading , setLoading]=useState(true)
   const [pageError , setPageError]=useState('')
   const [categories , setCategories]=useState([])
   const [currentSlide, setCurrentSlide] = useState(1);

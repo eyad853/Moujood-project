@@ -498,7 +498,7 @@ const BusinessSignup = () => {
                 style={{
                   width: '100px',
                   height: '100px',
-                  objectFit: 'contain',
+                  objectFit: 'cover',
                   borderRadius: '8px',
                   border: '1px solid #e0e0e0',
                 }}

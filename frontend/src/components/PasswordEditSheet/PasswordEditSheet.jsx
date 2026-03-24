@@ -97,13 +97,15 @@ import ShowSuccess from '../ShowSuccess/ShowSuccess';
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
             className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl z-50 h-[90vh] overflow-y-auto"
           >
-            {loading?(
-              <Loadiing />
+            {loading ? (
+              <div className="h-full flex items-center justify-center pb-[env(safe-area-inset-bottom)]">
+                <Loadiing />
+              </div>
             ) : success ? (
-                <ShowSuccess message={success} onClose={()=>{setSuccess('')}}/>
-              ) :pageError?(
-                <PageError error={pageError}/>
-              ) : (
+              <div className="h-full flex items-center justify-center pb-[env(safe-area-inset-bottom)]">
+                <ShowSuccess message={success} onClose={() => setSuccess('')} />
+              </div>
+            ) :(
             <>
             {/* Handle bar */}
             <div className="flex justify-center pt-4 pb-2">
@@ -240,7 +242,7 @@ import ShowSuccess from '../ShowSuccess/ShowSuccess';
             </div>
 
             {/* Actions */}
-            <div className="px-6 py-6 border-t border-gray-100 space-y-3">
+            <div className="px-6 py-6 border-t border-gray-100 space-y-3 pb-[calc(env(safe-area-inset-bottom)+16px)]">
               <button
                 onClick={async()=>{
                     await handleEditAccount()

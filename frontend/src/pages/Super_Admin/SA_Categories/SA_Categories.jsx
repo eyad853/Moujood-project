@@ -17,7 +17,7 @@ const SA_Categories = () => {
   const [categories , setCategories]=useState([])
   const [pageError , setPageError]=useState('')
   const {setSmallError}=useError()
-  const [loading , setLoading]=useState(false)
+  const [loading , setLoading]=useState(true)
   const {t}=useTranslation()
   const [formData, setFormData] = useState({
     name: '',

@@ -23,7 +23,7 @@ const SA_Posts = () => {
   const {isOfferSheetOpen, setIsOfferSheetOpen , selectedOffer, setSelectedOffer} = useOffer();
   const [isOfferDetailsOpen , setIsOffersDetailsOpen]=useState(false)
   const [categories , setCategories]=useState([])
-  const [loading ,setLoading]=useState(false)
+  const [loading ,setLoading]=useState(true)
   const [offers , setOffers]=useState([])
   const {user} = useUser()
   const [pageError , setPageError]=useState('')

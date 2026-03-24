@@ -19,6 +19,7 @@ const EditProfileSheet = ({ isOpen, onClose }) => {
   const [logoPreview, setLogoPreview] = useState(null);
   const [categories, setCategories] = useState([]);
   const [pageError , setPageError]=useState('')
+  const [error , setError]=useState('')
   const [fieldErrors, setFieldErrors] = useState({})
   const [loading , setLoading]=useState(false)
   const { user , setUser } = useUser();
@@ -238,7 +239,7 @@ const EditProfileSheet = ({ isOpen, onClose }) => {
         locations: JSON.stringify(validLocations)
       };
       console.log(payload);
-      const result = await editAccount(payload , setLoading , setPageError , setUser , user , setFieldErrors , true , t) 
+      const result = await editAccount(payload , setLoading , setPageError , setUser , user , setFieldErrors , true , t , setError) 
 
       if (result?.success) {
         setSuccess('Profile updated successfully');
@@ -282,13 +283,19 @@ const EditProfileSheet = ({ isOpen, onClose }) => {
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
             className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl z-50 h-[90vh] overflow-y-auto"
           >
-            {loading?(
-              <Loadiing />
+            {loading ? (
+              <div className="h-full flex items-center justify-center pb-[env(safe-area-inset-bottom)]">
+                <Loadiing />
+              </div>
             ) : success ? (
-                <ShowSuccess message={success} onClose={()=>{setSuccess('')}}/>
-              ): pageError ? (
-                <PageError error={pageError}/>
-              ): (
+              <div className="h-full flex items-center justify-center pb-[env(safe-area-inset-bottom)]">
+                <ShowSuccess message={success} onClose={() => setSuccess('')} />
+              </div>
+            ) : pageError ? (
+              <div className="h-full flex items-center justify-center pb-[env(safe-area-inset-bottom)]">
+                <PageError error={pageError} />
+              </div>
+            ) : (
               <>
             {/* Header */}
             <div className="sticky top-0 z-20 bg-white border-b border-gray-200 px-5 py-4 flex items-center justify-between rounded-t-3xl">
@@ -305,7 +312,7 @@ const EditProfileSheet = ({ isOpen, onClose }) => {
             </div>
 
             {/* Form Content */}
-            <div className="px-5 py-6 pb-8">
+            <div className="px-5 py-6 pb-[calc(env(safe-area-inset-bottom)+24px)]">
               {/* Logo Circle */}
               <div className="flex justify-center mb-6">
                 <div className="relative">
@@ -684,13 +691,13 @@ const EditProfileSheet = ({ isOpen, onClose }) => {
 
               {/* Error Message */}
             <div className="px-4">
-              {pageError && (
+              {error && (
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="p-4 mb-5 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm"
                 >
-                  {pageError}
+                  {error}
                 </motion.div>
               )}
             </div>

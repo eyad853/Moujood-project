@@ -19,6 +19,7 @@ const Settings = () => {
   const {t , i18n} = useTranslation('settings')
   const lang = i18n.language
   const isRTL = i18n.language === "ar"; // true if Arabic
+  const {user}=useUser()
 
 
   // Password sheet state
@@ -44,7 +45,8 @@ const Settings = () => {
       <div className="px-5 py-6 space-y-6">
 
         {/* Security Section */}
-        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+        {user?.accountType==='user'&&user?.auth_provider==='local' ||user?.accountType==='business'&&(
+          <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
           {/* Section Header */}
           <div className="px-5 py-4 border-b border-gray-100">
             <div className={`flex items-center gap-3`}>
@@ -71,7 +73,7 @@ const Settings = () => {
             </div>
             <ChevronRight size={20} className="text-gray-400" />
           </button>
-        </div>
+        </div>)}
 
         {/* Language Section */}
         <div className="bg-white rounded-2xl shadow-sm overflow-hidden">

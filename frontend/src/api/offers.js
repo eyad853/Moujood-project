@@ -1,6 +1,7 @@
 import axios from 'axios'
 
-export const addOffer = async (setError, setOffers, formData, imagePreview , setTotalOffers , setCategories , t) => {
+export const addOffer = async (setError, setOffers, formData, imagePreview , setTotalOffers , setCategories , t , setLoading) => {
+    setLoading(true)
 if (!formData.title || formData.title.trim().length === 0) {
     setError(t("limits:TITLE_REQUIRED"));
     return;
@@ -125,10 +126,13 @@ if (!formData.title || formData.title.trim().length === 0) {
         } else {
             setError(t("errors:SOMETHING_WENT_WRONG"))
         }
+    }finally{
+        setLoading(false)
     }
 };
 
-export const editOffer = async (setError, offerId, setOffers, formData, imagePreview , setCategories , t) => {
+export const editOffer = async (setError, offerId, setOffers, formData, imagePreview , setCategories , t , setLoading) => {
+    setLoading(true)
   if (!formData.title || formData.title.trim().length === 0) {
     setError(t("TITLE_REQUIRED"));
     return;
@@ -294,6 +298,8 @@ export const editOffer = async (setError, offerId, setOffers, formData, imagePre
         } else {
             setError(t("errors:SOMETHING_WENT_WRONG"))
         }
+    }finally{
+        setLoading(false)
     }
 };
 

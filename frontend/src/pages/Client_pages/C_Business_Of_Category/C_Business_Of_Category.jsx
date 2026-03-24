@@ -12,7 +12,7 @@ const C_Business_Of_Category = () => {
   const {mainCategoryId, subCategoryName , subCategoryId } = useParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [businesses , setBusinesses]=useState([])
-  const [loading , setLoading]=useState(false)
+  const [loading , setLoading]=useState(true)
   const [pageError , setPageError]=useState('')
   const [selectedCategory , setSelectedCategory]=useState(null)
   const [categories , setCategories]=useState([])

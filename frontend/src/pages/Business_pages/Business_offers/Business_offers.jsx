@@ -17,7 +17,7 @@ const Business_offers = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategoy , setSelectedCategory]=useState('')
   const {isOfferSheetOpen, setIsOfferSheetOpen, selectedOffer, setSelectedOffer} = useOffer()
-  const [loading , setLoading]=useState(false)
+  const [loading , setLoading]=useState(true)
   const [categories , setCategories]=useState([])
   const [offers , setOffers]=useState([])
   const [isOfferDetailsOpen , setIsOffersDetailsOpen]=useState(false)

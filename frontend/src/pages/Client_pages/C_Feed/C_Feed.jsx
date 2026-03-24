@@ -22,7 +22,7 @@ const C_Feed = () => {
   const [ads , setAds]=useState([])
   const [pageError , setPageError]=useState('')
   const {smallError , setSmallError}=useError()
-  const [loading , setLoading]=useState(false)
+  const [loading , setLoading]=useState(true)
   const [offers , setOffers]=useState([])
   const [categories , setCategories]=useState([])
   const [commentsSheetOpen , setCommnetsSheetOpen]=useState(false)
@@ -257,7 +257,7 @@ const formatLikesAndCommentsCount = (num) => {
       <div className="bg-white px-5 py-4 border-b border-gray-200 sticky top-0 z-20">
         <div className="flex items-center justify-between mb-4">
           {/* User Avatar */}
-          <div className="flex w-12 rounded-full overflow-hidden h-12 items-center gap-3">
+          <Link to={'/client/profile'} className="flex w-12 rounded-full overflow-hidden h-12 items-center gap-3">
             {user?.avatar?(
               <img
               src={user?.avatar}
@@ -267,7 +267,7 @@ const formatLikesAndCommentsCount = (num) => {
                   <FaUser className='text-[#009842]' size={35}/>
               </div>
             )}
-          </div>
+          </Link>
 
           {/* Logo */}
           <img src="/logo.svg" alt="Maujood Logo" className="h-10 object-contain" />

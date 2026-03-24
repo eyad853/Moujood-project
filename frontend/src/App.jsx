@@ -256,19 +256,26 @@ const routes = [
 const router = createBrowserRouter(routes)
 
 const App = () => {
+
+  if (window.Capacitor) {
+    window.Capacitor.triggerEvent('pause', 'document');
+  }
   const [showUpdateModal, setShowUpdateModal] = useState(false);
 
   useEffect(() => {
   const init = async () => {
     // Initialize social login
+    console.log('SocialLogin:', SocialLogin);
     await SocialLogin.initialize({
       google: {
-        webClientId: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-        mode: "online"
+        clientId:import.meta.env.VITE_GOOGLE_ANDROID_CLIENT_ID,
+        webClientId: import.meta.env.VITE_GOOGLE_WEB_CLIENT_ID,
+        scopes: ["email", "profile"]
       },
       facebook: {
         appId: import.meta.env.VITE_FACEBOOK_CLIENT_ID,
-        clientToken: import.meta.env.VITE_FACEBOOK_CLIENT_TOKEN 
+        clientToken: import.meta.env.VITE_FACEBOOK_CLIENT_TOKEN ,
+        scopes: ["email", "public_profile"]
       }
     });
 
@@ -281,6 +288,7 @@ const App = () => {
     }
 
     // Push notification listeners
+    console.log('PushNotifications:', PushNotifications);
     const registrationListener = PushNotifications.addListener('registration', async (token) => {
       const savedToken = await Preferences.get({ key: "pushToken" });
       if (savedToken.value !== token.value) {
@@ -301,6 +309,7 @@ const App = () => {
     if (updateResult.update) setShowUpdateModal(true);
 
     // Back button & URL listeners
+    console.log('CapApp:', CapApp);
     const backHandler = CapApp.addListener('backButton', handleBackButton);
     const urlHandler = CapApp.addListener('appUrlOpen', (event) => {
       try {

@@ -1,7 +1,7 @@
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
         name VARCHAR(150) NOT NULL,
-        email VARCHAR(150) UNIQUE NOT NULL,
+        email VARCHAR(150),
         auth_provider VARCHAR(20)CHECK (auth_provider IN ('local', 'google', 'facebook')) DEFAULT 'local',
         password VARCHAR(255),
         avatar VARCHAR(500),

@@ -364,7 +364,7 @@ export const getUser = async (req, res) => {
     if (accountType === 'user' || accountType=== 'super_admin') {
       // Fetch user data
       const result = await pool.query(
-        "SELECT id, name, email, gender, governorate, avatar , user_type, created_at FROM users WHERE id = $1",
+        "SELECT id, name, email, gender, governorate, avatar , auth_provider , user_type, created_at FROM users WHERE id = $1",
         [id]
       );
 
@@ -697,7 +697,7 @@ export const verifyEmail = async (req, res) => {
 
       // Get user data
       const userRes = await pool.query(
-        "SELECT id, name, email, user_type,avatar , gender , governorate FROM users WHERE id=$1",
+        "SELECT id, name, email, user_type,avatar , gender , auth_provider , governorate FROM users WHERE id=$1",
         [record.account_id]
       );
       account = userRes.rows[0];
@@ -832,197 +832,111 @@ export const resendVerificationEmail = async (req, res) => {
   }
 };
 
-export const handleGoogleAuth = async (req, res) => {
-  const { idToken, deviceId, deviceToken } = req.body;
+export const handleOuthAuth = async (req, res) => {
+  const { deviceId, deviceToken , provider } = req.body;
 
   try {
-    const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+    let name, email, avatar;
 
-    const ticket = await client.verifyIdToken({
-      idToken,
-      audience: process.env.GOOGLE_CLIENT_ID,
-    });
-
-    const payload = ticket.getPayload();
-    const name = payload?.name;
-    const email = payload?.email;
-    const avatar = payload?.picture;
-
-    if (!email) {
-      return res.status(500).json({
-        error: true,
-        message: ERRORS.NO_EMAIL_FROM_GOOGLE,
+    if (provider === 'google') {
+      const { idToken } = req.body;
+      const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+      const ticket = await client.verifyIdToken({
+        idToken,
+        audience: process.env.GOOGLE_CLIENT_ID,
       });
-    }
+      const payload = ticket.getPayload();
+      name = payload?.name ?? 'Google User';
+      email = payload?.email;
+      avatar = payload?.picture ?? null;
 
-    // ✅ 1. CHECK BUSINESS FIRST
-    const businessResult = await pool.query(
-      `SELECT id FROM businesses WHERE email = $1`,
-      [email]
-    );
-
-    let account;
-    let accountType;
-
-    if (businessResult.rows.length > 0) {
-      const businessId = businessResult.rows[0].id;
-
-      const businessData = await pool.query(`
-        SELECT 
-          b.id,
-          b.name,
-          b.email,
-          b.category,
-          b.logo,
-          b.description,
-          b.active,
-          b.number,
-          COALESCE(
-            json_agg(
-              json_build_object(
-                'id', l.id,
-                'lat', l.lat,
-                'lng', l.lng
-              )
-            ) FILTER (WHERE l.id IS NOT NULL),
-            '[]'
-          ) AS locations
-        FROM businesses b
-        LEFT JOIN business_locations l ON b.id = l.business_id
-        WHERE b.id = $1
-        GROUP BY b.id
-      `, [businessId]);
-
-      account = businessData.rows[0];
-      accountType = 'business';
-    } else {
-      // ✅ 2. USER LOGIC
-      const userResult = await pool.query(
-        `SELECT id , name , email , gender , governorate , avatar , user_type FROM users WHERE email = $1`,
-        [email]
-      );
-
-      if (userResult.rows.length > 0) {
-        account = userResult.rows[0];
-      } else {
-        const result = await pool.query(`
-          INSERT INTO users (
-            name,
-            email,
-            avatar,
-            password,
-            auth_provider,
-            user_type,
-            gender,
-            governorate
-          )
-          VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
-          RETURNING id , name , email , gender , governorate , avatar , user_type
-        `, [name, email, avatar, null, 'google', 'user', 'male', 'Cairo']);
-
-        account = result.rows[0];
+      if (!email) {
+        return res.status(500).json({
+          error: true,
+          message: ERRORS.NO_EMAIL_FROM_GOOGLE,
+        });
       }
-
-      accountType = 'user';
-    }
-
-    // ✅ 3. REGISTER DEVICE TOKEN
-    const { error, message } = await registerDeviceToken(
-      deviceToken,
-      deviceId,
-      account.id,
-      accountType
-    );
-
-    if (error) {
-      return res.status(500).json({ error: true, message });
-    }
-
-    // ✅ 4. RESPONSE
-    res.status(200).json({
-      error: false,
-      account:{...account , accountType},
-    });
-
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: ERRORS.SERVER_ERROR });
-  }
-};
-
-export const handleFacebookAuth = async (req, res) => {
-  const { accessToken, deviceId, deviceToken } = req.body;
-
-  try {
-    const facebook = new Facebook({
-      appId: process.env.FACEBOOK_CLIENT_ID,
-      secret: process.env.FACEBOOK_CLIENT_SECRET,
-      version: 'v17.0',
-    });
-
-    // ❗ FIX: add await
-    const payload = await facebook.api('/me', {
-      fields: "id,name,email,picture",
-      accessToken,
-    });
-
-    const name = payload?.name;
-    const email = payload?.email;
-    const avatar = payload?.picture?.data?.url;
-
-    if (!email) {
-      return res.status(500).json({
-        error: true,
-        message: ERRORS.NO_EMAIL_FROM_FACEBOOK,
+    } else if (provider === 'facebook') {
+      const { accessToken } = req.body;
+      console.log("FB token:", accessToken);
+      const facebook = new Facebook({
+        appId: process.env.FACEBOOK_CLIENT_ID,
+        secret: process.env.FACEBOOK_CLIENT_SECRET,
+        version: 'v17.0',
       });
+      const payload = await new Promise((resolve, reject) => {
+        facebook.api(
+          '/me',
+          {
+            fields: 'id,name,email,picture',
+            access_token: accessToken, // ⚠️ important name
+          },
+          (err, data) => {
+            if (err) return reject(err);
+            resolve(data);
+          }
+        );
+      });
+      name = payload?.name ?? 'Facebook User';
+      email = payload?.email ?? null;
+      avatar = payload?.picture?.data?.url ?? null;
+    } else {
+      return res.status(400).json({ error: true, message: "Invalid provider" });
     }
-
-    // ✅ 1. CHECK BUSINESS FIRST
-    const businessResult = await pool.query(
-      `SELECT id FROM businesses WHERE email = $1`,
-      [email]
-    );
 
     let account;
     let accountType;
 
-    if (businessResult.rows.length > 0) {
-      const businessId = businessResult.rows[0].id;
-
-      const businessData = await pool.query(`
-        SELECT 
-          b.id,
-          b.name,
-          b.email,
-          b.category,
-          b.logo,
-          b.description,
-          b.active,
-          b.number,
-          COALESCE(
-            json_agg(
-              json_build_object(
-                'id', l.id,
-                'lat', l.lat,
-                'lng', l.lng
-              )
-            ) FILTER (WHERE l.id IS NOT NULL),
-            '[]'
-          ) AS locations
-        FROM businesses b
-        LEFT JOIN business_locations l ON b.id = l.business_id
-        WHERE b.id = $1
-        GROUP BY b.id
-      `, [businessId]);
-
-      account = businessData.rows[0];
-      accountType = 'business';
-    } else {
-      // ✅ USER LOGIC
-      const userResult = await pool.query(
-        `SELECT id , name , email , gender , governorate , avatar , user_type FROM users WHERE email = $1`,
+    // ✅ BUSINESS CHECK
+    if (email) {
+      const businessResult = await pool.query(
+        `SELECT id FROM businesses WHERE email = $1`,
         [email]
       );
+
+      if (businessResult.rows.length > 0) {
+        const businessId = businessResult.rows[0].id;
+
+        const businessData = await pool.query(`
+          SELECT 
+            b.id,
+            b.name,
+            b.email,
+            b.category,
+            b.logo,
+            b.description,
+            b.active,
+            b.number,
+            COALESCE(
+              json_agg(
+                json_build_object(
+                  'id', l.id,
+                  'lat', l.lat,
+                  'lng', l.lng
+                )
+              ) FILTER (WHERE l.id IS NOT NULL),
+              '[]'
+            ) AS locations
+          FROM businesses b
+          LEFT JOIN business_locations l ON b.id = l.business_id
+          WHERE b.id = $1
+          GROUP BY b.id
+        `, [businessId]);
+
+        account = businessData.rows[0];
+        accountType = 'business';
+      }
+    }
+
+    // ✅ USER LOGIC
+    if (!account) {
+      const userResult = email
+        ? await pool.query(
+            `SELECT id, name, email, gender, governorate, avatar, user_type 
+             FROM users WHERE email = $1`,
+            [email]
+          )
+        : { rows: [] };
 
       if (userResult.rows.length > 0) {
         account = userResult.rows[0];
@@ -1039,8 +953,8 @@ export const handleFacebookAuth = async (req, res) => {
             governorate
           )
           VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
-          RETURNING id , name , email , gender , governorate , avatar , user_type
-        `, [name, email, avatar, null, 'facebook', 'user', 'male', 'Cairo']);
+          RETURNING id, name, email, gender, governorate, avatar, user_type
+        `, [name, email, avatar, null, provider, 'user', 'male', 'Cairo']);
 
         account = result.rows[0];
       }
@@ -1060,9 +974,18 @@ export const handleFacebookAuth = async (req, res) => {
       return res.status(500).json({ error: true, message });
     }
 
-    res.status(200).json({
-      error: false,
-      account:{...account , accountType},
+    const fullAccount = { ...account, accountType };
+
+    req.login(fullAccount, (err) => {
+      if (err) return res.status(500).json({
+        error: true,
+        message: ERRORS.SERVER_ERROR
+      });
+
+      res.status(200).json({
+        error: false,
+        account: fullAccount,
+      });
     });
 
   } catch (error) {

@@ -1,7 +1,7 @@
 import dotenv from 'dotenv' 
 dotenv.config()
 import express from 'express'
-import {businessesSignup, createToken, editAccount, forgotPassword, getUser, handleFacebookAuth, handleGoogleAuth, localSignup, login, logout, resendVerificationEmail, resetPassword, verifyEmail } from '../controllers/auth.js'
+import {businessesSignup, createToken, editAccount, forgotPassword, getUser, handleOuthAuth, localSignup, login, logout, resendVerificationEmail, resetPassword, verifyEmail } from '../controllers/auth.js'
 import { uploadFile } from '../utils/multer.js' 
 import ensureAuth from '../utils/ensureAuth.js'
 
@@ -10,8 +10,8 @@ const authRouter = express.Router()
 
 authRouter.post('/business' ,uploadFile('logo').single('image'), businessesSignup)
 authRouter.post('/local' , localSignup)
-authRouter.post('/google' , handleGoogleAuth)
-authRouter.post('/facebook' , handleFacebookAuth)
+authRouter.post('/google' , handleOuthAuth)
+authRouter.post('/facebook' , handleOuthAuth)
 authRouter.post('/login' , login)
 authRouter.get('/me' ,ensureAuth, getUser)
 authRouter.post('/logout' , logout)

@@ -12,7 +12,7 @@ import PageError from '../PageError/PageError';
 const OfferDetailSheet = ({ isOpen, onClose , offerId}) => {
     const [offer , setOffer]=useState({})    
     const [error ,setError]=useState('')
-    const [loading , setLoading]=useState(false)
+    const [loading , setLoading]=useState(true)
     const {showMapModal,setShowMapModal,markers,setMarkers ,userLocation,setUserLocation}=useMapProvider()
     const {user}=useUser()
     const {t , i18n}=useTranslation('offerDetailsSheet')
@@ -171,11 +171,16 @@ useEffect(() => {
             className="fixed bottom-0 z-50 bg-white rounded-t-3xl h-[90vh] overflow-y-auto hide-scrollbar w-full left-0 right-0 md:w-[390px] md:right-30 md:left-auto
           "
           >
-            {loading?(
+          {loading ? (
+            <div className="h-full flex items-center justify-center pb-[env(safe-area-inset-bottom)]">
               <Loadiing />
-            ):error?(
-              <PageError error={error}/>
-            ):(<>
+            </div>
+          ) : error ? (
+            <div className="h-full flex items-center justify-center pb-[env(safe-area-inset-bottom)]">
+              <PageError error={error} />
+            </div>
+          ) : (
+            <>
             {/* Header */}
             <div className="sticky top-0 z-20 bg-white border-b border-gray-200 px-5 py-4 flex items-center justify-between rounded-t-3xl">
               <h2 className="text-xl font-semibold text-gray-900">{t("title")}</h2>
@@ -188,7 +193,7 @@ useEffect(() => {
             </div>
 
             {/* Content */}
-            <div className="px-5 py-6 pb-8">
+            <div className="px-5 py-6 pb-[calc(env(safe-area-inset-bottom)+24px)]">
               {/* Offer Image */}
               {offer?.image && (
                 <div className="w-full h-auto bg-gradient-to-br from-[#009842] to-[#007a36] rounded-2xl overflow-hidden mb-5">

@@ -19,7 +19,7 @@ const Notifications = () => {
   const navigate = useNavigate();
   const [pageError , setPageError]=useState('')
   const {smallError , setSmallError}=useError()
-  const [loading , setLoading]=useState(false)
+  const [loading , setLoading]=useState(true)
   const [notifications , setNotifications]=useState([])
   const {user}=useUser()
   const {t}=useTranslation('notification')

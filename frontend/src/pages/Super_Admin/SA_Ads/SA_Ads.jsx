@@ -12,7 +12,7 @@ const SA_Ads = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [editingAd, setEditingAd] = useState(null);
-  const [loading , setLoading]=useState(false)
+  const [loading , setLoading]=useState(true)
   const [pageError , setPageError]=useState('')
   const {setSmallError}=useError()
   const [selectedAd , setSelectedAd]=useState({})

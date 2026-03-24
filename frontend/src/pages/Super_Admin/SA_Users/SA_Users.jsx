@@ -16,7 +16,7 @@ const SA_Users = () => {
   const [filterType, setFilterType] = useState('');
   const [filterValue, setFilterValue] = useState('');
   const [users , setUsers]=useState([])
-  const [loading ,setLoading]=useState(false)
+  const [loading ,setLoading]=useState(true)
   const [pageError , setPageError]=useState('')
   const [totalPercantage , setTotalPercantage]=useState(0)
   const [malePercantage , setMalePercantage]=useState(0)

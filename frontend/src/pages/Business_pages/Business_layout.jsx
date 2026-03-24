@@ -42,7 +42,7 @@ const Business_layout = () => {
         if (!user) return;
         const get = async ()=>{
           try{
-            await fetchNotificationCount(user?.accountType , setNotificationsCount , setError)
+            await fetchNotificationCount(user?.accountType , setNotificationsCount , setError , t)
           }catch(err){
             console.log(err);
           }

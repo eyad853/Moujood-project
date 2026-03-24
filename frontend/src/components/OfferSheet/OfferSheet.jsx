@@ -138,13 +138,19 @@ const OfferSheet = ({ isOpen, onClose, offerId ,setOffers , setTotalOffers , set
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
             className="fixed bottom-0 z-50 bg-white rounded-t-3xl h-[90vh] overflow-y-auto hide-scrollbar w-full left-0 right-0 md:w-[390px] md:right-30 md:left-auto"
           >
-            {loading?(
-              <Loadiing />
-            ):pageError?(
-              <PageError error={pageError}/>
-            ):(<>
+            {loading ? (
+              <div className="h-full flex items-center justify-center pb-[env(safe-area-inset-bottom)]">
+                <Loadiing />
+              </div>
+            ) : pageError ? (
+              <div className="h-full flex items-center justify-center pb-[env(safe-area-inset-bottom)]">
+                <PageError error={pageError} />
+              </div>
+            ) : (
+            <>
             {/* Header */}
-            <div className="sticky top-0 z-20 bg-white border-b border-gray-200 px-5 py-4 flex items-center justify-between rounded-t-3xl">
+            <div 
+            className="sticky  top-0 z-20 bg-white border-b border-gray-200 px-5 py-4 flex items-center justify-between rounded-t-3xl">
               <button
                 onClick={onClose}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -158,7 +164,7 @@ const OfferSheet = ({ isOpen, onClose, offerId ,setOffers , setTotalOffers , set
             </div>
 
             {/* Form Content */}
-            <div className="px-5 py-6 pb-8">
+            <div className="px-5 py-6 pb-[calc(env(safe-area-inset-bottom)+24px)]">
               {/* Offer Title */}
               <div className="mb-5">
                 <label className={`block text-sm font-semibold text-gray-900 mb-2 ${isRTL?'text-right':"text-left"}`}>
@@ -410,9 +416,9 @@ const OfferSheet = ({ isOpen, onClose, offerId ,setOffers , setTotalOffers , set
               <button
                 onClick={async()=>{
                   offer?
-                  await editOffer(setSmallError , offer.offer_id , setOffers , formData , imagePreview , setFuncUsedCategories , t)
+                  await editOffer(setSmallError , offer.offer_id , setOffers , formData , imagePreview , setFuncUsedCategories , t , setLoading)
                   :
-                  await addOffer(setSmallError , setOffers , formData , imagePreview , setTotalOffers , setFuncUsedCategories , t)
+                  await addOffer(setSmallError , setOffers , formData , imagePreview , setTotalOffers , setFuncUsedCategories , t , setLoading)
                   setIsOfferSheetOpen(false)
                   setSelectedOffer(null)
                 }}

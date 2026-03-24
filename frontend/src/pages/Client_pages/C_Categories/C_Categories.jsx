@@ -15,7 +15,7 @@ const C_Categories = () => {
   const [searchQuery, setSearchQuery] = useState('');
   // const [categories , setCategories]=useState([])
   const [ads , setAds]=useState([])
-  const [loading , setLoading]=useState(false)
+  const [loading , setLoading]=useState(true)
   const [pageError , setPageError]=useState('')
   const [categories , setCategories]=useState([])
   const [notificationsCount , setNotificationsCount] = useState(0)

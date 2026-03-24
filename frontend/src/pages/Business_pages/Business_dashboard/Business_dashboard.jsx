@@ -23,7 +23,7 @@ const Business_dashboard = () => {
   const [offers , setOffers]=useState([])
   const [totalOffers , setTotalOffers]=useState(0)
   const [totalLikes , setTotalLikes]=useState(0)
-  const [loading , setLoading]=useState(false)
+  const [loading , setLoading]=useState(true)
   const {user} = useUser() 
   const [categories , setCategories]=useState([])
   const [isOfferDetailsOpen , setIsOffersDetailsOpen]=useState(false)
@@ -62,6 +62,8 @@ const Business_dashboard = () => {
   const filteredOffers = selectedCategoy
   ? offers.filter(o => o.category === selectedCategoy)
   : offers; // no category selected → show all offers
+
+  const hasData = filteredOffers?.length > 0 || categories?.length > 0;
 
   useEffect(()=>{
     const loadData =async ()=>{
@@ -118,7 +120,7 @@ useEffect(()=>{
     <div className="min-h-screen bg-gray-50 pb-24">
       {/* Header */}
       <div className="bg-white px-5 py-4 flex items-center justify-between border-b border-gray-200">
-        <div className="flex w-12 rounded-full overflow-hidden h-12 items-center gap-3">
+        <Link to={"/business/profile"} className="flex w-12 rounded-full overflow-hidden h-12 items-center gap-3">
           {user?.logo?(
             <img
             src={user?.logo}
@@ -128,7 +130,7 @@ useEffect(()=>{
                 <FaUser className='text-[#009842]' size={35}/>
             </div>
           )}
-        </div>
+        </Link>
 
         <div className="flex-1 flex justify-center">
           <img src="/logo.svg" className="h-10 object-contain" />
@@ -166,7 +168,7 @@ useEffect(()=>{
           })}
         </div>
 
-        {hasOffers ? (
+        {hasData ? (
           <>
             {/* All Offers Section */}
             <div className="px-3 flex items-center justify-between mb-4">
@@ -214,7 +216,20 @@ useEffect(()=>{
               ))}
             </div>
           </>
-        ) : null}
+        ) : (
+          <div className="flex flex-col items-center justify-center">
+            <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mb-4">
+              <QrCode size={48} className="text-gray-400" />
+            </div>
+            <h3 className="text-xl font-semibold text-gray-700 mb-2">
+              {t('businessOffers:noOffers')}
+            </h3>
+            <p className="text-gray-500 text-center px-8">
+              {t("businessOffers:noMessage")}
+            </p>
+          </div>
+        )
+      }
 
         {/* Add New Offer Button */}
         <div className={`px-3 ${!hasOffers ? 'fixed bottom-32 left-0 right-0' : ''}`}>

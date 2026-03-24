@@ -16,7 +16,7 @@ const SA_Businesses = () => {
   const [category, setCategory] = useState('');
   const [subCategory, setSubCategory] = useState('');
   const [orderStatus, setOrderStatus] = useState('');
-  const [loading ,setLoading]=useState(false)
+  const [loading ,setLoading]=useState(true)
   const [businesses , setBusinesses]=useState([])
   const [categories , setCategories]=useState([])
   const [selectedBusiness , setSelectedBusiness] = useState(null)

@@ -9,7 +9,7 @@ import PageError from '../PageError/PageError';
 const NotificationBottomSheet = ({ isOpen, onClose, notificationId }) => {
   const [notification, setNotification] = useState(null);
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const {t}=useTranslation()
 
   const timeAgo = (dateString) => {
@@ -85,12 +85,16 @@ const NotificationBottomSheet = ({ isOpen, onClose, notificationId }) => {
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
             className="fixed bottom-0 z-50 bg-white rounded-t-3xl h-[90vh] overflow-y-auto hide-scrollbar w-full left-0 right-0 md:w-[390px] md:right-30 md:left-auto"
           >
-            {loading?(
-              <Loadiing />
-            ): error ? (
-              <PageError error={error}/>
-            ):
-            (<>
+            {loading ? (
+              <div className="h-full flex items-center justify-center pb-[env(safe-area-inset-bottom)]">
+                <Loadiing />
+              </div>
+            ) : error ? (
+              <div className="h-full flex items-center justify-center pb-[env(safe-area-inset-bottom)]">
+                <PageError error={error} />
+              </div>
+            ) : (
+            <>
             {/* Handle */}
             <div className="flex justify-center pt-3 pb-2">
               <div className="w-12 h-1 bg-gray-300 rounded-full" />
@@ -111,12 +115,6 @@ const NotificationBottomSheet = ({ isOpen, onClose, notificationId }) => {
 
             {/* Content */}
             <div className="px-6 py-6">
-              {error && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                  <p className="text-red-800 text-sm">{error}</p>
-                </div>
-              )}
-
               {!loading && !error && notification && (
                 <div className="space-y-4">
                   {/* Title */}
@@ -143,7 +141,7 @@ const NotificationBottomSheet = ({ isOpen, onClose, notificationId }) => {
             </div>
 
             {/* Safe area for mobile devices */}
-            <div className="h-8" />
+            <div className="pb-[env(safe-area-inset-bottom)]" />
             </>)}
           </motion.div>
         </>

@@ -25,7 +25,7 @@ const SA_Notifications = () => {
 
   const [pageError , setPageError]=useState('')
   const {setSmallError}=useError()
-  const [loading , setLoading]=useState(false)
+  const [loading , setLoading]=useState(true)
 
   const [userNotifications , setUserNotifications]=useState([])
   const [businessNotifications , setBusinessNotifications]=useState([])

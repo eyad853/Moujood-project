@@ -193,7 +193,7 @@ const MapModal = ({showMapModal , setShowMapModal,userLocation , markers , handl
         }
       }}
     >
-      <div className="bg-white overflow-auto hide-scrollbar w-screen h-screen sm:w-full sm:h-auto sm:max-h-[95vh] sm:max-w-4xl sm:rounded-2xl flex flex-col shadow-2xl">
+      <div className="bg-white overflow-auto hide-scrollbar pb-[env(safe-area-inset-bottom)] pt-[env(safe-area-inset-top)] w-screen h-screen sm:w-full sm:h-auto sm:max-h-[95vh] sm:max-w-4xl sm:rounded-2xl flex flex-col shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between p-3 sm:p-5 border-b border-neutral-400 flex-shrink-0">
           <h3 className="text-lg sm:text-xl font-bold text-gray-900">

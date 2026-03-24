@@ -16,7 +16,7 @@ const C_Business_Page = ({businessId}) => {
   const navigate = useNavigate();
   const { business_id } = useParams();
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [loading , setLoading]=useState(false)
+  const [loading , setLoading]=useState(true)
   const [pageError , setPageError]=useState('')
   const [offers , setOffers]=useState([])
   const [categories , setCategories]=useState([])

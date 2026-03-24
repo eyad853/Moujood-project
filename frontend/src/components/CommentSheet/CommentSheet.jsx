@@ -7,13 +7,14 @@ import { useUser } from '../../context/userContext';
 import { useTranslation } from 'react-i18next';
 import {useError} from '../../context/error'
 import PageError from '../PageError/PageError'
+import { FaUser } from 'react-icons/fa6';
 
 
 const CommentSheet = ({ isOpen, onClose, offerId , setOffers }) => {
     const [content, setContent] = useState('');
     const [editingCommentId, setEditingCommentId] = useState(null);
     const [editingText, setEditingText] = useState('');
-    const [loading , setLoading]=useState(false)
+    const [loading , setLoading]=useState(true)
     const [comments, setComments] = useState([]);
     const {user} = useUser() 
     const {t , i18n}=useTranslation('commentsSheet')
@@ -96,11 +97,15 @@ const CommentSheet = ({ isOpen, onClose, offerId , setOffers }) => {
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
             className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl z-50 h-[85vh] flex flex-col"
           >
-            {loading?(
-              <Loadiing />
-            ):pageError?(
-                <PageError />
-            ):(
+            {loading ? (
+              <div className="flex-1 flex items-center justify-center pb-[env(safe-area-inset-bottom)]">
+                <Loadiing />
+              </div>
+            ) : pageError ? (
+              <div className="flex-1 flex items-center justify-center pb-[env(safe-area-inset-bottom)]">
+                <PageError error={pageError} />
+              </div>
+            ) : (
               <>
             {/* Header */}
             <div className="sticky top-0 z-20 bg-white border-b border-gray-200 px-5 py-4 flex items-center justify-between rounded-t-3xl">
@@ -215,13 +220,19 @@ const CommentSheet = ({ isOpen, onClose, offerId , setOffers }) => {
             </div>
 
             {/* Fixed Input Section */}
-            <div className="sticky bottom-0 bg-white border-t border-gray-200 px-5 py-4">
-              <div className="flex gap-3 items-end">
+            <div className="sticky bottom-0 bg-white border-t border-gray-200 px-5 py-4 pb-[calc(env(safe-area-inset-bottom)+12px)]">
+              <div className="flex gap-3  items-center">
                 {/* User Avatar */}
-                <div className="flex-shrink-0 mb-2">
-                  <div className="w-10 h-10 bg-gradient-to-br from-[#009842] to-[#007a36] rounded-full flex items-center justify-center text-white font-semibold">
-                    Y
-                  </div>
+                <div className="flex-shrink-0">
+                  {user?.avatar?(
+                    <img
+                    src={user?.avatar}
+                    className="w-11 h-11 rounded-full object-cover"
+                  />):(
+                    <div className="w-11 h-11 border border-neutral-300  overflow-hidden rounded-full flex justify-center items-end">
+                        <FaUser className='text-[#009842]' size={35}/>
+                    </div>
+                  )}
                 </div>
 
                 {/* Input and Send Button */}
