@@ -87,7 +87,7 @@ const governorateOptions = [
   }
 
   return (
-    <div className="min-h-screen bg-white pb-6">
+    <div className="min-h-screen bg-white pb-[env(safe-area-inset-bottom)]">
       {/* Status Bar Space */}
       <div className="h-11"></div>
 
@@ -399,9 +399,11 @@ const governorateOptions = [
           <div className="text-center text-sm mb-5">
             <span className="text-gray-600">{t('haveAccount')}</span>
             <Link to={'/login'} className="text-[#009842] font-semibold">
-              {t('login')}
+              {t('login')} 
             </Link>
+            <Link to={'/signup_as'} className='flex mt-3 justify-center mb-4 text-[#009842] font-semibold'>Back to choose account type</Link>
           </div>
+
 
           {/* Arabic Text */}
             <div className='text-[#1A423A] flex justify-center font-extrabold'>

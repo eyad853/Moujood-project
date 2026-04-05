@@ -15,5 +15,7 @@
   "placeholder": {
     "email": "Enter your email",
     "password": "Enter your password"
-  }
+  },
+  "Back to choose account type":"Back to choose account type"
+
 }

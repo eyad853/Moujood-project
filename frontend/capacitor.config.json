@@ -4,19 +4,20 @@
   "webDir": "dist",
   "plugins": {
   "PushNotifications": {
-    "presentationOptions": [ "sound", "alert"]
+    "presentationOptions": ["sound", "alert" , "badge"] 
   },
   "server": {
     "url": "http://192.168.8.16:5173",
     "cleartext": true
   },
+  
   "SplashScreen": {
     "launchShowDuration": 3000,
     "launchAutoHide": true,
     "launchFadeOutDuration": 3000,
     "backgroundColor": "#ffffffff",
     "androidSplashResourceName": "splash",
-    "androidScaleType": "CENTER_CROP",
+    "androidScaleType": "FIT_CENTER",
     "showSpinner": true,
     "androidSpinnerStyle": "large",
     "iosSpinnerStyle": "small",

@@ -13,23 +13,20 @@ export const AccountProvider = ({ children }) => {
   const [token , setToken]=useState(null)
   const {t} = useTranslation()
 
+  const syncToken = async () => {
+    await handleCreateToken();
+  };
+
   // Fetch user once when app loads
   useEffect(() => {
     const getUserData = async()=>{
-      await getUser(setLoading , setUser , setError , setToken , t)
+      const hasToken = await getUser(setLoading , setUser , setError , setToken , t)
+      if(!hasToken){
+        await syncToken()
+      }
     }
     getUserData()
   }, []);
-
-  useEffect(() => {
-    if(!user)return
-    
-    const syncToken = async () => {
-      await handleCreateToken();
-    };
-
-    syncToken();
-  }, [user]);
 
   
 

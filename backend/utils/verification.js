@@ -5,7 +5,7 @@ export const generateVerificationToken = () => {
   return crypto.randomBytes(32).toString("hex");
 };
 
-export const saveVerificationToken = async (accountId, accountType, token) => {
+export const saveVerificationToken = async (accountId, accountType, token , email) => {
   const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
 
   // delete old token if exists (because UNIQUE constraint)
@@ -16,9 +16,9 @@ export const saveVerificationToken = async (accountId, accountType, token) => {
   );
 
   await pool.query(
-    `INSERT INTO email_verification_tokens (account_id, account_type, token, expires_at)
-     VALUES ($1,$2,$3,$4)`,
-    [accountId, accountType, token, expiresAt]
+    `INSERT INTO email_verification_tokens (account_id, account_type, token, expires_at , email)
+     VALUES ($1,$2,$3,$4,$5)`,
+    [accountId, accountType, token, expiresAt , email]
   );
 };
 

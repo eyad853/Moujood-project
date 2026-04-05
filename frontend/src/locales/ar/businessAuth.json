@@ -46,5 +46,6 @@
     "required": "هذا الحقل مطلوب",
     "passwordMismatch": "كلمات المرور غير متطابقة",
     "invalidEmail": "البريد الإلكتروني غير صالح"
-  }
+  },
+  "Back to choose account type":"العودة لاختيار نوع الحساب"
 }

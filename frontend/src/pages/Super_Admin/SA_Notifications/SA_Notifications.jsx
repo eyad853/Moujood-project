@@ -560,7 +560,7 @@ const SA_Notifications = () => {
 
         {/* Notifications Items */}
         <div className="divide-y divide-gray-200">
-          {filteredNotifications?.map((notification) => (
+          {filteredNotifications.length>0?filteredNotifications?.map((notification) => (
             <div
               key={notification?.id}
               onClick={()=>{
@@ -631,7 +631,11 @@ const SA_Notifications = () => {
                 </div>
               </div>
             </div>
-          ))}
+          )):(
+            <div className="flex justify-center font-semibold items-center py-10 text-gray-500 text-sm">
+              No notifications yet
+            </div>
+          )}
         </div>
       </div>
       {isNotificationSheetOpen && selectedNotification?.id&& (

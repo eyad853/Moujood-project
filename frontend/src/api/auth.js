@@ -88,6 +88,7 @@ export const localAuth = async(setError , data ,navigate , setLoading , fromSupe
               }
             })
         }else{
+          setUser(response?.data?.account)
           navigate('/super_admin/dashboard')
         }
     }catch(err){
@@ -134,7 +135,9 @@ export const login = async (setError, data, navigate , setLoading , setUser , se
     const result = response.data;
     setUser(result.account)
     // ✅ Redirect based on user type
-    if (result.account.accountType === "user") {
+    if(result.accountNotVerified){
+      navigate('/verify_email')
+    }else if (result.account.accountType === "user") {
       navigate("/client/feed");
     } else if (result.account.accountType === "business") {
       navigate(`/business/dashboard`);
@@ -145,6 +148,11 @@ export const login = async (setError, data, navigate , setLoading , setUser , se
     }
 
   } catch (err) {
+        // Handle unverified accounts returned as 403
+      if (err.response?.status === 403 && err.response.data?.accountNotVerified) {
+        navigate('/verify_email');
+        return;
+      }
         if (err.response?.data?.message) {
             setError(t(`errors:${err.response.data.message}`))
         } else if (err.message === "Network Error") {
@@ -353,15 +361,13 @@ export const getUser = async(setLoading , setUser , setError , setToken , t)=>{
   try {
     setLoading(true)
     setError('')
-
-    const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/auth/me`,{
+    const {deviceId } = await getDeviceInfo();
+    
+    const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/auth/me/${deviceId}`,{
       withCredentials: true 
     });
-    console.log(response.data.account);
     setUser(response.data.account); 
-    setToken(response.data.hasToken)
-    
-    console.log(response.data.account);
+    return response.data.hasToken
   } catch (err) {
       setUser(null);    
   } finally{
@@ -535,12 +541,9 @@ export const editAccount = async (formData, setLoading, setPageError , setUser ,
 export const logout = async (setError,navigate,setUser,setLoading , t) => {
   try {
     setLoading(true);
+    const {deviceId } = await getDeviceInfo();
 
-    const response = await axios.post(
-      `${import.meta.env.VITE_BACKEND_URL}/auth/logout`,
-      {},
-      { withCredentials: true }
-    );
+    const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/logout`, {deviceId} , { withCredentials: true });
 
     // clear frontend auth state
     setUser(null);
@@ -598,17 +601,18 @@ export const handleResendEmail = async (setIsResending , setResendSuccess , setC
   }
 };
 
-export const verifyToken = async(setLoading , setUser , setAccountType , setError , token , t)=>{
+export const verifyToken = async(setLoading , setUser , setAccountType , setError , token , t , setEmail)=>{
   try{
     setLoading(true)
       const { deviceToken, deviceId } = await getDeviceInfo();
       const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/verify-email/${token}` , {deviceId , deviceToken} , {withCredentials:true})
-      console.log('response :' , response);
-      console.log("account :"  , response.data.account)
       setUser(response.data.account)
       setAccountType(response.data.account.accountType)
+      setEmail(response.data.account.email)
     }catch(err){
       console.log(err);
+        setEmail(err.response?.data?.email || "")
+        setAccountType(err.response?.data?.accountType || "")
         if (err.response?.data?.message) {
             setError(t(`errors:${err.response.data.message}`))
         } else if (err.message === "Network Error") {

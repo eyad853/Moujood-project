@@ -13,7 +13,7 @@ authRouter.post('/local' , localSignup)
 authRouter.post('/google' , handleOuthAuth)
 authRouter.post('/facebook' , handleOuthAuth)
 authRouter.post('/login' , login)
-authRouter.get('/me' ,ensureAuth, getUser)
+authRouter.get('/me/:deviceId' ,ensureAuth, getUser)
 authRouter.post('/logout' , logout)
 authRouter.patch('/editAccount' ,uploadFile('logo').single('image'), editAccount)
 authRouter.post("/verify-email/:token", verifyEmail);

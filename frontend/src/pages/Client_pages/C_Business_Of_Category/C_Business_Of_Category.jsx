@@ -77,7 +77,11 @@ const C_Business_Of_Category = () => {
 });
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <div 
+    style={{
+      paddingBottom: 'calc(4rem + env(safe-area-inset-bottom))'
+    }}
+    className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white px-5 py-4 border-b border-gray-200 sticky top-0 z-20">
         <div className="flex items-center justify-center relative mb-4">

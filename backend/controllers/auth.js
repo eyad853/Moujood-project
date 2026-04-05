@@ -101,7 +101,7 @@ export const localSignup = async (req, res, next) => {
     io.emit('newUser', newUser);
 
     const token = generateVerificationToken();
-    await saveVerificationToken(newUser.id, "user", token);
+    await saveVerificationToken(newUser.id, "user", token , newUser.email);
     await sendVerificationEmail(newUser.email, token);
 
     // ✅ No req.login here
@@ -201,7 +201,7 @@ export const businessesSignup = async (req, res, next) => {
     io.emit('newBusiness' , business)
 
     const token = generateVerificationToken();
-    await saveVerificationToken(business.id, "business", token);
+    await saveVerificationToken(business.id, "business", token , business.email);
     await sendVerificationEmail(business.email, token);
 
     // ✅ No req.login here
@@ -225,7 +225,7 @@ export const login = async (req, res, next) => {
 
     // 1️⃣ Try users
     let result = await pool.query(
-      `SELECT id, name, email, password, gender, governorate, user_type, is_verified
+      `SELECT id, name, email, password, gender, governorate, user_type, auth_provider
        FROM users
        WHERE email = $1`,
       [email]
@@ -298,7 +298,7 @@ export const login = async (req, res, next) => {
       if (tokenResult.rows.length === 0 || new Date() > tokenResult.rows[0].expires_at) {
         // Token missing or expired → generate a new one
         token = generateVerificationToken();
-        await saveVerificationToken(account.id, accountType, token);
+        await saveVerificationToken(account.id, accountType, token , account.email);
       } else {
         token = tokenResult.rows[0].token;
       }
@@ -308,6 +308,7 @@ export const login = async (req, res, next) => {
     
       return res.status(403).json({
         error:true,
+        accountNotVerified:true,
         message: ERRORS.ACCOUNT_NOT_VERIFIED
       });
     }
@@ -345,6 +346,7 @@ export const login = async (req, res, next) => {
 export const getUser = async (req, res) => {
   try {
     const { id, accountType } = req.user;
+    const {deviceId}=req.params
 
       if(!id || !accountType){
     return res.status(400).json({
@@ -353,7 +355,10 @@ export const getUser = async (req, res) => {
     })
   }
 
-    const tokenResult = await pool.query(`SELECT id FROM device_tokens WHERE receiver_type=$1 AND receiver_id=$2` , [accountType , id])
+    const tokenResult = await pool.query(`
+      SELECT id FROM device_tokens WHERE receiver_type=$1 AND receiver_id=$2 AND device_id=$3` 
+      , [accountType , id , deviceId] 
+    )
 
       const hasToken = tokenResult.rows.length>0
 
@@ -419,6 +424,7 @@ export const getUser = async (req, res) => {
       businessData.locations = businessData.locations[0] === null ? [] : businessData.locations;
 
       return res.json({ 
+        error:false,
         hasToken,
         account:{...businessData, accountType} });
     }
@@ -641,48 +647,72 @@ export const editAccount = async (req, res, next) => {
   }
 };
 
-export const logout = (req, res) => {
-  try{
-    req.session.destroy((err) => {
-    if (err) {
-      return res.status(500).json({
-        error:true,
-        message: ERRORS.FAILED_TO_LOGOUT,
-      });
+export const logout = async (req, res) => {
+  try {
+    const { id: receiver_id, accountType: receiver_type } = req.user; // get from req.user
+    const {deviceId} = req.body; // frontend should send deviceId
+
+    // delete the device token for this user/business and device
+    if (receiver_id && receiver_type && deviceId) {
+      await pool.query(
+        `DELETE FROM device_tokens 
+         WHERE receiver_id = $1 
+           AND receiver_type = $2 
+           AND device_id = $3`,
+        [receiver_id, receiver_type, deviceId]
+      );
     }
 
-    res.clearCookie("connect.sid"); // default session cookie name
+    // destroy session
+    req.session.destroy((err) => {
+      if (err) {
+        return res.status(500).json({
+          error: true,
+          message: ERRORS.FAILED_TO_LOGOUT,
+        });
+      }
 
-    return res.status(200).json({
-      errro:false,
-      message: "Logged out successfully",
+      res.clearCookie("connect.sid"); // default session cookie name
+
+      return res.status(200).json({
+        error: false,
+        message: "Logged out successfully",
+      });
     });
-  });
-  }catch(error){
+  } catch (error) {
     console.log(error);
-    return res.status(500).json({message:ERRORS.SERVER_ERROR})
+    return res.status(500).json({ message: ERRORS.SERVER_ERROR });
   }
-  
 };
 
 export const verifyEmail = async (req, res) => {
   const { token } = req.params;
   const { deviceToken, deviceId } = req.body
-  console.log("token" , token);
-  console.log("deviceId" , deviceId);
-  console.log("deviceToken" , deviceToken);
 
   try {
     const result = await pool.query(
-      "SELECT * FROM email_verification_tokens WHERE token=$1",
+      `SELECT * FROM email_verification_tokens WHERE token = $1`,
       [token]
     );
 
-    if (result.rows.length === 0) 
+    if (result.rows.length === 0) {
       return res.status(400).json({
-        error:true,
-        message:ERRORS.INVALID_OR_EXPIRED_LINK
-  });
+        error: true,
+        message: ERRORS.INVALID_OR_EXPIRED_LINK,
+        // no way to resend because we don't know email
+      });
+    }
+
+    const resultRecord = result.rows[0];
+
+    if (new Date(resultRecord.expires_at) < new Date()) {
+      return res.status(400).json({
+        error: true,
+        message: ERRORS.INVALID_OR_EXPIRED_LINK,
+        email: resultRecord.email,          // now frontend can resend
+        accountType: resultRecord.account_type
+      });
+    }
 
     const record = result.rows[0];
 
@@ -816,7 +846,7 @@ export const resendVerificationEmail = async (req, res) => {
 
     // 3️⃣ Generate new token & save
     const token = generateVerificationToken();
-    await saveVerificationToken(account.id, accountType, token);
+    await saveVerificationToken(account.id, accountType, token , email);
 
     // 4️⃣ Send email
     await sendVerificationEmail(email, token);
@@ -1123,18 +1153,29 @@ export const createToken = async (req, res) => {
       });
     }
 
-    await pool.query(
-      `
-      INSERT INTO device_tokens (receiver_type, receiver_id, token, device_id)
-      VALUES ($1, $2, $3, $4)
-      ON CONFLICT (token)
-      DO UPDATE SET
-        receiver_type = EXCLUDED.receiver_type,
-        receiver_id = EXCLUDED.receiver_id,
-        device_id = EXCLUDED.device_id
-      `,
-      [accountType, id, token, deviceId]
+    // Check if the user already has a device token
+    const existing = await pool.query(
+      `SELECT * FROM device_tokens 
+       WHERE receiver_type = $1 AND receiver_id = $2`,
+      [accountType, id]
     );
+
+    if (existing.rows.length === 0) {
+      // No token exists → insert a new one
+      await pool.query(
+        `INSERT INTO device_tokens (receiver_type, receiver_id, token, device_id)
+         VALUES ($1, $2, $3, $4)`,
+        [accountType, id, token, deviceId]
+      );
+    } else {
+      // Token exists → update it
+      await pool.query(
+        `UPDATE device_tokens
+         SET token = $1, device_id = $2
+         WHERE receiver_type = $3 AND receiver_id = $4`,
+        [token, deviceId, accountType, id]
+      );
+    }
 
     return res.json({
       error: false,
@@ -1143,6 +1184,6 @@ export const createToken = async (req, res) => {
 
   } catch (error) {
     console.error(error);
-    return res.status(500).json({message: ERRORS.SERVER_ERROR});
+    return res.status(500).json({ message: ERRORS.SERVER_ERROR });
   }
 };

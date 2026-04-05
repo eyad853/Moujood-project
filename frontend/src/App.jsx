@@ -257,9 +257,10 @@ const router = createBrowserRouter(routes)
 
 const App = () => {
 
-  if (window.Capacitor) {
-    window.Capacitor.triggerEvent('pause', 'document');
+  if (window.Capacitor && typeof window.Capacitor.triggerEvent === 'function') {
+      window.Capacitor.triggerEvent('pause', 'document');
   }
+
   const [showUpdateModal, setShowUpdateModal] = useState(false);
 
   useEffect(() => {

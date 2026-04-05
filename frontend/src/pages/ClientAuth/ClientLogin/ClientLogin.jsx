@@ -158,6 +158,7 @@ const ClientLogin = () => {
             <Link to={'/client_sign_up'} className="text-[#009842] font-semibold">
               {t('form.registerButton')}
             </Link>
+            <Link to={'/signup_as'} className='flex mt-3 justify-center mb-4 text-[#009842] font-semibold'>Back to choose account type</Link>
           </div>
 
           {/* Arabic Text - pushed to bottom */}

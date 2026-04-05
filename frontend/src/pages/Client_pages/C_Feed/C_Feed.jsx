@@ -363,7 +363,8 @@ const formatLikesAndCommentsCount = (num) => {
         </div>
 
         {/* Posts Feed */}
-        {offers?.length>0?(<div className="space-y-4">
+        {filteredOffers?.length>0?(
+        <div className="space-y-4">
           {offers?.length>0&&filteredOffers.map((offer) => (
             <div 
             onClick={()=>{
@@ -456,7 +457,7 @@ const formatLikesAndCommentsCount = (num) => {
             </div>
           ))}
         </div>):(
-          <div className="flex justify-center items-center text-gray-500">No Content</div>
+          <div className="flex h-[30rem] justify-center items-center text-gray-500">{t("NoContent")}</div>
         )}
       </div>
       {

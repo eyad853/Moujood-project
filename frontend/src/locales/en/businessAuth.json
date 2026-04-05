@@ -45,5 +45,6 @@
     "required": "This field is required",
     "passwordMismatch": "Passwords do not match",
     "invalidEmail": "Invalid email address"
-  }
+  },
+  "Back to choose account type":"Back to choose account type"
 }

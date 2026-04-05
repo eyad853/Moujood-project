@@ -13,7 +13,7 @@ export default function VerifyEmail() {
     const [loading , setLoading]=useState(false)
     const [error , setError]=useState('')
     const location =useLocation()
-    const email = location.state?.email;
+    const [email , setEmail] = useState(location.state?.email);
     const [accountType , setAccountType]=useState(location.state?.accountType)
     const [searchParams] = useSearchParams()
     const token = searchParams.get('token')
@@ -34,7 +34,7 @@ export default function VerifyEmail() {
 
 useEffect(()=>{
   if(token && !calledRef.current){
-    verifyToken(setLoading , setUser , setAccountType , setError , token , t)
+    verifyToken(setLoading , setUser , setAccountType , setError , token , t , setEmail)
     calledRef.current = true;
   }
 },[token])

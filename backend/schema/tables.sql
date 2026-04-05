@@ -39,6 +39,7 @@
         account_id INT NOT NULL,
         account_type VARCHAR(20) CHECK(account_type IN ('user','business')) NOT NULL,
         token VARCHAR(255) NOT NULL UNIQUE,
+        email VARCHAR NOT NULL,
         expires_at TIMESTAMP NOT NULL
       );
       
@@ -101,26 +102,26 @@
         notification_id INTEGER REFERENCES notifications(id) ON DELETE CASCADE,
         receiver_type VARCHAR(20) CHECK (receiver_type IN ('user', 'business')) NOT NULL,
         receiver_id INTEGER NOT NULL,
-        is_read BOOLEAN DEFAULT false
+        is_read BOOLEAN DEFAULT FALSE
       );
 
-  CREATE TABLE IF NOT EXISTS user_categories (
-  id SERIAL PRIMARY KEY,
-  user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  category_id INT NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
-  UNIQUE(user_id, category_id)
-  );
+      CREATE TABLE IF NOT EXISTS user_categories (
+      id SERIAL PRIMARY KEY,
+      user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      category_id INT NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
+      UNIQUE(user_id, category_id)
+      );
 
-  CREATE TABLE IF NOT EXISTS ads (
-  id SERIAL PRIMARY KEY,
-  image VARCHAR(255) NOT NULL
-);
+      CREATE TABLE IF NOT EXISTS ads (
+      id SERIAL PRIMARY KEY,
+      image VARCHAR(255) NOT NULL
+      );
 
-CREATE TABLE IF NOT EXISTS device_tokens (
-  id SERIAL PRIMARY KEY,
-  receiver_type VARCHAR(20) CHECK (receiver_type IN ('user', 'business')) NOT NULL,
-  receiver_id INTEGER NOT NULL,
-  token TEXT UNIQUE ,
-  device_id TEXT,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+      CREATE TABLE IF NOT EXISTS device_tokens (
+        id SERIAL PRIMARY KEY,
+        receiver_type VARCHAR(20) CHECK (receiver_type IN ('user', 'business')) NOT NULL,
+        receiver_id INTEGER NOT NULL,
+        token TEXT UNIQUE ,
+        device_id TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
