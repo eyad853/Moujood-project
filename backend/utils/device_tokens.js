@@ -3,18 +3,12 @@ import {pool} from '../index.js'
 
 const registerDeviceToken = async (token  , deviceId , receiver_id , receiver_type) => {
   try {
-
-    console.log(token);
-    console.log(deviceId);
-    console.log(receiver_id);
-    console.log(receiver_type);
-    // 2️⃣ validate input
-    // if (!token) {
-    //   return {
-    //     error: true,
-    //     message: ERRORS.SERVER_ERROR,
-    //   };
-    // }
+    if (!token || !deviceId) {
+      return {
+        error: true,
+        message: ERRORS.SERVER_ERROR,
+      };
+    }
 
     // 3️⃣ UPSERT token
     await pool.query(

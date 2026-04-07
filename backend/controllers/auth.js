@@ -1177,7 +1177,7 @@ export const createToken = async (req, res) => {
       );
     }
 
-    return res.json({
+    return res.status(200).json({
       error: false,
       message: "Device token saved successfully"
     });
