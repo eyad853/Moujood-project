@@ -366,8 +366,13 @@ export const getUser = async(setLoading , setUser , setError , setToken , t)=>{
     const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/auth/me/${deviceId}`,{
       withCredentials: true 
     });
-    setUser(response.data.account); 
-    return response.data.hasToken
+
+    if(response?.data?.account){
+      setUser(response.data.account); 
+      return response.data.hasToken
+    }else{
+      return true
+    }
   } catch (err) {
       setUser(null);    
   } finally{
