@@ -7,7 +7,7 @@
     "presentationOptions": ["sound", "alert" , "badge"] 
   },
   "server": {
-    "url": "http://192.168.8.16:5173",
+    "url": "https://moujood-project.vercel.app",
     "cleartext": true
   },
   
