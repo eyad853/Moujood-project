@@ -1137,53 +1137,62 @@ export const resetPassword = async (req, res) => {
 export const createToken = async (req, res) => {
   try {
     const { id, accountType } = req.user;
-    const { token, deviceId } = req.body;
+    const { deviceToken, deviceId } = req.body;
 
-    if (!token || !deviceId) {
+    // 1. Validate input
+    if (!deviceToken || !deviceId) {
       return res.status(400).json({
         error: true,
-        message: ERRORS.TOKEN_DEVICEID_REQUIRED
+        message: ERRORS.TOKEN_DEVICEID_REQUIRED,
       });
     }
 
+    // 2. Validate auth
     if (!id || !accountType) {
       return res.status(401).json({
         error: true,
-        message: ERRORS.NOT_AUTHENTICATED
+        message: ERRORS.NOT_AUTHENTICATED,
       });
     }
 
-    // Check if the user already has a device token
+    // 3. Check if this exact device already exists
     const existing = await pool.query(
-      `SELECT * FROM device_tokens 
-       WHERE receiver_type = $1 AND receiver_id = $2`,
-      [accountType, id]
+      `SELECT * FROM device_tokens
+       WHERE receiver_type = $1
+       AND receiver_id = $2
+       AND device_id = $3`,
+      [accountType, id, deviceId]
     );
 
     if (existing.rows.length === 0) {
-      // No token exists → insert a new one
+      // INSERT new device token
       await pool.query(
         `INSERT INTO device_tokens (receiver_type, receiver_id, token, device_id)
          VALUES ($1, $2, $3, $4)`,
-        [accountType, id, token, deviceId]
+        [accountType, id, deviceToken, deviceId]
       );
     } else {
-      // Token exists → update it
+      // UPDATE existing device token
       await pool.query(
         `UPDATE device_tokens
-         SET token = $1, device_id = $2
-         WHERE receiver_type = $3 AND receiver_id = $4`,
-        [token, deviceId, accountType, id]
+         SET token = $1
+         WHERE receiver_type = $2
+         AND receiver_id = $3
+         AND device_id = $4`,
+        [deviceToken, accountType, id, deviceId]
       );
     }
 
     return res.status(200).json({
       error: false,
-      message: "Device token saved successfully"
+      message: "Device token saved successfully",
     });
 
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: ERRORS.SERVER_ERROR });
+    return res.status(500).json({
+      error: true,
+      message: ERRORS.SERVER_ERROR,
+    });
   }
 };
