@@ -45,6 +45,11 @@ export const pool = new Pool({
 
 app.set('io' , io)
 
+app.use((req, res, next) => {
+  console.log("ORIGIN:", req.headers.origin);
+  next();
+});
+
 app.use(cors({
     origin:[process.env.frontendURL , "https://localhost" , 'capacitor://localhost'],
     credentials: true
