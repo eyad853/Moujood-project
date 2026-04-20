@@ -30,7 +30,7 @@ const app = express()
 const server = http.createServer(app);
 const io = new Server(server , {
   cors: {
-    origin:[process.env.frontendURL , 'http://localhost:5173' , 'https://moujood-project.vercel.app' , 'capacitor://localhost'],
+    origin:[process.env.frontendURL , "https://localhost" , 'capacitor://localhost'],
     credentials: true// Allow requests from this origin
   },
 });
@@ -46,7 +46,7 @@ export const pool = new Pool({
 app.set('io' , io)
 
 app.use(cors({
-    origin:[process.env.frontendURL , 'http://localhost:5173' , 'https://moujood-project.vercel.app' , 'capacitor://localhost'],
+    origin:[process.env.frontendURL , "https://localhost" , 'capacitor://localhost'],
     credentials: true
 }))
 
