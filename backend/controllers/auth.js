@@ -1136,7 +1136,7 @@ export const resetPassword = async (req, res) => {
 
 export const createToken = async (req, res) => {
   try {
-    const { id, accountType } = req.user;
+    const { id, accountType } = req?.user;
     const { deviceToken, deviceId } = req.body;
 
     // 1. Validate input
