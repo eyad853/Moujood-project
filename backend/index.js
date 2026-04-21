@@ -36,6 +36,19 @@ const io = new Server(server , {
   },
 });
 
+app.set('io' , io)
+
+app.use(cors({
+    origin:[process.env.frontendURL , "https://localhost" , 'capacitor://localhost'],
+    credentials: true
+}))
+
+app.use((req, res, next) => {
+  console.log("ORIGIN:", req.headers.origin);
+  next();
+});
+
+
 export const pool = new Pool({
     user: process.env.DB_USER,
     host: process.env.DB_HOST,
@@ -43,18 +56,6 @@ export const pool = new Pool({
     password: process.env.DB_PASSWORD,
     port: process.env.DB_PORT,
 });
-
-app.set('io' , io)
-
-app.use((req, res, next) => {
-  console.log("ORIGIN:", req.headers.origin);
-  next();
-});
-
-app.use(cors({
-    origin:[process.env.frontendURL , "https://localhost" , 'capacitor://localhost'],
-    credentials: true
-}))
 
 
 // Make sure uploads directory exists - modern approach
