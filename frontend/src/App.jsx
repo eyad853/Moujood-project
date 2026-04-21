@@ -334,6 +334,8 @@ const App = () => {
   init();
 }, []);
 
+console.log("frontendURL =", window.origin)
+
 
 
   return (

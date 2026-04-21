@@ -137,7 +137,7 @@ const ClientLogin = () => {
           </div>
 
           {error&&(
-          <div className="flex text-sm mb-5 justify-center items-center text-red-600 font-semibold">
+          <div className="flex text-sm mb-5 justify-center items-center text-red-600 font-semibold whitespace-pre-line">
             {error}
           </div>
         )}
