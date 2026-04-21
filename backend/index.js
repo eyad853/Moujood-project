@@ -25,6 +25,7 @@ import adsRouter from './routes/ads.js';
 import scansRouter from './routes/scans.js';
 import sharedsession from 'express-socket.io-session';
 import appRouter from './routes/app.js';
+import { deleteExpiredResetTokens, deleteExpiredVerificationTokens } from './utils/deleteTokens.js';
 
 const app = express()
 const server = http.createServer(app);
@@ -150,6 +151,13 @@ app.use('/lovedCategoies' , LovedCategoriesRouter)
 app.use('/ads' , adsRouter)
 app.use('/scans' , scansRouter)
 app.use('/app', appRouter);
+
+const handleDeleteTokens = async()=>{
+  await deleteExpiredVerificationTokens()
+  await deleteExpiredResetTokens()
+}
+
+setInterval(handleDeleteTokens , 1000 * 60 * 10)
 
 
 async function createTables() {
