@@ -35,34 +35,20 @@ const allowedOrigins = [
 ];
 
 const corsOptions = {
-  origin: (origin, callback) => {
-    console.log("ORIGIN:", origin);
-
-    if (!origin) return callback(null, true);
-
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    } else {
-      console.log("❌ Blocked by CORS:", origin);
-      return callback(new Error("Not allowed by CORS"));
-    }
-  },
+  origin: true, // allow all temporarily
   credentials: true
 };
 
 const app = express()
 const server = http.createServer(app);
 const io = new Server(server , {
-  cors: {
-    origin:"*"
-  }
+  cors: corsOptions
 });
 
 app.set('io' , io)
 
-app.use(cors({
-  origin:"*"
-}))
+app.use(cors(corsOptions))
+
 
 export const pool = new Pool({
     user: process.env.DB_USER,
