@@ -38,20 +38,11 @@ const io = new Server(server , {
 });
 app.set('io' , io)
 
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (origin) {
-    res.header("Access-Control-Allow-Origin", origin);
-  }
-  res.header("Access-Control-Allow-Credentials", "true");
-  res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS,PATCH");
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
-  
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(204);
-  }
-  next();
-});
+app.use(cors({
+   origin: (origin, callback) => callback(null, origin || "*"),
+    methods: ["GET", "POST" , "PATCH" , "PUT" , "DELETE"],
+    credentials: true
+}));
 
 export const pool = new Pool({
     user: process.env.DB_USER,
