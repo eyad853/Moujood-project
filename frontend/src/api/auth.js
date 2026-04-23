@@ -374,7 +374,8 @@ export const getUser = async(setLoading , setUser , setError , setToken , t)=>{
       return false
     }
   } catch (err) {
-      setUser(null);    
+      setUser(null);   
+      return false 
   } finally{
     setLoading(false)
   }
