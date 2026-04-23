@@ -31,7 +31,7 @@ const app = express()
 const server = http.createServer(app);
 const io = new Server(server , {
   cors: {
-    origin: "*",           // or specific origin
+    origin: (origin, callback) => callback(null, origin || "*"),
     methods: ["GET", "POST" , "PATCH" , "PUT" , "DELETE"],
     credentials: true
   }
@@ -39,7 +39,10 @@ const io = new Server(server , {
 app.set('io' , io)
 
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", req.headers.origin || "*");
+  const origin = req.headers.origin;
+  if (origin) {
+    res.header("Access-Control-Allow-Origin", origin);
+  }
   res.header("Access-Control-Allow-Credentials", "true");
   res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS,PATCH");
   res.header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
