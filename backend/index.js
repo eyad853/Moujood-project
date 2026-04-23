@@ -39,7 +39,7 @@ const io = new Server(server , {
 app.set('io' , io)
 
 app.use(cors({
-   origin: (origin, callback) => callback(null, origin || "*"),
+    origin: (origin, callback) => callback(null, origin || "*"),
     methods: ["GET", "POST" , "PATCH" , "PUT" , "DELETE"],
     credentials: true
 }));

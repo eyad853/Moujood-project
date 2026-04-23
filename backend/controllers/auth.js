@@ -703,9 +703,9 @@ export const verifyEmail = async (req, res) => {
       });
     }
 
-    const resultRecord = result.rows[0];
+    const record = result.rows[0];
 
-    if (new Date(resultRecord.expires_at) < new Date()) {
+    if (new Date(record.expires_at) < new Date()) {
       return res.status(400).json({
         error: true,
         message: ERRORS.INVALID_OR_EXPIRED_LINK,
@@ -713,8 +713,6 @@ export const verifyEmail = async (req, res) => {
         accountType: resultRecord.account_type
       });
     }
-
-    const record = result.rows[0];
 
     let account;
 
