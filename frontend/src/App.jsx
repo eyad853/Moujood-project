@@ -271,12 +271,13 @@ const App = () => {
       google: {
         clientId:import.meta.env.VITE_GOOGLE_ANDROID_CLIENT_ID,
         webClientId: import.meta.env.VITE_GOOGLE_WEB_CLIENT_ID,
-        scopes: ["email", "profile"]
+        scopes: ["email", "profile"],
+        mode:"system"
       },
       facebook: {
         appId: import.meta.env.VITE_FACEBOOK_CLIENT_ID,
         clientToken: import.meta.env.VITE_FACEBOOK_CLIENT_TOKEN ,
-        scopes: ["email", "public_profile"]
+        scopes: ["email", "public_profile"],
       }
     });
 
@@ -333,10 +334,6 @@ const App = () => {
 
   init();
 }, []);
-
-console.log("frontendURL =", window.origin)
-
-
 
   return (
     <>

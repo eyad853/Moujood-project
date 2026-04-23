@@ -868,11 +868,14 @@ export const handleOuthAuth = async (req, res) => {
 
     if (provider === 'google') {
       const { idToken } = req.body;
+
       const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
       const ticket = await client.verifyIdToken({
         idToken,
         audience: process.env.GOOGLE_CLIENT_ID,
       });
+
       const payload = ticket.getPayload();
       name = payload?.name ?? 'Google User';
       email = payload?.email;
@@ -884,14 +887,16 @@ export const handleOuthAuth = async (req, res) => {
           message: ERRORS.NO_EMAIL_FROM_GOOGLE,
         });
       }
+
     } else if (provider === 'facebook') {
       const { accessToken } = req.body;
-      console.log("FB token:", accessToken);
+
       const facebook = new Facebook({
         appId: process.env.FACEBOOK_CLIENT_ID,
         secret: process.env.FACEBOOK_CLIENT_SECRET,
         version: 'v17.0',
       });
+
       const payload = await new Promise((resolve, reject) => {
         facebook.api(
           '/me',
@@ -905,9 +910,11 @@ export const handleOuthAuth = async (req, res) => {
           }
         );
       });
+
       name = payload?.name ?? 'Facebook User';
       email = payload?.email ?? null;
       avatar = payload?.picture?.data?.url ?? null;
+      
     } else {
       return res.status(400).json({ error: true, message: "Invalid provider" });
     }
