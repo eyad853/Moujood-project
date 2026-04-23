@@ -423,7 +423,7 @@ export const getUser = async (req, res) => {
       // If no locations exist, json_agg returns [null], fix it
       businessData.locations = businessData.locations[0] === null ? [] : businessData.locations;
 
-      return res.json({ 
+      return res.status(200).json({ 
         error:false,
         hasToken,
         account:{...businessData, accountType} });

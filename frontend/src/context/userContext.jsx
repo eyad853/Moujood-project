@@ -17,7 +17,7 @@ export const AccountProvider = ({ children }) => {
   useEffect(() => {
     const getUserData = async()=>{
       const hasToken = await getUser(setLoading , setUser , setError , setToken , t)
-      if(!hasToken){
+      if(hasToken){
         await handleCreateToken();
       }
     }

@@ -371,7 +371,7 @@ export const getUser = async(setLoading , setUser , setError , setToken , t)=>{
       setUser(response.data.account); 
       return response.data.hasToken
     }else{
-      return true
+      return false
     }
   } catch (err) {
       setUser(null);    
