@@ -53,20 +53,16 @@ const corsOptions = {
 const app = express()
 const server = http.createServer(app);
 const io = new Server(server , {
-  cors: corsOptions
+  cors: {
+    origin:"*"
+  }
 });
 
 app.set('io' , io)
 
-app.use(cors(corsOptions))
-
-app.options('*', cors(corsOptions));
-
-app.use((req, res, next) => {
-  console.log("ORIGIN:", req.headers.origin);
-  next();
-});
-
+app.use(cors({
+  origin:"*"
+}))
 
 export const pool = new Pool({
     user: process.env.DB_USER,
