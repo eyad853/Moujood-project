@@ -31,7 +31,10 @@ const allowedOrigins = [
   process.env.frontendURL,
   "https://localhost",
   "http://localhost",
-  "capacitor://localhost"
+  "capacitor://localhost",
+  "ionic://localhost",        // add this
+  "http://localhost:3000",    // add if using dev server
+  "http://localhost:5173",    // add if using Vite dev server
 ];
 
 const corsOptions = {
