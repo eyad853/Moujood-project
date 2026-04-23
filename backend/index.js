@@ -27,31 +27,28 @@ import sharedsession from 'express-socket.io-session';
 import appRouter from './routes/app.js';
 import { deleteExpiredResetTokens, deleteExpiredVerificationTokens } from './utils/deleteTokens.js';
 
-const allowedOrigins = [
-  process.env.frontendURL,
-  "https://localhost",
-  "http://localhost",
-  "capacitor://localhost",
-  "ionic://localhost",        // add this
-  "http://localhost:3000",    // add if using dev server
-  "http://localhost:5173",    // add if using Vite dev server
-];
-
-const corsOptions = {
-  origin: true, // allow all temporarily
-  credentials: true
-};
-
 const app = express()
 const server = http.createServer(app);
 const io = new Server(server , {
-  cors: corsOptions
+  cors: {
+    origin: "*",           // or specific origin
+    methods: ["GET", "POST" , "PATCH" , "PUT" , "DELETE"],
+    credentials: true
+  }
 });
-
 app.set('io' , io)
 
-app.use(cors(corsOptions))
-
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", req.headers.origin || "*");
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS,PATCH");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
+  
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(204);
+  }
+  next();
+});
 
 export const pool = new Pool({
     user: process.env.DB_USER,
