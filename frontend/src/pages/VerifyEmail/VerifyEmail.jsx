@@ -188,7 +188,8 @@ if(loading){
 
               {/* Action buttons */}
               <div className="space-y-3">
-                <button
+                { email && accountType &&(
+                  <button
                   onClick={()=>{handleResendEmail(setIsResending , setResendSuccess , setCountdown , setError , t , email , accountType)}}
                   disabled={isResending || resendSuccess || countdown > 0}
                   className="w-full bg-gradient-to-r from-[#009842] to-[#007a36] hover:from-[#00b84f] hover:to-[#009842] text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl hover:shadow-[#009842]/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 group"
@@ -216,7 +217,7 @@ if(loading){
                       {t("REQUEST_NEW_EMAIL")}
                     </>
                   )}
-                </button>
+                </button>)}
 
                 <Link 
                   to="/signup_as"
