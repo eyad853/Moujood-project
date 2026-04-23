@@ -27,23 +27,40 @@ import sharedsession from 'express-socket.io-session';
 import appRouter from './routes/app.js';
 import { deleteExpiredResetTokens, deleteExpiredVerificationTokens } from './utils/deleteTokens.js';
 
+const allowedOrigins = [
+  process.env.frontendURL,
+  "https://localhost",
+  "http://localhost",
+  "capacitor://localhost"
+];
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    console.log("ORIGIN:", origin);
+
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      console.log("❌ Blocked by CORS:", origin);
+      return callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true
+};
+
 const app = express()
 const server = http.createServer(app);
 const io = new Server(server , {
-  cors: {
-    origin:["*"],
-    credentials: true// Allow requests from this origin
-  },
+  cors: corsOptions
 });
-
-app.options('*', cors());
 
 app.set('io' , io)
 
-app.use(cors({
-    origin:["*"],
-    credentials: true
-}))
+app.use(cors(corsOptions))
+
+app.options('*', cors(corsOptions));
 
 app.use((req, res, next) => {
   console.log("ORIGIN:", req.headers.origin);
