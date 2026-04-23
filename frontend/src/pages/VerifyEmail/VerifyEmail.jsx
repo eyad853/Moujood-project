@@ -13,8 +13,8 @@ export default function VerifyEmail() {
     const [loading , setLoading]=useState(false)
     const [error , setError]=useState('')
     const location =useLocation()
-    const [email , setEmail] = useState(location.state?.email);
-    const [accountType , setAccountType]=useState(location.state?.accountType)
+    const [email , setEmail] = useState(location.state?.email || "");
+    const [accountType , setAccountType]=useState(location.state?.accountType || "")
     const [searchParams] = useSearchParams()
     const token = searchParams.get('token')
     const {setUser}=useUser()
