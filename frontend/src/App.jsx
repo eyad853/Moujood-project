@@ -272,7 +272,7 @@ const App = () => {
         clientId:import.meta.env.VITE_GOOGLE_ANDROID_CLIENT_ID,
         webClientId: import.meta.env.VITE_GOOGLE_WEB_CLIENT_ID,
         scopes: ["email", "profile"],
-        mode:"system"
+        mode:"redirect"
       },
       facebook: {
         appId: import.meta.env.VITE_FACEBOOK_CLIENT_ID,
