@@ -688,6 +688,9 @@ export const logout = async (req, res) => {
 export const verifyEmail = async (req, res) => {
   const { token } = req.params;
   const { deviceToken, deviceId } = req.body
+  console.log("token:" , token)
+  console.log("deviceTdeviceToken:" ,deviceToken)
+  console.log("deviceId:" ,deviceId )
 
   try {
     const result = await pool.query(
