@@ -23,10 +23,10 @@ import enErrors from './locales/en/errors.json'
 import enLimits from './locales/en/limits.json'
 import enForgotPassword from './locales/en/forgotPassword.json'
 import enUpdateModal from './locales/en/updateModal.json'
-import client_Terms_And_Conditions from './locales/en/client_Terms_and_Conditions.json'
-import client_Privacy_Policy from './locales/en/client_Privacy_Policy.json'
-import business_Terms_And_Conditions from './locales/en/business_Terms_and_Conditions.json'
-import business_Privacy_Policy from './locales/en/business_Privacy_Policy.json'
+import enclient_Terms_And_Conditions from './locales/en/client_Terms_and_Conditions.json'
+import enclient_Privacy_Policy from './locales/en/client_Privacy_Policy.json'
+import enbusiness_Terms_And_Conditions from './locales/en/business_Terms_and_Conditions.json'
+import enbusiness_Privacy_Policy from './locales/en/business_Privacy_Policy.json'
 
 
 
@@ -51,10 +51,10 @@ import arErrors from './locales/ar/errors.json'
 import arLimits from './locales/ar/limits.json'
 import arForgotPassword from './locales/ar/forgotPassword.json'
 import arUpdateModal from './locales/ar/updateModal.json'
-import client_Terms_And_Conditions from './locales/ar/client_Terms_and_Conditions.json'
-import client_Privacy_Policy from './locales/ar/client_Privacy_Policy.json'
-import business_Terms_And_Conditions from './locales/ar/business_Terms_and_Conditions.json'
-import business_Privacy_Policy from './locales/ar/business_Privacy_Policy.json'
+import arclient_Terms_And_Conditions from './locales/ar/client_Terms_and_Conditions.json'
+import arclient_Privacy_Policy from './locales/ar/client_Privacy_Policy.json'
+import arbusiness_Terms_And_Conditions from './locales/ar/business_Terms_and_Conditions.json'
+import arbusiness_Privacy_Policy from './locales/ar/business_Privacy_Policy.json'
 
 
 
@@ -86,10 +86,10 @@ i18n
             limits:arLimits,
             forgotPassword:arForgotPassword,
             updateModal:arUpdateModal,
-            client_Terms_And_Conditions:client_Terms_And_Conditions,
-            client_Privacy_Policy:client_Privacy_Policy,
-            business_Terms_And_Conditions:business_Terms_And_Conditions,
-            business_Privacy_Policy:business_Privacy_Policy
+            client_Terms_And_Conditions:arclient_Terms_And_Conditions,
+            client_Privacy_Policy:arclient_Privacy_Policy,
+            business_Terms_And_Conditions:arbusiness_Terms_And_Conditions,
+            business_Privacy_Policy:arbusiness_Privacy_Policy
         },
 
         en:{
@@ -114,10 +114,10 @@ i18n
             limits:enLimits,
             forgotPassword:enForgotPassword,
             updateModal:enUpdateModal,
-            client_Terms_And_Conditions:client_Terms_And_Conditions,
-            client_Privacy_Policy:client_Privacy_Policy,
-            business_Terms_And_Conditions:business_Terms_And_Conditions,
-            business_Privacy_Policy:business_Privacy_Policy
+            client_Terms_And_Conditions:enclient_Terms_And_Conditions,
+            client_Privacy_Policy:enclient_Privacy_Policy,
+            business_Terms_And_Conditions:enbusiness_Terms_And_Conditions,
+            business_Privacy_Policy:enbusiness_Privacy_Policy
         }
     },
     fallbackLng:"ar", 
