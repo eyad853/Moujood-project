@@ -81,7 +81,7 @@ i18n
             offerDetailsSheet:arOfferDetailsSheet,
             offerSheet:arOfferSheet,
             passwordEditSheet:arPasswordEditSheet,
-            verfiyEmail:arVerifyEmail,
+            verfifyEmail:arVerifyEmail,
             errors:arErrors,
             limits:arLimits,
             forgotPassword:arForgotPassword,
