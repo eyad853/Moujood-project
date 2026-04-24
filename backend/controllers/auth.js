@@ -709,8 +709,8 @@ export const verifyEmail = async (req, res) => {
       return res.status(400).json({
         error: true,
         message: ERRORS.INVALID_OR_EXPIRED_LINK,
-        email: resultRecord.email,          // now frontend can resend
-        accountType: resultRecord.account_type
+        email: record.email,          // now frontend can resend
+        accountType: record.account_type
       });
     }
 
