@@ -3,8 +3,6 @@ import admin from '../config/firebase.js';
 import {pool} from '../index.js'
 
 export async function sendNotification(title, body, tokens) {
-  console.log(typeof admin.messaging().sendMulticast);
-  console.log(Object.getOwnPropertyNames(Object.getPrototypeOf(admin.messaging())));
   try {
     if(tokens.length===0)return
 

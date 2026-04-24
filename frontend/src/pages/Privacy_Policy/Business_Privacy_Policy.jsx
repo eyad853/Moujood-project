@@ -1,94 +1,17 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
-const sections = [
-  {
-    id: 1,
-    icon: '📥',
-    title: 'Information We Collect',
-    tag: 'Data',
-    content: `We collect information you provide when registering your business, including your business name, legal entity type, registration number, address, contact email, phone number, and payment details. We also collect information about how you use the platform, such as offer creation activity, response rates, and feature usage patterns.`,
-  },
-  {
-    id: 2,
-    icon: '🎯',
-    title: 'How We Use Your Information',
-    tag: 'Usage',
-    content: `We use your business information to create and manage your business account, publish and display your offers to clients, process payments and billing, send you platform updates and business insights, verify your business identity, and improve the tools and features available to business partners.`,
-  },
-  {
-    id: 3,
-    icon: '🎁',
-    title: 'Offers & Business Activity',
-    tag: 'Core',
-    content: `When you create, update, or delete offers, we store a record of these activities to ensure platform integrity, resolve disputes, and provide you with analytics on offer performance. Deleted offers are removed from public view but may be retained in our systems for a limited period for legal and compliance purposes.`,
-  },
-  {
-    id: 4,
-    icon: '👥',
-    title: 'Client Data Access',
-    tag: 'Core',
-    content: `When clients interact with your offers or business profile, we may share limited client information (such as display name or interaction type) with you to facilitate the business relationship. You must handle any client data you receive in compliance with applicable data protection laws and must not use it for purposes outside the platform interaction.`,
-  },
-  {
-    id: 5,
-    icon: '🤝',
-    title: 'Sharing Your Information',
-    tag: 'Sharing',
-    content: `We do not sell your business information to third parties. We may share your information with payment processors, cloud hosting providers, and analytics partners under strict confidentiality agreements. Your business profile and published offers are visible to clients and the general public as part of the platform's core functionality.`,
-  },
-  {
-    id: 6,
-    icon: '💳',
-    title: 'Payment & Financial Data',
-    tag: 'Financial',
-    content: `Payment information you provide is processed by our certified third-party payment processors. We do not store full card details on our servers. We retain records of transactions for accounting, tax compliance, and dispute resolution purposes. You are responsible for maintaining accurate billing information in your account.`,
-  },
-  {
-    id: 7,
-    icon: '📊',
-    title: 'Analytics & Performance Data',
-    tag: 'Data',
-    content: `We provide you with analytics about your offers and business profile performance, such as views, saves, and client interactions. This data is aggregated and used to help you optimize your presence on the platform. We also use aggregated, anonymized data to improve platform features and report on overall platform trends.`,
-  },
-  {
-    id: 8,
-    icon: '🔐',
-    title: 'Data Security',
-    tag: 'Security',
-    content: `We implement industry-standard security measures including TLS encryption, access controls, and regular security audits to protect your business data. You are responsible for maintaining the security of your account credentials and for any activity that occurs under your business account. Notify us immediately of any suspected unauthorized access.`,
-  },
-  {
-    id: 9,
-    icon: '⏳',
-    title: 'Data Retention',
-    tag: 'Legal',
-    content: `We retain your business data for as long as your account is active or as needed to provide our services. Upon account termination, we may retain certain data for up to 7 years as required by law for tax, legal, and compliance purposes. You may request deletion of non-required data by contacting our support team.`,
-  },
-  {
-    id: 10,
-    icon: '✋',
-    title: 'Your Rights',
-    tag: 'Legal',
-    content: `As a business partner, you have the right to access, correct, or request deletion of your business data. You may export your data at any time from your account settings. Where applicable under local laws such as GDPR, you may have additional rights including data portability and the right to object to certain processing activities.`,
-  },
-  {
-    id: 11,
-    icon: '🔄',
-    title: 'Changes to This Policy',
-    tag: 'Policy',
-    content: `We may update this Privacy Policy periodically. Significant changes will be communicated via the app or email with at least 14 days' notice before they take effect. Your continued use of the platform after changes take effect constitutes your acceptance of the updated policy.`,
-  },
-  {
-    id: 12,
-    icon: '📬',
-    title: 'Contact Us',
-    tag: 'Support',
-    content: `For privacy-related inquiries, data access requests, or concerns about how we handle your business data, please contact our Privacy team at privacy@ourplatform.com. We are committed to responding to all business privacy inquiries within 3 business days.`,
-  },
-]
+const Business_Privacy_Policy = () => {
+  const [openSection, setOpenSection] = useState(null)
+  const [activeFilter, setActiveFilter] = useState('All')
+  const navigate = useNavigate()
+  const {t}=useTranslation("business_Privacy_Policy")
+  
 
-const tagStyles = {
+  const toggle = (id) => setOpenSection(openSection === id ? null : id)
+
+  const tagStyles = {
   Data:     { bg: '#DBEAFE', text: '#1E40AF' },
   Usage:    { bg: '#EDE9FE', text: '#5B21B6' },
   Core:     { bg: '#DCFCE7', text: '#166534' },
@@ -102,15 +25,83 @@ const tagStyles = {
 
 const filters = ['All', 'Core', 'Data', 'Legal', 'Financial', 'Security']
 
-const Business_Privacy_Policy = () => {
-  const [openSection, setOpenSection] = useState(null)
-  const [activeFilter, setActiveFilter] = useState('All')
-  const navigate = useNavigate()
-
-  const toggle = (id) => setOpenSection(openSection === id ? null : id)
-
   const filtered =
     activeFilter === 'All' ? sections : sections.filter((s) => s.tag === activeFilter)
+
+    const sections = [
+  {
+    id: 1,
+    icon: '📥',
+    tag: t("1.tag"),
+    title: t("1.title"),
+    content: t("1.content"),  },
+  {
+    id: 2,
+    icon: '🎯',
+    tag: t("2.tag"),
+    title: t("2.title"),
+    content: t("2.content"),  },
+  {
+    id: 3,
+    icon: '🎁',
+    tag: t("3.tag"),
+    title: t("3.title"),
+    content: t("3.content"),  },
+  {
+    id: 4,
+    icon: '👥',
+    tag: t("4.tag"),
+    title: t("4.title"),
+    content: t("4.content"),  },
+  {
+    id: 5,
+    icon: '🤝',
+    tag: t("5.tag"),
+    title: t("5.title"),
+    content: t("5.content"),  },
+  {
+    id: 6,
+    icon: '💳',
+    tag: t("6.tag"),
+    title: t("6.title"),
+    content: t("6.content"),  },
+  {
+    id: 7,
+    icon: '📊',
+    tag: t("7.tag"),
+    title: t("7.title"),
+    content: t("7.content"),  },
+  {
+    id: 8,
+    icon: '🔐',
+    tag: t("8.tag"),
+    title: t("8.title"),
+    content: t("8.content"),  },
+  {
+    id: 9,
+    icon: '⏳',
+    tag: t("9.tag"),
+    title: t("9.title"),
+    content: t("9.content"),  },
+  {
+    id: 10,
+    icon: '✋',
+    tag: t("10.tag"),
+    title: t("10.title"),
+    content: t("10.content"),  },
+  {
+    id: 11,
+    icon: '🔄',
+    tag: t("11.tag"),
+    title: t("11.title"),
+    content: t("11.content"),  },
+  {
+    id: 12,
+    icon: '📬',
+    tag: t("12.tag"),
+    title: t("12.title"),
+    content: t("12.content"),  },
+]
 
   return (
     <div className="min-h-screen bg-gray-50 max-w-sm mx-auto font-sans">

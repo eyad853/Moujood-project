@@ -1,1 +1,42 @@
-{}
+{
+    "1": {
+      "title": "Acceptance of Terms",
+      "content": "By accessing or using our platform as a client, you confirm that you are at least 18 years old, have read and understood these Terms, and agree to be bound by them. If you do not agree, please discontinue use of the app immediately."
+    },
+    "2": {
+      "title": "Client Account",
+      "content": "You are responsible for maintaining the confidentiality of your account credentials. You agree to provide accurate, current, and complete information during registration. You must notify us immediately of any unauthorized use of your account. We reserve the right to suspend accounts that violate our policies."
+    },
+    "3": {
+      "title": "Posts & Content",
+      "content": "As a client, you may view, interact with, and share posts published on the platform. You agree not to reproduce, distribute, or exploit any content without proper authorization. Any content you submit must be respectful, accurate, and free from offensive or illegal material. We reserve the right to remove any content at our discretion."
+    },
+    "4": {
+      "title": "Categories & Discovery",
+      "content": "Our platform organizes content into categories to help you discover relevant posts and businesses. Category listings are curated and may change over time. We do not guarantee that all categories will be available at all times or in all regions."
+    },
+    "5": {
+      "title": "Business Interactions",
+      "content": "When interacting with businesses listed on our platform, you acknowledge that transactions and communications are solely between you and the respective business. We are not a party to any such interactions and are not liable for any disputes, damages, or losses arising from them."
+    },
+    "6": {
+      "title": "Privacy & Data",
+      "content": "We collect and process your personal data in accordance with our Privacy Policy. By using the app, you consent to such processing. We implement industry-standard security measures to protect your data, but we cannot guarantee absolute security of information transmitted over the internet."
+    },
+    "7": {
+      "title": "Prohibited Conduct",
+      "content": "You agree not to use the platform for any unlawful purpose, harass or harm other users or businesses, attempt to gain unauthorized access to any part of the platform, use automated tools to scrape or interact with the platform, or interfere with the platform's normal operation."
+    },
+    "8": {
+      "title": "Limitation of Liability",
+      "content": "To the maximum extent permitted by law, we shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of the platform. Our total liability to you shall not exceed the amount you have paid us in the past 12 months, if any."
+    },
+    "9": {
+      "title": "Changes to Terms",
+      "content": "We reserve the right to modify these Terms at any time. We will notify you of significant changes via the app or email. Your continued use of the platform after such changes constitutes your acceptance of the new Terms. It is your responsibility to review these Terms periodically."
+    },
+    "10": {
+      "title": "Contact Us",
+      "content": "If you have questions or concerns about these Terms, please contact our support team at support@ourplatform.com. We are committed to resolving any issues promptly and fairly."
+    }
+}

@@ -1,1 +1,62 @@
-{}
+{
+  "1": {
+    "tag": "Data",
+    "title": "Information We Collect",
+    "content": "We collect information you provide when registering your business, including your business name, legal entity type, registration number, address, contact email, phone number, and payment details. We also collect information about how you use the platform, such as offer creation activity, response rates, and feature usage patterns."
+  },
+  "2": {
+    "tag": "Usage",
+    "title": "How We Use Your Information",
+    "content": "We use your business information to create and manage your business account, publish and display your offers to clients, process payments and billing, send you platform updates and business insights, verify your business identity, and improve the tools and features available to business partners."
+  },
+  "3": {
+    "tag": "Core",
+    "title": "Offers & Business Activity",
+    "content": "When you create, update, or delete offers, we store a record of these activities to ensure platform integrity, resolve disputes, and provide you with analytics on offer performance. Deleted offers may be retained for a limited period for legal and compliance purposes."
+  },
+  "4": {
+    "tag": "Core",
+    "title": "Client Data Access",
+    "content": "When clients interact with your offers or business profile, we may share limited client information (such as display name or interaction type) to facilitate the business relationship. You must handle client data in compliance with applicable data protection laws and not use it outside platform interactions."
+  },
+  "5": {
+    "tag": "Sharing",
+    "title": "Sharing Your Information",
+    "content": "We do not sell your business information. We may share it with payment processors, cloud providers, and analytics partners under strict confidentiality agreements. Your business profile and offers are visible to clients as part of platform functionality."
+  },
+  "6": {
+    "tag": "Financial",
+    "title": "Payment & Financial Data",
+    "content": "Payment information is processed by certified third-party providers. We do not store full card details. Transaction records are kept for accounting, tax, and dispute resolution. You are responsible for maintaining accurate billing details."
+  },
+  "7": {
+    "tag": "Data",
+    "title": "Analytics & Performance Data",
+    "content": "We provide analytics about your offers such as views, saves, and interactions. This helps optimize your performance. We also use anonymized aggregated data to improve the platform and analyze trends."
+  },
+  "8": {
+    "tag": "Security",
+    "title": "Data Security",
+    "content": "We use TLS encryption, access controls, and regular audits to protect your data. You are responsible for securing your account credentials and must report unauthorized access immediately."
+  },
+  "9": {
+    "tag": "Legal",
+    "title": "Data Retention",
+    "content": "We retain business data while your account is active. After termination, some data may be kept for up to 7 years for legal and compliance purposes. You may request deletion of non-required data."
+  },
+  "10": {
+    "tag": "Legal",
+    "title": "Your Rights",
+    "content": "You may access, correct, delete, or export your business data. Additional rights such as data portability or objection to processing may apply under local laws like GDPR."
+  },
+  "11": {
+    "tag": "Policy",
+    "title": "Changes to This Policy",
+    "content": "We may update this policy from time to time. Significant changes will be communicated at least 14 days in advance. Continued use of the platform means you accept the updated policy."
+  },
+  "12": {
+    "tag": "Support",
+    "title": "Contact Us",
+    "content": "For privacy-related inquiries, contact privacy@ourplatform.com. We respond to all business privacy requests within 3 business days."
+  }
+}

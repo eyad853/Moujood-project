@@ -23,6 +23,11 @@ import enErrors from './locales/en/errors.json'
 import enLimits from './locales/en/limits.json'
 import enForgotPassword from './locales/en/forgotPassword.json'
 import enUpdateModal from './locales/en/updateModal.json'
+import client_Terms_And_Conditions from './locales/en/client_Terms_and_Conditions.json'
+import client_Privacy_Policy from './locales/en/client_Privacy_Policy.json'
+import business_Terms_And_Conditions from './locales/en/business_Terms_and_Conditions.json'
+import business_Privacy_Policy from './locales/en/business_Privacy_Policy.json'
+
 
 
 import arSignupAs from './locales/ar/signupAs.json'
@@ -46,6 +51,10 @@ import arErrors from './locales/ar/errors.json'
 import arLimits from './locales/ar/limits.json'
 import arForgotPassword from './locales/ar/forgotPassword.json'
 import arUpdateModal from './locales/ar/updateModal.json'
+import client_Terms_And_Conditions from './locales/ar/client_Terms_and_Conditions.json'
+import client_Privacy_Policy from './locales/ar/client_Privacy_Policy.json'
+import business_Terms_And_Conditions from './locales/ar/business_Terms_and_Conditions.json'
+import business_Privacy_Policy from './locales/ar/business_Privacy_Policy.json'
 
 
 
@@ -76,7 +85,11 @@ i18n
             errors:arErrors,
             limits:arLimits,
             forgotPassword:arForgotPassword,
-            updateModal:arUpdateModal
+            updateModal:arUpdateModal,
+            client_Terms_And_Conditions:client_Terms_And_Conditions,
+            client_Privacy_Policy:client_Privacy_Policy,
+            business_Terms_And_Conditions:business_Terms_And_Conditions,
+            business_Privacy_Policy:business_Privacy_Policy
         },
 
         en:{
@@ -100,11 +113,15 @@ i18n
             errors:enErrors,
             limits:enLimits,
             forgotPassword:enForgotPassword,
-            updateModal:enUpdateModal
+            updateModal:enUpdateModal,
+            client_Terms_And_Conditions:client_Terms_And_Conditions,
+            client_Privacy_Policy:client_Privacy_Policy,
+            business_Terms_And_Conditions:business_Terms_And_Conditions,
+            business_Privacy_Policy:business_Privacy_Policy
         }
     },
     fallbackLng:"ar", 
-    ns: ['signupAs' , 'clientAuth' , 'businessAuth' , 'login' , 'settings', 'notification' , 'profile' , 'feed' , 'businessDashboard' , 'businessOffers','commentsSheet' , 'editProfileSheet' , 'offerDetailsSheet' , 'offerSheet' , 'passwordEditSheet' , 'verfiyEmail' , 'errors' , 'limits' , 'forgotPassword' , 'updateModal'],
+    ns: ['signupAs' , "client_Terms_And_Conditions" , "client_Privacy_Policy","business_Terms_And_Conditions","business_Privacy_Policy" , 'clientAuth' , 'businessAuth' , 'login' , 'settings', 'notification' , 'profile' , 'feed' , 'businessDashboard' , 'businessOffers','commentsSheet' , 'editProfileSheet' , 'offerDetailsSheet' , 'offerSheet' , 'passwordEditSheet' , 'verfiyEmail' , 'errors' , 'limits' , 'forgotPassword' , 'updateModal'],
     defaultNS:"signupAs",
     interpolation: { escapeValue: false }
 })

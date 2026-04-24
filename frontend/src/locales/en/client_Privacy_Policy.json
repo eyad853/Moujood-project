@@ -1,1 +1,50 @@
-{}
+{
+  "1": {
+    "title": "Information We Collect",
+    "content": "We collect information you provide directly to us when you register, such as your name, email address, phone number, and profile photo. We also automatically collect certain information when you use the app, including device identifiers, IP address, browser type, operating system, pages viewed, and the dates and times of your visits."
+  },
+  "2": {
+    "title": "How We Use Your Information",
+    "content": "We use the information we collect to create and manage your account, provide and personalize your experience, show you relevant posts, categories, and business offers, send you service notifications and updates, respond to your comments and questions, and improve the overall performance of our platform."
+  },
+  "3": {
+    "title": "Posts & Content You View",
+    "content": "When you browse posts or categories on the platform, we may record your interactions such as likes, saves, shares, and time spent viewing content. This data helps us tailor your feed and surface content that is most relevant to your interests. You can manage your content preferences in your account settings."
+  },
+  "4": {
+    "title": "Business Interactions",
+    "content": "When you interact with businesses on our platform — such as viewing their profiles, saving offers, or initiating contact — we may share limited information (such as your display name) with those businesses to facilitate the interaction. We do not sell your personal data to businesses."
+  },
+  "5": {
+    "title": "Sharing Your Information",
+    "content": "We do not sell, trade, or rent your personal information to third parties. We may share your information with trusted service providers who assist us in operating the platform under strict confidentiality agreements. We may also disclose information when required by law or to protect rights, safety, or security."
+  },
+  "6": {
+    "title": "Cookies & Tracking",
+    "content": "We use cookies and similar tracking technologies to enhance your experience, remember preferences, and analyze usage patterns. You can control cookies through your browser settings. Disabling cookies may affect platform functionality. We also use analytics tools to understand user behavior."
+  },
+  "7": {
+    "title": "Data Security",
+    "content": "We implement industry-standard security measures including encryption, secure servers, and regular audits to protect your data. However, no system is 100% secure. We recommend using strong passwords and keeping your credentials private."
+  },
+  "8": {
+    "title": "Children's Privacy",
+    "content": "Our platform is not intended for children under 13. We do not knowingly collect data from children under 13. If such data is discovered, we will delete it immediately."
+  },
+  "9": {
+    "title": "Your Rights & Choices",
+    "content": "You may access, update, or delete your personal information at any time. You can opt out of promotional messages using unsubscribe links. Additional rights may apply depending on your local laws."
+  },
+  "10": {
+    "title": "Data Transfers",
+    "content": "Your data may be processed in countries outside your own, which may have different data protection laws. By using the platform, you consent to such transfers in accordance with this Privacy Policy."
+  },
+  "11": {
+    "title": "Changes to This Policy",
+    "content": "We may update this Privacy Policy from time to time. We will notify you of significant changes via the app or email. Continued use of the platform means you accept the updated policy."
+  },
+  "12": {
+    "title": "Contact Us",
+    "content": "For any questions or requests regarding this Privacy Policy, contact us at privacy@ourplatform.com. We respond within 5 business days."
+  }
+}

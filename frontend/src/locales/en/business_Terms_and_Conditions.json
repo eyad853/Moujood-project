@@ -1,1 +1,62 @@
-{}
+{
+  "1": {
+    "tag": "Required",
+    "title": "Agreement to Terms",
+    "content": "By registering as a business on our platform, you confirm that you are authorized to act on behalf of your business entity, are at least 18 years old, and agree to be bound by these Terms. These Terms form a binding legal agreement between your business and us."
+  },
+  "2": {
+    "tag": "Account",
+    "title": "Business Account Setup",
+    "content": "You must provide accurate business information including legal business name, address, contact details, and relevant licenses or registrations. You are solely responsible for maintaining the accuracy of your business profile. Misrepresentation of your business may result in immediate account termination."
+  },
+  "3": {
+    "tag": "Core",
+    "title": "Creating Offers",
+    "content": "You may create and publish offers on your business page. All offers must be genuine, accurately described, and legally compliant. You are responsible for honoring any offers published on the platform. Misleading or fraudulent offers are strictly prohibited and may result in account suspension."
+  },
+  "4": {
+    "tag": "Core",
+    "title": "Updating Offers",
+    "content": "You may update your offers at any time. However, changes must be clearly communicated and must not mislead customers who engaged with a prior version of the offer. Retroactive changes that disadvantage customers who already accepted an offer are not permitted."
+  },
+  "5": {
+    "tag": "Core",
+    "title": "Deleting Offers",
+    "content": "You may delete offers that are no longer valid. However, you remain responsible for fulfilling commitments made under any offer prior to its deletion. Deleting an offer does not absolve you of responsibilities to customers who have already accepted or acted upon it."
+  },
+  "6": {
+    "tag": "Policy",
+    "title": "Content Standards",
+    "content": "All content you publish must be accurate, non-deceptive, and compliant with applicable laws. Content must not infringe intellectual property rights, be defamatory, obscene, or violate regulations in the regions where you operate."
+  },
+  "7": {
+    "tag": "Financial",
+    "title": "Fees & Payments",
+    "content": "Certain features or listings may be subject to fees, which will be clearly communicated before purchase. All fees are non-refundable unless otherwise stated. We may update pricing with 30 days' notice."
+  },
+  "8": {
+    "tag": "Legal",
+    "title": "Data & Privacy",
+    "content": "You agree to handle customer data in compliance with applicable laws. You must not use customer data for unsolicited marketing outside the platform. Our Privacy Policy governs data handling."
+  },
+  "9": {
+    "tag": "Policy",
+    "title": "Prohibited Activities",
+    "content": "Businesses must not engage in fraud, deceptive advertising, manipulation of reviews, illegal activities, or misuse of customer data. Violations may result in termination or legal action."
+  },
+  "10": {
+    "tag": "Legal",
+    "title": "Indemnification",
+    "content": "You agree to indemnify and hold harmless the platform and its affiliates from any claims or damages arising from your use of the platform, your offers, or your violation of these Terms."
+  },
+  "11": {
+    "tag": "Legal",
+    "title": "Termination",
+    "content": "We may suspend or terminate your account for violations of these Terms. You may also terminate your account at any time. Termination does not remove prior obligations."
+  },
+  "12": {
+    "tag": "Support",
+    "title": "Contact & Support",
+    "content": "For support or inquiries, contact business@ourplatform.com. We aim to respond within 2 business days."
+  }
+}

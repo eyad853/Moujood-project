@@ -1,75 +1,70 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
-const sections = [
-  {
-    id: 1,
-    icon: '📋',
-    title: 'Acceptance of Terms',
-    content: `By accessing or using our platform as a client, you confirm that you are at least 18 years old, have read and understood these Terms, and agree to be bound by them. If you do not agree, please discontinue use of the app immediately.`,
-  },
-  {
-    id: 2,
-    icon: '👤',
-    title: 'Client Account',
-    content: `You are responsible for maintaining the confidentiality of your account credentials. You agree to provide accurate, current, and complete information during registration. You must notify us immediately of any unauthorized use of your account. We reserve the right to suspend accounts that violate our policies.`,
-  },
-  {
-    id: 3,
-    icon: '📰',
-    title: 'Posts & Content',
-    content: `As a client, you may view, interact with, and share posts published on the platform. You agree not to reproduce, distribute, or exploit any content without proper authorization. Any content you submit must be respectful, accurate, and free from offensive or illegal material. We reserve the right to remove any content at our discretion.`,
-  },
-  {
-    id: 4,
-    icon: '🗂️',
-    title: 'Categories & Discovery',
-    content: `Our platform organizes content into categories to help you discover relevant posts and businesses. Category listings are curated and may change over time. We do not guarantee that all categories will be available at all times or in all regions.`,
-  },
-  {
-    id: 5,
-    icon: '🏪',
-    title: 'Business Interactions',
-    content: `When interacting with businesses listed on our platform, you acknowledge that transactions and communications are solely between you and the respective business. We are not a party to any such interactions and are not liable for any disputes, damages, or losses arising from them.`,
-  },
-  {
-    id: 6,
-    icon: '🔒',
-    title: 'Privacy & Data',
-    content: `We collect and process your personal data in accordance with our Privacy Policy. By using the app, you consent to such processing. We implement industry-standard security measures to protect your data, but we cannot guarantee absolute security of information transmitted over the internet.`,
-  },
-  {
-    id: 7,
-    icon: '🚫',
-    title: 'Prohibited Conduct',
-    content: `You agree not to use the platform for any unlawful purpose, harass or harm other users or businesses, attempt to gain unauthorized access to any part of the platform, use automated tools to scrape or interact with the platform, or interfere with the platform's normal operation.`,
-  },
-  {
-    id: 8,
-    icon: '⚖️',
-    title: 'Limitation of Liability',
-    content: `To the maximum extent permitted by law, we shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of the platform. Our total liability to you shall not exceed the amount you have paid us in the past 12 months, if any.`,
-  },
-  {
-    id: 9,
-    icon: '✏️',
-    title: 'Changes to Terms',
-    content: `We reserve the right to modify these Terms at any time. We will notify you of significant changes via the app or email. Your continued use of the platform after such changes constitutes your acceptance of the new Terms. It is your responsibility to review these Terms periodically.`,
-  },
-  {
-    id: 10,
-    icon: '📬',
-    title: 'Contact Us',
-    content: `If you have questions or concerns about these Terms, please contact our support team at support@ourplatform.com. We are committed to resolving any issues promptly and fairly.`,
-  },
-]
 
 const Client_Terms_And_Conditions = () => {
   const [openSection, setOpenSection] = useState(null)
   const [accepted, setAccepted] = useState(false)
   const navigate = useNavigate()
+  const {t}=useTranslation("client_Terms_And_Conditions")
 
   const toggle = (id) => setOpenSection(openSection === id ? null : id)
+
+  const sections = [
+  {
+    id: 1,
+    icon: '📋',
+    title: t("1.title"),
+    content: t("1.content"),
+  },
+  {
+    id: 2,
+    icon: '👤',
+    title: t("2.title"),
+    content: t("2.content"),
+  },
+  {
+    id: 3,
+    icon: '📰',
+    title: t("3.title"),
+    content: t("3.content"),  },
+  {
+    id: 4,
+    icon: '🗂️',
+    title: t("4.title"),
+    content: t("4.content"),  },
+  {
+    id: 5,
+    icon: '🏪',
+    title: t("5.title"),
+    content: t("5.content"),  },
+  {
+    id: 6,
+    icon: '🔒',
+    title: t("6.title"),
+    content: t("6.content"),  },
+  {
+    id: 7,
+    icon: '🚫',
+    title: t("7.title"),
+    content: t("7.content"),  },
+  {
+    id: 8,
+    icon: '⚖️',
+    title: t("8.title"),
+    content: t("8.content"),  },
+  {
+    id: 9,
+    icon: '✏️',
+    title: t("9.title"),
+    content: t("9.content"),  },
+  {
+    id: 10,
+    icon: '📬',
+    title: t("10.title"),
+    content: t("10.content"),  },
+]
 
   return (
     <div className="min-h-screen bg-gray-50 max-w-sm mx-auto font-sans">

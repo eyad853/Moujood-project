@@ -1,93 +1,15 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
-const sections = [
-  {
-    id: 1,
-    icon: '🤝',
-    title: 'Agreement to Terms',
-    tag: 'Required',
-    content: `By registering as a business on our platform, you confirm that you are authorized to act on behalf of your business entity, are at least 18 years old, and agree to be bound by these Terms. These Terms form a binding legal agreement between your business and us.`,
-  },
-  {
-    id: 2,
-    icon: '🏢',
-    title: 'Business Account Setup',
-    tag: 'Account',
-    content: `You must provide accurate business information including legal business name, address, contact details, and relevant licenses or registrations. You are solely responsible for maintaining the accuracy of your business profile. Misrepresentation of your business may result in immediate account termination.`,
-  },
-  {
-    id: 3,
-    icon: '🎯',
-    title: 'Creating Offers',
-    tag: 'Core',
-    content: `You may create and publish offers on your business page. All offers must be genuine, accurately described, and legally compliant. You are responsible for honoring any offers published on the platform. Misleading or fraudulent offers are strictly prohibited and may result in account suspension.`,
-  },
-  {
-    id: 4,
-    icon: '✏️',
-    title: 'Updating Offers',
-    tag: 'Core',
-    content: `You may update your offers at any time. However, changes must be clearly communicated and must not mislead customers who engaged with a prior version of the offer. Retroactive changes that disadvantage customers who already accepted an offer are not permitted.`,
-  },
-  {
-    id: 5,
-    icon: '🗑️',
-    title: 'Deleting Offers',
-    tag: 'Core',
-    content: `You may delete offers that are no longer valid. However, you remain responsible for fulfilling commitments made under any offer prior to its deletion. Deleting an offer does not absolve you of responsibilities to customers who have already accepted or acted upon it.`,
-  },
-  {
-    id: 6,
-    icon: '📊',
-    title: 'Content Standards',
-    tag: 'Policy',
-    content: `All content you publish — including offer descriptions, images, and business information — must be accurate, non-deceptive, and compliant with applicable laws. Content must not infringe third-party intellectual property rights, be defamatory, obscene, or violate any regulations in the regions where you operate.`,
-  },
-  {
-    id: 7,
-    icon: '💰',
-    title: 'Fees & Payments',
-    tag: 'Financial',
-    content: `Certain features or listing placements may be subject to fees, which will be clearly communicated before purchase. All fees are non-refundable unless otherwise stated. We reserve the right to modify our fee structure with 30 days' notice. Continued use after fee changes constitutes acceptance of the new pricing.`,
-  },
-  {
-    id: 8,
-    icon: '🔒',
-    title: 'Data & Privacy',
-    tag: 'Legal',
-    content: `You agree to handle any customer data obtained through the platform in compliance with applicable data protection laws. You must not use customer contact information obtained through the platform for unsolicited marketing outside the platform. Our Privacy Policy governs how we handle your business data.`,
-  },
-  {
-    id: 9,
-    icon: '⚠️',
-    title: 'Prohibited Activities',
-    tag: 'Policy',
-    content: `Businesses must not engage in deceptive advertising, manipulate reviews or ratings, offer illegal products or services, use the platform to conduct fraudulent transactions, engage in anti-competitive behavior, or misuse customer data. Violations may result in immediate termination and legal action.`,
-  },
-  {
-    id: 10,
-    icon: '🛡️',
-    title: 'Indemnification',
-    tag: 'Legal',
-    content: `You agree to indemnify, defend, and hold harmless our platform, its officers, directors, employees, and agents from any claims, liabilities, damages, or expenses (including legal fees) arising from your use of the platform, your offers, your content, or your violation of these Terms.`,
-  },
-  {
-    id: 11,
-    icon: '⚖️',
-    title: 'Termination',
-    tag: 'Legal',
-    content: `We reserve the right to suspend or terminate your business account at any time for violations of these Terms or for any conduct we deem harmful to the platform or its users. You may terminate your account at any time by contacting support. Termination does not relieve you of obligations incurred prior to termination.`,
-  },
-  {
-    id: 12,
-    icon: '📬',
-    title: 'Contact & Support',
-    tag: 'Support',
-    content: `For business-related inquiries, disputes, or support, please contact our Business Support team at business@ourplatform.com. We are dedicated to helping your business succeed on our platform and will respond to all inquiries within 2 business days.`,
-  },
-]
+const Business_Terms_And_Conditions = () => {
+  const [openSection, setOpenSection] = useState(null)
+  const [accepted, setAccepted] = useState(false)
+  const [activeFilter, setActiveFilter] = useState('All')
+  const navigate = useNavigate()
+  const {t}=useTranslation("business_Terms_And_Conditions")
 
+  
 const tagStyles = {
   Required: { bg: '#FEF3C7', text: '#92400E' },
   Account:  { bg: '#DBEAFE', text: '#1E40AF' },
@@ -99,16 +21,86 @@ const tagStyles = {
 }
 
 const filters = ['All', 'Core', 'Policy', 'Legal', 'Financial']
-
-const Business_Terms_And_Conditions = () => {
-  const [openSection, setOpenSection] = useState(null)
-  const [accepted, setAccepted] = useState(false)
-  const [activeFilter, setActiveFilter] = useState('All')
-  const navigate = useNavigate()
+  
 
   const toggle = (id) => setOpenSection(openSection === id ? null : id)
 
   const filtered = activeFilter === 'All' ? sections : sections.filter(s => s.tag === activeFilter)
+
+  const sections = [
+  {
+    id: 1,
+    icon: '🤝',
+    tag: t("1.tag"),
+    title: t("1.title"),
+    content: t("1.content"),  },
+  {
+    id: 2,
+    icon: '🏢',
+    tag: t("2.tag"),
+    title: t("2.title"),
+    content: t("2.content"),  },
+  {
+    id: 3,
+    icon: '🎯',
+    tag: t("3.tag"),
+    title: t("3.title"),
+    content: t("3.content"),  },
+  {
+    id: 4,
+    icon: '✏️',
+    tag: t("4.tag"),
+    title: t("4.title"),
+    content: t("4.content"),  },
+  {
+    id: 5,
+    icon: '🗑️',
+    tag: t("5.tag"),
+    title: t("5.title"),
+    content: t("5.content"),  },
+  {
+    id: 6,
+    icon: '📊',
+    tag: t("6.tag"),
+    title: t("6.title"),
+    content: t("6.content"),  },
+  {
+    id: 7,
+    icon: '💰',
+    tag: t("7.tag"),
+    title: t("7.title"),
+    content: t("7.content"),  },
+  {
+    id: 8,
+    icon: '🔒',
+    tag: t("8.tag"),
+    title: t("8.title"),
+    content: t("8.content"),  },
+  {
+    id: 9,
+    icon: '⚠️',
+    tag: t("9.tag"),
+    title: t("9.title"),
+    content: t("9.content"),  },
+  {
+    id: 10,
+    icon: '🛡️',
+    tag: t("10.tag"),
+    title: t("10.title"),
+    content: t("10.content"),  },
+  {
+    id: 11,
+    icon: '⚖️',
+    tag: t("11.tag"),
+    title: t("11.title"),
+    content: t("11.content"),  },
+  {
+    id: 12,
+    icon: '📬',
+    tag: t("12.tag"),
+    title: t("12.title"),
+    content: t("12.content"),  },
+]
 
   return (
     <div className="min-h-screen bg-gray-50 max-w-sm mx-auto font-sans">

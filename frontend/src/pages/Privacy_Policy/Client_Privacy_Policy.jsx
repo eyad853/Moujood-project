@@ -1,86 +1,90 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
-const sections = [
-  {
-    id: 1,
-    icon: '📥',
-    title: 'Information We Collect',
-    content: `We collect information you provide directly to us when you register, such as your name, email address, phone number, and profile photo. We also automatically collect certain information when you use the app, including device identifiers, IP address, browser type, operating system, pages viewed, and the dates and times of your visits.`,
-  },
-  {
-    id: 2,
-    icon: '🎯',
-    title: 'How We Use Your Information',
-    content: `We use the information we collect to create and manage your account, provide and personalize your experience, show you relevant posts, categories, and business offers, send you service notifications and updates, respond to your comments and questions, and improve the overall performance of our platform.`,
-  },
-  {
-    id: 3,
-    icon: '🔍',
-    title: 'Posts & Content You View',
-    content: `When you browse posts or categories on the platform, we may record your interactions such as likes, saves, shares, and time spent viewing content. This data helps us tailor your feed and surface content that is most relevant to your interests. You can manage your content preferences in your account settings.`,
-  },
-  {
-    id: 4,
-    icon: '🏪',
-    title: 'Business Interactions',
-    content: `When you interact with businesses on our platform — such as viewing their profiles, saving offers, or initiating contact — we may share limited information (such as your display name) with those businesses to facilitate the interaction. We do not sell your personal data to businesses.`,
-  },
-  {
-    id: 5,
-    icon: '🤝',
-    title: 'Sharing Your Information',
-    content: `We do not sell, trade, or rent your personal information to third parties. We may share your information with trusted service providers who assist us in operating the platform, under strict confidentiality agreements. We may also disclose information when required by law or to protect the rights, property, or safety of our platform, users, or others.`,
-  },
-  {
-    id: 6,
-    icon: '🍪',
-    title: 'Cookies & Tracking',
-    content: `We use cookies and similar tracking technologies to enhance your experience, remember your preferences, and analyze usage patterns. You can control cookie settings through your browser. Disabling cookies may affect some features of the platform. We also use analytics tools to understand how users interact with our app.`,
-  },
-  {
-    id: 7,
-    icon: '🔐',
-    title: 'Data Security',
-    content: `We implement industry-standard security measures including encryption, secure servers, and regular security audits to protect your personal information. However, no method of transmission over the internet or electronic storage is 100% secure. We encourage you to use a strong password and keep your account credentials private.`,
-  },
-  {
-    id: 8,
-    icon: '👶',
-    title: "Children's Privacy",
-    content: `Our platform is not directed to children under the age of 13. We do not knowingly collect personal information from children under 13. If you believe we have inadvertently collected such information, please contact us immediately and we will take steps to delete it.`,
-  },
-  {
-    id: 9,
-    icon: '✋',
-    title: 'Your Rights & Choices',
-    content: `You have the right to access, update, or delete your personal information at any time through your account settings. You may also opt out of promotional communications by following the unsubscribe instructions in those messages. Where applicable, you may have additional rights under local data protection laws such as GDPR.`,
-  },
-  {
-    id: 10,
-    icon: '🌍',
-    title: 'Data Transfers',
-    content: `Your information may be transferred to and processed in countries other than your own. These countries may have data protection laws that differ from those in your country. By using our platform, you consent to the transfer of your information to these countries in accordance with this Privacy Policy.`,
-  },
-  {
-    id: 11,
-    icon: '🔄',
-    title: 'Changes to This Policy',
-    content: `We may update this Privacy Policy from time to time. We will notify you of any significant changes via the app or by email. Your continued use of the platform after changes are posted constitutes your acceptance of the updated policy. We encourage you to review this policy periodically.`,
-  },
-  {
-    id: 12,
-    icon: '📬',
-    title: 'Contact Us',
-    content: `If you have any questions, concerns, or requests regarding this Privacy Policy or our data practices, please contact our Privacy team at privacy@ourplatform.com. We will respond to all inquiries within 5 business days.`,
-  },
-]
 
 const Client_Privacy_Policy = () => {
   const [openSection, setOpenSection] = useState(null)
   const navigate = useNavigate()
 
   const toggle = (id) => setOpenSection(openSection === id ? null : id)
+  const {t}=useTranslation("client_Privacy_Policy")
+  
+
+  const sections = [
+  {
+    id: 1,
+    icon: '📥',
+    title: t("1.title"),
+    content: t("1.content"),
+  },
+  {
+    id: 2,
+    icon: '🎯',
+    title: t("2.title"),
+    content: t("2.content"),
+  },
+  {
+    id: 3,
+    icon: '🔍',
+    title: t("3.title"),
+    content: t("3.content"),
+  },
+  {
+    id: 4,
+    icon: '🏪',
+    title: t("4.title"),
+    content: t("4.content"),
+  },
+  {
+    id: 5,
+    icon: '🤝',
+    title: t("5.title"),
+    content: t("5.content"),
+  },
+  {
+    id: 6,
+    icon: '🍪',
+    title: t("6.title"),
+    content: t("6.content"),
+  },
+  {
+    id: 7,
+    icon: '🔐',
+    title: t("7.title"),
+    content: t("7.content"),
+  },
+  {
+    id: 8,
+    icon: '👶',
+    title: t("8.title"),
+    content: t("8.content"),
+  },
+  {
+    id: 9,
+    icon: '✋',
+    title: t("9.title"),
+    content: t("9.content"),
+  },
+  {
+    id: 10,
+    icon: '🌍',
+    title: t("10.title"),
+    content: t("10.content"),
+  },
+  {
+    id: 11,
+    icon: '🔄',
+    title: t("11.title"),
+    content: t("11.content"),
+  },
+  {
+    id: 12,
+    icon: '📬',
+    title: t("12.title"),
+    content: t("12.content"),
+  },
+]
 
   return (
     <div className="min-h-screen bg-gray-50 max-w-sm mx-auto font-sans">
