@@ -7,11 +7,11 @@ export async function sendNotification(title, body, tokens) {
     if(tokens.length===0)return
 
     const message = {
+      tokens,
       notification: {
         title,
         body,
       },
-      tokens,
     };
 
     const response = await admin.messaging().sendMulticast(message)
