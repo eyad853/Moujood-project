@@ -16,7 +16,7 @@ export async function sendNotification(title, body, tokens) {
       },
     };
 
-    const response = await admin.messaging().sendMulticast(message)
+    const response = await admin.messaging().sendEachForMulticast(message)
     console.log("FCM RESPONSE:", JSON.stringify(response, null, 2));
 
     if (response.failureCount > 0) {
