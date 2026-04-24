@@ -2,6 +2,8 @@ import ERRORS from '../config/errors.js';
 import admin from '../config/firebase.js';
 import {pool} from '../index.js'
 
+console.log(typeof admin.messaging().sendMulticast);
+console.log(Object.getOwnPropertyNames(Object.getPrototypeOf(admin.messaging())));
 export async function sendNotification(title, body, tokens) {
   try {
     if(tokens.length===0)return
