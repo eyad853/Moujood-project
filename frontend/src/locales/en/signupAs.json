@@ -1,5 +1,6 @@
 {
   "title": "Sign up",
   "businessBtn": "As a Business",
-  "userBtn": "As a User"
+  "userBtn": "As a User",
+  "login":"login"
 }
