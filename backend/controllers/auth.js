@@ -689,7 +689,7 @@ export const verifyEmail = async (req, res) => {
   const { token } = req.params;
   const { deviceToken, deviceId } = req.body
   console.log("token:" , token)
-  console.log("deviceTdeviceToken:" ,deviceToken)
+  console.log("deviceToken:" ,deviceToken)
   console.log("deviceId:" ,deviceId )
 
   try {

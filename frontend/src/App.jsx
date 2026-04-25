@@ -45,6 +45,7 @@ import Client_Terms_And_Conditions from './pages/Terms_&_Conditions/Client_Terms
 import Business_Terms_And_Conditions from './pages/Terms_&_Conditions/Business_Terms_And_Conditions';
 import Client_Privacy_Policy from './pages/Privacy_Policy/Client_Privacy_Policy';
 import Business_Privacy_Policy from './pages/Privacy_Policy/Business_Privacy_Policy';
+import { useUser } from './context/userContext';
 
 
 const handleBackButton = () => {
@@ -256,6 +257,7 @@ const routes = [
 const router = createBrowserRouter(routes)
 
 const App = () => {
+  const {user}=useUser()
 
   if (window.Capacitor && typeof window.Capacitor.triggerEvent === 'function') {
       window.Capacitor.triggerEvent('pause', 'document');
@@ -281,30 +283,39 @@ const App = () => {
       }
     });
 
-    // Push notification permissions
-    const result = await PushNotifications.requestPermissions();
-    if (result.receive === 'granted') {
+    let result = await PushNotifications.checkPermissions();
+    if (result.receive === "granted") {
       await PushNotifications.register();
-    } else {
-      alert("Push notification permission not granted");
+
+    }else{
+      // Push notification permissions
+      result = await PushNotifications.requestPermissions();
+      if (result.receive === 'granted') {
+        await PushNotifications.register();
+      }
+
     }
 
     // Push notification listeners
-    console.log('PushNotifications:', PushNotifications);
     const registrationListener = PushNotifications.addListener('registration', async (token) => {
-      const savedToken = await Preferences.get({ key: "pushToken" });
-      if (savedToken.value !== token.value) {
         await Preferences.set({ key: "pushToken", value: token.value });
-      }
     });
 
     const errorListener = PushNotifications.addListener('registrationError', (error) => {
-      alert('Error on registration: ' + JSON.stringify(error));
+      console.log(error)
     });
 
     const actionListener = PushNotifications.addListener('pushNotificationActionPerformed', () => {
-      router.navigate('/notifications');
+      if(!user){
+        router.navigate('/')
+      }else if(user.accountType==='user'){
+        router.navigate('/client/notifications');
+      }else if(user.accountType==='business'){
+        router.navigate('/business/notifications');
+      }
     });
+
+
 
     // Check for updates
     const updateResult = await checkForAppUpdate();
@@ -324,16 +335,16 @@ const App = () => {
 
     // Cleanup listeners when component unmounts
     return () => {
-      registrationListener.remove();
-      errorListener.remove();
-      actionListener.remove();
+      registrationListener?.remove();
+      errorListener?.remove();
+      actionListener?.remove();
       backHandler.remove();
       urlHandler.remove();
     };
   };
 
   init();
-}, []);
+}, [user]);
 
   return (
     <>
