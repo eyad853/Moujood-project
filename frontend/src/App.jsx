@@ -274,7 +274,6 @@ const App = () => {
         clientId:import.meta.env.VITE_GOOGLE_ANDROID_CLIENT_ID,
         webClientId: import.meta.env.VITE_GOOGLE_WEB_CLIENT_ID,
         scopes: ["email", "profile"],
-        mode:"redirect"
       },
       facebook: {
         appId: import.meta.env.VITE_FACEBOOK_CLIENT_ID,
@@ -298,7 +297,7 @@ const App = () => {
 
     // Push notification listeners
     const registrationListener = PushNotifications.addListener('registration', async (token) => {
-      console.log('token:' , token.value)
+      console.log('revieved token:' , token.value)
         await Preferences.set({ key: "pushToken", value: token.value });
     });
 

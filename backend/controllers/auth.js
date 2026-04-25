@@ -306,8 +306,8 @@ export const login = async (req, res, next) => {
       // Send the verification email again
       await sendVerificationEmail(account.email, token);
     
-      return res.status(403).json({
-        error:true,
+      return res.status(200).json({
+        error:false,
         accountNotVerified:true,
         message: ERRORS.ACCOUNT_NOT_VERIFIED
       });
