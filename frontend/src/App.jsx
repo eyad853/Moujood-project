@@ -298,6 +298,7 @@ const App = () => {
 
     // Push notification listeners
     const registrationListener = PushNotifications.addListener('registration', async (token) => {
+      console.log('token:' , token.value)
         await Preferences.set({ key: "pushToken", value: token.value });
     });
 
