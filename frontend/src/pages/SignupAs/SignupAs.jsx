@@ -24,18 +24,13 @@ const SignupAs = () => {
             className="w-full rounded-md h-10 flex font-bold justify-center items-center transform hover:scale-105 transition-all duration-200 text-white bg-green-700">
                 {t("userBtn")}
             </Link>
-            <Link 
-            to={'/login'}
-            className="w-full mt-8 rounded-md h-10 flex font-bold justify-center items-center transform hover:scale-105 transition-all duration-200 text-white bg-green-700">
-                {t("login")}
-            </Link>
         </div>
 
         <div className="flex flex-col gap-3.5 w-full items-center px-5 mt-5">
             <h1 className='text-2xl font-bold text-green-900'>{t("loginTitle")}</h1>
             <Link 
             to={'/login'}
-            className="w-full mt-8 rounded-md h-10 flex font-bold justify-center items-center transform hover:scale-105 transition-all duration-200 text-white bg-green-700">
+            className="w-full rounded-md h-10 flex font-bold justify-center items-center transform hover:scale-105 transition-all duration-200 text-white bg-green-700">
                 {t("login")}
             </Link>
         </div>
