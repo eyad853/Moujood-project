@@ -25,7 +25,7 @@ const SignupAs = () => {
                 {t("userBtn")}
             </Link>
             <Link 
-            to={'/client_sign_up'}
+            to={'/login'}
             className="w-full rounded-md h-10 flex font-bold justify-center items-center transform hover:scale-105 transition-all duration-200 text-white bg-green-700">
                 {t("login")}
             </Link>
