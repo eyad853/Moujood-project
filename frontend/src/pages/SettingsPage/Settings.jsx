@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ArrowLeft, ChevronRight, Bell, Volume2, Vibrate, Globe, Check, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../../api/auth';
