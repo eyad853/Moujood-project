@@ -8,8 +8,7 @@
   },
   "server": {
     "url": "https://moujood-project.vercel.app",
-    "cleartext": true,
-    "androidScheme": "moujood"
+    "cleartext": true  
   },
   
   "SplashScreen": {
