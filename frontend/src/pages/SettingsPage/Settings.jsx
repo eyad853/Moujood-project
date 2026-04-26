@@ -21,6 +21,7 @@ const Settings = () => {
   const isRTL = i18n.language === "ar";
   const {user}=useUser()
 
+  const normalizeLanguage = (lang) => lang?.split('-')[0] || 'en';
 
   // Password sheet state
   const [isPasswordSheetOpen, setIsPasswordSheetOpen] = useState(false);
@@ -34,9 +35,9 @@ const Settings = () => {
 
   useEffect(() => {
     if (i18n.language) {
-      setSelectedLanguage(i18n.language)
+      setSelectedLanguage(normalizeLanguage(i18n.language));
     }
-}, [i18n.language])
+  }, [i18n.language]);
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
