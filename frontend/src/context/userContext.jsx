@@ -12,6 +12,7 @@ export const AccountProvider = ({ children }) => {
   const [error , setError]=useState('')
   const [token , setToken]=useState(null)
   const {t} = useTranslation()
+  const [authReady, setAuthReady] = useState(false);
 
   // Fetch user once when app loads
   useEffect(() => {
@@ -20,6 +21,8 @@ export const AccountProvider = ({ children }) => {
       if(!hasToken){
         await handleCreateToken();
       }
+      
+      setAuthReady(true)
     }
     getUserData()
   }, []);
@@ -27,7 +30,7 @@ export const AccountProvider = ({ children }) => {
   
 
   return (
-    <UserContext.Provider value={{ user, setUser , loading , setLoading ,setError ,error}}>
+    <UserContext.Provider value={{ user, setUser , loading , setLoading ,setError ,error , authReady , setAuthReady}}>
       {children}
     </UserContext.Provider>
   );

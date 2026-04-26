@@ -22,10 +22,7 @@ const tagStyles = {
 
 const filters = ['All', 'Core', 'Policy', 'Legal', 'Financial']
   
-
   const toggle = (id) => setOpenSection(openSection === id ? null : id)
-
-  const filtered = activeFilter === 'All' ? sections : sections.filter(s => s.tag === activeFilter)
 
   const sections = [
   {
@@ -102,6 +99,8 @@ const filters = ['All', 'Core', 'Policy', 'Legal', 'Financial']
     content: t("12.content"),  },
 ]
 
+  const filtered = activeFilter === 'All' ? sections : sections.filter(s => s.tag === activeFilter)
+
   return (
     <div className="min-h-screen bg-gray-50 max-w-sm mx-auto font-sans">
 
@@ -125,7 +124,6 @@ const filters = ['All', 'Core', 'Policy', 'Legal', 'Financial']
         </div>
 
         {/* Title block */}
-        <p className="text-xs tracking-widest uppercase mb-1" style={{ color: 'rgba(255,255,255,0.65)' }}>Legal</p>
         <h1 className="text-2xl font-bold text-white tracking-tight mb-3">Terms & Conditions</h1>
       </div>
 

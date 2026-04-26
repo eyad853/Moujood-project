@@ -88,16 +88,14 @@ const Client_Terms_And_Conditions = () => {
         </div>
 
         {/* Title block */}
-        <p className="text-xs tracking-widest uppercase mb-1" style={{ color: 'rgba(255,255,255,0.65)' }}>Legal</p>
-        <h1 className="text-2xl font-bold text-white tracking-tight mb-3">Terms & Conditions</h1>
+        <h1 className="text-2xl font-bold text-white tracking-tight mb-3">{t("title")}</h1>
       </div>
 
       {/* Intro card — overlaps header */}
       <div className="mx-4 -mt-4 bg-white rounded-2xl shadow-lg p-4 flex gap-3 items-start mb-5" style={{ border: '1px solid #e5e7eb' }}>
         <span className="text-2xl mt-0.5 flex-shrink-0">👋</span>
         <p className="text-sm text-gray-500 leading-relaxed">
-          Welcome! These terms govern your use of our platform as a{' '}
-          <span className="font-semibold text-gray-800">client</span>. Please read carefully before continuing.
+          {t('introductions')}
         </p>
       </div>
 

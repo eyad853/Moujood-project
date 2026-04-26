@@ -257,7 +257,7 @@ const routes = [
 const router = createBrowserRouter(routes)
 
 const App = () => {
-  const {user}=useUser()
+  const {user , authReady}=useUser()
 
   if (window.Capacitor && typeof window.Capacitor.triggerEvent === 'function') {
       window.Capacitor.triggerEvent('pause', 'document');
@@ -306,6 +306,7 @@ const App = () => {
     });
 
     const actionListener = PushNotifications.addListener('pushNotificationActionPerformed', () => {
+      if(!authReady)return
       if(!user){
         router.navigate('/')
       }else if(user.accountType==='user'){
@@ -344,7 +345,7 @@ const App = () => {
   };
 
   init();
-}, [user]);
+}, [user, authReady]);
 
   return (
     <>
