@@ -135,7 +135,7 @@ const filters = ['All', 'Core', 'Data', 'Legal', 'Financial', 'Security']
           🛡️
         </div>
 
-        <h1 className="text-2xl font-bold text-white tracking-tight mb-3">Privacy Policy</h1>
+        <h1 className="text-2xl font-bold text-white tracking-tight mb-3">{t("title")}</h1>
       </div>
 
       {/* Intro card */}
@@ -145,10 +145,7 @@ const filters = ['All', 'Core', 'Data', 'Legal', 'Financial', 'Security']
       >
         <span className="text-2xl mt-0.5 flex-shrink-0">🏢</span>
         <div>
-          <p className="text-sm font-bold text-gray-800 mb-1">Business Data Commitment</p>
-          <p className="text-xs text-gray-500 leading-relaxed">
-            This policy explains how we collect, use, and protect your business data, including offer activity and client interactions on our platform.
-          </p>
+          {t('introduction')}
         </div>
       </div>
 

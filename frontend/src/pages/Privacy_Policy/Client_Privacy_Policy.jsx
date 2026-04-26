@@ -117,9 +117,7 @@ const Client_Privacy_Policy = () => {
         >
           🛡️
         </div>
-
-
-        <h1 className="text-2xl font-bold text-white tracking-tight mb-3">Privacy Policy</h1>
+        <h1 className="text-2xl font-bold text-white tracking-tight mb-3">{t("title")}</h1>
       </div>
 
       {/* Intro card */}
@@ -129,9 +127,7 @@ const Client_Privacy_Policy = () => {
       >
         <span className="text-2xl mt-0.5 flex-shrink-0">🔒</span>
         <p className="text-sm text-gray-500 leading-relaxed">
-          Your privacy matters to us. This policy explains how we{' '}
-          <span className="font-semibold text-gray-800">collect, use, and protect</span> your personal
-          information when you use our platform as a client.
+          {t('introduction')}
         </p>
       </div>
 
