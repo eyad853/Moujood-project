@@ -18,7 +18,7 @@ const Settings = () => {
   const {setUser} = useUser()
   const {t , i18n} = useTranslation('settings')
   const lang = i18n.language
-  const isRTL = i18n.language === "ar"; // true if Arabic
+  const isRTL = i18n.language === "ar";
   const {user}=useUser()
 
 
@@ -31,6 +31,12 @@ const Settings = () => {
     { id: 1, name: 'English', code: 'en' },
     { id: 2, name: 'العربية', code: 'ar' },
   ];
+
+  useEffect(() => {
+    if (i18n.language) {
+      setSelectedLanguage(i18n.language)
+    }
+}, [i18n.language])
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
