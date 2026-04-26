@@ -18,9 +18,8 @@ export default function VerifyEmail() {
     const [searchParams] = useSearchParams()
     const token = searchParams.get('token')
     const {setUser}=useUser()
-    console.log(window.location.origin);
     const calledRef = useRef(false);
-    const {t}=useTranslation('verfiyEmail')
+    const {t}=useTranslation('verifyEmail')
 
   // Countdown timer effect
   useEffect(() => {
