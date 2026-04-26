@@ -81,7 +81,7 @@ i18n
             offerDetailsSheet:arOfferDetailsSheet,
             offerSheet:arOfferSheet,
             passwordEditSheet:arPasswordEditSheet,
-            verfifyEmail:arVerifyEmail,
+            verifyEmail:arVerifyEmail,
             errors:arErrors,
             limits:arLimits,
             forgotPassword:arForgotPassword,
@@ -109,7 +109,7 @@ i18n
             offerDetailsSheet:enOfferDetailsSheet,
             offerSheet:enOfferSheet,
             passwordEditSheet:enPasswordEditSheet,
-            verfiyEmail:enVerifyEmail,
+            verifyEmail:enVerifyEmail,
             errors:enErrors,
             limits:enLimits,
             forgotPassword:enForgotPassword,
@@ -121,7 +121,7 @@ i18n
         }
     },
     fallbackLng:"ar", 
-    ns: ['signupAs' , "client_Terms_And_Conditions" , "client_Privacy_Policy","business_Terms_And_Conditions","business_Privacy_Policy" , 'clientAuth' , 'businessAuth' , 'login' , 'settings', 'notification' , 'profile' , 'feed' , 'businessDashboard' , 'businessOffers','commentsSheet' , 'editProfileSheet' , 'offerDetailsSheet' , 'offerSheet' , 'passwordEditSheet' , 'verfiyEmail' , 'errors' , 'limits' , 'forgotPassword' , 'updateModal'],
+    ns: ['signupAs' , "client_Terms_And_Conditions" , "client_Privacy_Policy","business_Terms_And_Conditions","business_Privacy_Policy" , 'clientAuth' , 'businessAuth' , 'login' , 'settings', 'notification' , 'profile' , 'feed' , 'businessDashboard' , 'businessOffers','commentsSheet' , 'editProfileSheet' , 'offerDetailsSheet' , 'offerSheet' , 'passwordEditSheet' , 'verifyEmail ' , 'errors' , 'limits' , 'forgotPassword' , 'updateModal'],
     defaultNS:"signupAs",
     interpolation: { escapeValue: false }
 })
