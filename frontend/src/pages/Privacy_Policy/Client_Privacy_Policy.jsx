@@ -118,9 +118,7 @@ const Client_Privacy_Policy = () => {
           🛡️
         </div>
 
-        <p className="text-xs tracking-widest uppercase mb-1" style={{ color: 'rgba(255,255,255,0.65)' }}>
-          Legal
-        </p>
+
         <h1 className="text-2xl font-bold text-white tracking-tight mb-3">Privacy Policy</h1>
       </div>
 

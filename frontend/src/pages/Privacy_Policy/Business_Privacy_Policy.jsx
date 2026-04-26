@@ -25,9 +25,6 @@ const Business_Privacy_Policy = () => {
 
 const filters = ['All', 'Core', 'Data', 'Legal', 'Financial', 'Security']
 
-  const filtered =
-    activeFilter === 'All' ? sections : sections.filter((s) => s.tag === activeFilter)
-
     const sections = [
   {
     id: 1,
@@ -103,6 +100,9 @@ const filters = ['All', 'Core', 'Data', 'Legal', 'Financial', 'Security']
     content: t("12.content"),  },
 ]
 
+  const filtered =
+    activeFilter === 'All' ? sections : sections.filter((s) => s.tag === activeFilter)
+
   return (
     <div className="min-h-screen bg-gray-50 max-w-sm mx-auto font-sans">
 
@@ -135,9 +135,6 @@ const filters = ['All', 'Core', 'Data', 'Legal', 'Financial', 'Security']
           🛡️
         </div>
 
-        <p className="text-xs tracking-widest uppercase mb-1" style={{ color: 'rgba(255,255,255,0.65)' }}>
-          Legal
-        </p>
         <h1 className="text-2xl font-bold text-white tracking-tight mb-3">Privacy Policy</h1>
       </div>
 

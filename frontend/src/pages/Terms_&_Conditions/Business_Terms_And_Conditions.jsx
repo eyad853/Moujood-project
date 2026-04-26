@@ -124,17 +124,14 @@ const filters = ['All', 'Core', 'Policy', 'Legal', 'Financial']
         </div>
 
         {/* Title block */}
-        <h1 className="text-2xl font-bold text-white tracking-tight mb-3">Terms & Conditions</h1>
+        <h1 className="text-2xl font-bold text-white tracking-tight mb-3">{t('title')}</h1>
       </div>
 
       {/* Intro card */}
       <div className="mx-4 mb-4 bg-white rounded-2xl p-4 flex gap-3 items-start" style={{ border: '1px solid #e5e7eb', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
         <span className="text-2xl mt-0.5 flex-shrink-0">🏢</span>
         <div>
-          <p className="text-sm font-bold text-gray-800 mb-1">Business Partner Agreement</p>
-          <p className="text-xs text-gray-500 leading-relaxed">
-            These terms govern your ability to create offers, manage your business profile, and interact with clients on our platform.
-          </p>
+          {t('introduction')}
         </div>
       </div>
 
