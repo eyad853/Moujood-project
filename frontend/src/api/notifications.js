@@ -92,9 +92,16 @@ export const editNotification = async (id,notificationData,setError,setLoading ,
       return;
     }
 
-    if (!notificationData.filter_value || notificationData.filter_value.toString().trim().length === 0) {
-      setError(t("limits:FILTER_VALUE_REQUIRED"));
-      return;
+    if (
+      ["governorate", "gender", "category"].includes(notificationData.filter_type)
+    ) {
+      if (
+        !notificationData.filter_value ||
+        notificationData.filter_value.toString().trim().length === 0
+      ) {
+        setError(t("limits:FILTER_VALUE_REQUIRED"));
+        return;
+      }
     }
 
     // ✅ Conditional validation for 'specific'
@@ -256,7 +263,7 @@ export const fetchMyNotifications = async (receiver_type,setNotifications,setErr
   }
 };
 
-export const fetchNotificationDetails = async (notification_id,setNotification,setError , t) => {
+export const fetchNotificationDetails = async (notification_id ,setNotification,setError , t) => {
   try {
     const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/notifications/getNotificationDetails/${notification_id}`);
     setNotification(res.data.notification);
@@ -292,32 +299,42 @@ export const fetchNotificationCount = async (receiver_type,setNotificationsCount
   }
 };
 
-export const markAllNotificationsAsRead = async (receiver_type,notifications,setNotifications,setError , t) => {
-  const prevNotifications = notifications;
+export const markAllNotificationsAsRead = async (receiver_type,setNotifications,setError,t) => {
 
-  // 🔹 optimistic update
-  setNotifications(
-    notifications.map(n => ({
+  let prevNotifications = [];
+
+  // optimistic update
+  setNotifications(prev => {
+
+    prevNotifications = prev;
+
+    return prev.map(n => ({
       ...n,
       is_read: true
-    }))
-  );
+    }));
+  });
 
   try {
-    await axios.post(`${import.meta.env.VITE_BACKEND_URL}/notifications/markAllNotificationsAsRead/${receiver_type}` ,{} ,   {withCredentials:true});
+
+    await axios.post(
+      `${import.meta.env.VITE_BACKEND_URL}/notifications/markAllNotificationsAsRead/${receiver_type}`,
+      {},
+      { withCredentials: true }
+    );
 
   } catch (err) {
-    // 🔴 rollback
+
+    // rollback
     setNotifications(prevNotifications);
 
-        if (err.response?.data?.message) {
-            setError(t(`errors:${err.response.data.message}`))
-        } else if (err.message === "Network Error") {
-            setError(t("errors:NETWORK_ERROR"))
-        } else if (err.message) {
-            setError(t(`errors:${err.message}`))
-        } else {
-            setError(t("errors:SOMETHING_WENT_WRONG"))
-        }
+    if (err.response?.data?.message) {
+      setError(t(`errors:${err.response.data.message}`))
+    } else if (err.message === "Network Error") {
+      setError(t("errors:NETWORK_ERROR"))
+    } else if (err.message) {
+      setError(t(`errors:${err.message}`))
+    } else {
+      setError(t("errors:SOMETHING_WENT_WRONG"))
+    }
   }
 };

@@ -32,10 +32,8 @@ const Business_dashboard = () => {
   const {smallError , setSmallError}=useError()
   const { t , i18n} = useTranslation("businessDashboard")
   const isRTL = i18n.language === "ar"; // true if Arabic
-
-
+  const [offerCategoryId , setOfferCategoryId]=useState(null)
   
-
   
     useEffect(() => {
     const onNotificationCreated = () => {
@@ -255,6 +253,7 @@ useEffect(()=>{
         setOffers={setOffers}
         setTotalOffers={setTotalOffers}
         setFuncUsedCategories={setCategories}
+        offerCategoryId={offerCategoryId}
       />)}
 
       {isOfferDetailsOpen && selectedOffer?.offer_id&& (
@@ -265,6 +264,7 @@ useEffect(()=>{
             setSelectedOffer(null)
           }}
           offerId={selectedOffer?.offer_id}
+          setOffers={setOffers}
         /> 
       )}
 

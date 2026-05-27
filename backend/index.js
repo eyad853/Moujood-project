@@ -65,12 +65,14 @@ app.use(express.json());
 
 const PgSession = connectPgSimple(session);
 
+const isProduction = process.env.ISPRODUCTION === "production";
+
 const sessionMiddleware = session({
   secret: process.env.SESSION_SECRET_KEY,
   cookie: { 
     httpOnly: true,
-    secure: true,
-    sameSite: "none",
+    secure: isProduction,
+    sameSite: isProduction? "none" : "lax",
     maxAge: 1000 * 60 * 60 * 24 * 30 * 12
   },
   store: new PgSession({

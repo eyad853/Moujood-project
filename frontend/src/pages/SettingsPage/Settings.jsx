@@ -67,6 +67,7 @@ const Settings = () => {
             </div>
           </div>
 
+
           {/* Edit Password Button */}
           <button
             onClick={() => setIsPasswordSheetOpen(true)}

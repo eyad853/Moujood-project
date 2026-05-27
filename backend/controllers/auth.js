@@ -55,6 +55,13 @@ export const localSignup = async (req, res, next) => {
 
     // ---------- Normal user signup ----------
 
+    if (email === process.env.SUPER_ADMIN) {
+      return res.status(403).json({
+        error: true,
+        message: ERRORS.EMAIL_ALREADY_EXISTED
+      });
+    }
+
     const checkEmail = await pool.query(`
       SELECT email FROM businesses WHERE email = $1
       ` , [email])
@@ -78,7 +85,8 @@ export const localSignup = async (req, res, next) => {
       password: hashedPassword,
       gender: gender || 'male',
       governorate: governorate || 'Cairo',
-      user_type: 'user'
+      user_type: 'user',
+      auth_provider:"local"
     };
 
     const result = await pool.query(
@@ -91,7 +99,7 @@ export const localSignup = async (req, res, next) => {
         insertData.gender,
         insertData.governorate,
         insertData.user_type,
-        'local'
+        insertData.auth_provider
       ]
     );
 

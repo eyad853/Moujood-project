@@ -139,7 +139,6 @@ const extendedAds = ads.length
 useEffect(() => {
   if (!extendedAds.length || !sliderElement || isSliderInitialized) return;
 
-  console.log('Initializing slider');
   sliderElement.scrollLeft = sliderElement.offsetWidth;
   setCurrentSlide(1);
   setIsSliderInitialized(true);
@@ -178,20 +177,13 @@ const handleSliderScroll = () => {
 
 useEffect(() => {
   if (!extendedAds.length || !sliderElement || !isSliderInitialized || !canAutoScroll) {
-    console.log('Auto-scroll waiting...', { 
-      ads: extendedAds.length, 
-      element: !!sliderElement, 
-      init: isSliderInitialized 
-    });
     return;
   }
 
-  console.log('✅ Starting auto-scroll');
 
   const interval = setInterval(() => {
     if (isJumpingRef.current || !sliderElement) return;
 
-    console.log('Scrolling from', currentSlide, 'to', currentSlide + 1);
 
     sliderElement.scrollTo({
       left: (currentSlide + 1) * sliderElement.offsetWidth,
@@ -252,7 +244,7 @@ const formatLikesAndCommentsCount = (num) => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <div className="min-h-screen bg-gray-50 pb-32">
       {/* Header */}
       <div className="bg-white px-5 py-4 border-b border-gray-200 sticky top-0 z-20">
         <div className="flex items-center justify-between mb-4">
@@ -296,9 +288,10 @@ const formatLikesAndCommentsCount = (num) => {
       </div>
 
       {/* Content */}
-      <div className="px-5 py-4">
+      <div className=" py-4">
         {/* Featured Slider */}
-        {ads.length>0&&(<div className="mb-6 relative">
+        {ads.length>0&&
+        (<div className="px-5 mb-6 relative">
           <div 
             ref={setSliderElement}
             className="flex gap-3 overflow-x-auto snap-x snap-mandatory hide-scrollbar scroll-smooth"
@@ -309,7 +302,7 @@ const formatLikesAndCommentsCount = (num) => {
                 key={`${ad.id}-${index}`}
                 className="flex-shrink-0 w-full snap-center"
               >
-                <div className="bg-gradient-to-br from-[#009842] to-[#007a36] rounded-2xl aspect-square flex items-center justify-center overflow-hidden">
+                <div className="bg-gradient-to-br from-[#009842] to-[#007a36] rounded-2xl aspect-[16/9] flex items-center justify-center overflow-hidden">
                   {/* Placeholder for featured content */}
                   <img src={ad.image} className='w-full h-full object-cover' />
                 </div>
@@ -341,7 +334,7 @@ const formatLikesAndCommentsCount = (num) => {
 
 
         {/* Category Filter Pills */}
-        <div className="flex gap-2 mb-5 overflow-x-auto pb-2 hide-scrollbar">
+        <div className="flex px-5 gap-2 mb-5 overflow-x-auto pb-2 hide-scrollbar">
           {offers.length>0&&categories.map((category) => (
             <button
             key={category.id}
@@ -372,9 +365,9 @@ const formatLikesAndCommentsCount = (num) => {
               setIsOfferSheetOpen(true)
             }}
             key={offer?.offer_id} 
-            className="bg-white rounded-2xl shadow-sm overflow-hidden">
+            className="bg-white  shadow-sm overflow-hidden">
               {/* Post Header */}
-              <div className="px-4 py-3 flex items-center justify-between">
+              <Link to={`/client/business_page/${offer?.business_id}`} className="px-4 py-3 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <img
                     src={offer.business_logo}
@@ -385,7 +378,7 @@ const formatLikesAndCommentsCount = (num) => {
                     <p className="text-xs text-gray-500">{timeAgo(offer?.created_at)}</p>
                   </div>
                 </div>
-              </div>
+              </Link>
 
               {/* Offer Image - Full Poster (the entire green image with person, text, etc.) */}
               <div className={`w-full relative transition-all duration-300 ${expandedOffers.has(offer.offer_id)? "h-auto": "aspect-square"}`}>
@@ -394,11 +387,6 @@ const formatLikesAndCommentsCount = (num) => {
                   onLoad={(e)=>handleImageLoad(offer.offer_id, e)}
                   className={`w-full h-full object-cover `}/>
                   
-                  {tallImages.has(offer.offer_id)&&!expandedOffers.has(offer.offer_id) && (
-                    <div
-                      className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"
-                    />
-                  )}
                 
                   {/* Clickable button */}
                   {tallImages.has(offer.offer_id) && (
@@ -467,7 +455,7 @@ const formatLikesAndCommentsCount = (num) => {
       }
       {
         isOfferSheetOpen && selectedOffer&&(
-          <OfferDetailSheet isOpen={isOfferSheetOpen} onClose={()=>{setIsOfferSheetOpen(false)}} offerId={selectedOffer.offer_id}/>
+          <OfferDetailSheet isOpen={isOfferSheetOpen} onClose={()=>{setIsOfferSheetOpen(false)}} offerId={selectedOffer.offer_id} setOffers={setOffers}/>
         )
       }
 

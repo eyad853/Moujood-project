@@ -1,5 +1,5 @@
 import express from 'express'
-import { editBusinessActivity, getBusinessPageData, getCategoriesPageData, getDashboardPageData, getOffersPageData, getUserPageData } from '../controllers/super_admin_data.js'
+import { editBusinessActivity, getBusinessPageData, getCategoriesPageData, getDashboardPageData, getOffers, getOffersPageData, getUserPageData } from '../controllers/super_admin_data.js'
 import isAdmin from '../utils/isAdmin.js'
 const suerAdminRouter=express.Router()
 
@@ -9,5 +9,6 @@ suerAdminRouter.get('/getUserPageData',getUserPageData)
 suerAdminRouter.get('/getDashboardPageData',getDashboardPageData)
 suerAdminRouter.get('/getCategoriesPageData',getCategoriesPageData)
 suerAdminRouter.get('/getOffersPageData',getOffersPageData)
+suerAdminRouter.get('/getOffers',getOffers)
 
 export default suerAdminRouter

@@ -112,16 +112,32 @@ export const getAllCategories = async (req, res) => {
 };
 
 export const getSubCategories = async (req, res) => {
-  const { category } = req.user;
 
-    if(!category){
-    return res.status(400).json({
-      error:true,
-      message:ERRORS.NOT_AUTHENTICATED
-    })
-  }
+  let category = req.user?.category;
 
   try {
+
+    // Super admin case
+    if (!category && req.query.offer_id) {
+
+      const offerResult = await pool.query(`
+        SELECT c.parent_id AS category_id
+        FROM offers o
+        LEFT JOIN categories c
+        ON o.category = c.id
+        WHERE o.offer_id = $1
+      `, [req.query.offer_id]);
+
+      category = offerResult.rows[0]?.category_id;
+    }
+
+    if (!category) {
+      return res.status(400).json({
+        error: true,
+        message: ERRORS.SERVER_ERROR
+      });
+    }
+
     const query = `
       WITH RECURSIVE sub_categories AS (
         SELECT *
@@ -144,8 +160,12 @@ export const getSubCategories = async (req, res) => {
       error: false,
       data: rows
     });
+
   } catch (error) {
     console.error(error);
-    return res.status(500).json({message: ERRORS.SERVER_ERROR});
+
+    return res.status(500).json({
+      message: ERRORS.SERVER_ERROR
+    });
   }
 };

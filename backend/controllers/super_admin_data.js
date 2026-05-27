@@ -266,6 +266,7 @@ export const getOffersPageData = async (req, res) => {
         o.title,
         o.description,
         o.image,
+        o.category,
         o.created_at,
 
         b.id AS business_id,
@@ -291,3 +292,32 @@ export const getOffersPageData = async (req, res) => {
     res.status(500).json({ message: ERRORS.SERVER_ERROR });
   }
 };
+
+export const getOffers = async(req , res)=>{
+  try{
+    const offersResult = await pool.query(`
+      SELECT 
+        o.offer_id, 
+        o.title,
+        o.description,
+        o.image,
+        b.name AS business_name,
+        b.logo AS business_logo
+      FROM offers o
+      LEFT JOIN businesses b
+        ON o.business_id = b.id
+    `);
+
+      const offers = offersResult.rows
+
+    return res.status(200).json({
+      error:false,
+      offers
+    })
+  }catch(error){
+    return res.status(500).json({
+      error:true,
+      message:ERRORS.SERVER_ERROR
+    })
+  }
+}

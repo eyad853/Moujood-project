@@ -4,7 +4,7 @@ import { pool } from "../index.js";
 export const createComment = async (req, res) => {
   const user_id = req.user.id;
   const { offer_id } = req.params;
-  const {content} = req.body
+  const {content , parent_id} = req.body
 
     if(!user_id){
     return res.status(400).json({
@@ -16,11 +16,11 @@ export const createComment = async (req, res) => {
   try {
     const result = await pool.query(
       `
-      INSERT INTO comments (offer_id, user_id, content)
-      VALUES ($1, $2, $3)
+      INSERT INTO comments (offer_id, user_id, content , parent_id)
+      VALUES ($1, $2, $3 , $4)
       RETURNING *;
       `,
-      [offer_id, user_id, content]
+      [offer_id, user_id, content , parent_id]
     );
 
     const commentResult = await pool.query(`

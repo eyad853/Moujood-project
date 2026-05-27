@@ -11,6 +11,7 @@ import NotificationBottomSheet from '../../../components/NotificationBottomSheet
 import PageError from '../../../components/PageError/PageError';
 import { useError } from '../../../context/error';
 import { useTranslation } from 'react-i18next';
+import { getOffers } from '../../../api/super_admin_data';
 
 
 const SA_Notifications = () => {
@@ -40,13 +41,18 @@ const SA_Notifications = () => {
 
 
   // Form states
+  const [offers, setOffers] = useState([]);
+  const [sendOffer, setSendOffer] = useState(false);
+  const [offerSearch, setOfferSearch] = useState('');
+  const [offerPage, setOfferPage] = useState(1);
   const [formData, setFormData] = useState({
     title: '',
     message: '',
     receiver_type: 'user',
     filter_type: 'all', // 'all', 'governorate', 'gender', 'category', 'specific'
     filter_value: '',
-    specific_names: [] // Changed from specific_ids to specific_names
+    specific_names: [], // Changed from specific_ids to specific_names
+    offer_id: null  
   });
 
   const [editingNotification, setEditingNotification] = useState(null);
@@ -59,6 +65,7 @@ const SA_Notifications = () => {
       await getAllBusinesses(setPageError , setBusinesses , t)
       await getAllCategories(setPageError , setCategoies , t)
       await getAllNotifications(setPageError , receiver_type  , setUserNotifications , setBusinessNotifications , t)
+      await getOffers(setPageError , setOffers , t)
     } catch (err) {
         if (err.response?.data?.message) {
             setPageError(t(`errors:${err.response.data.message}`))
@@ -112,8 +119,12 @@ const SA_Notifications = () => {
       receiver_type: receiver_type,
       filter_type: 'all',
       filter_value: '',
-      specific_names: []
+      specific_names: [],
+      offer_id: null
     });
+    setOfferSearch('');
+    setOfferPage(1);
+    setSendOffer(false);
     setView('form');
   };
 
@@ -125,8 +136,12 @@ const SA_Notifications = () => {
       receiver_type: receiver_type,
       filter_type: notification.filter_type,
       filter_value: notification.filter_value,
-      specific_names: notification.specific_names
+      specific_names: notification.specific_names,
+      offer_id: notification.offer_id ?? null,
     });
+    setOfferSearch('');
+    setOfferPage(1);
+    setSendOffer(!!notification.offer_id);
     setView('form');
   };
 
@@ -219,7 +234,7 @@ const SA_Notifications = () => {
                 Users
               </button>
               <button
-                onClick={() => setFormData(prev => ({ ...prev, receiver_type: 'business' ,  specific_names:[]}))}
+                onClick={() => setFormData(prev => ({ ...prev, receiver_type: 'business' ,  specific_names:[], offer_id: null}))}
                 className={`flex-1 py-3 px-4 rounded-lg font-medium transition-colors ${
                   formData.receiver_type === 'business'
                     ? 'bg-[#009842] text-white'
@@ -372,6 +387,180 @@ const SA_Notifications = () => {
                   ))}
                 </div>
               )}
+            </div>
+          )}
+
+          {formData.receiver_type === 'user' && (
+            <div className="mb-6">
+            
+              {/* Toggle Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  setSendOffer(prev => !prev);
+                  if (sendOffer) setFormData(prev => ({ ...prev, offer_id: null }));
+                  setOfferSearch('');
+                  setOfferPage(1);
+                }}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border-2 font-medium text-sm transition-all ${
+                  sendOffer
+                    ? 'border-[#009842] bg-green-50 text-[#009842]'
+                    : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+                }`}
+              >
+                <Plus size={16} className={`transition-transform ${sendOffer ? 'rotate-45' : ''}`} />
+                {sendOffer ? 'Remove Offer' : 'Attach an Offer'}
+              </button>
+              
+              {/* ✅ Single wrapper div fixes the syntax error */}
+              {sendOffer && (
+                <div className="mt-4">
+                
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                    Attach Offer <span className="text-gray-400 font-normal">(optional)</span>
+                  </label>
+              
+                  {/* Search Input */}
+                  <div className="relative mb-3">
+                    <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input
+                      type="text"
+                      placeholder="Search offers by title or business..."
+                      value={offerSearch}
+                      onChange={(e) => {
+                        setOfferSearch(e.target.value);
+                        setOfferPage(1);
+                      }}
+                      className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-lg outline-none focus:border-[#009842] focus:ring-1 focus:ring-[#009842] text-sm"
+                    />
+                    {offerSearch && (
+                      <button
+                        type="button"
+                        onClick={() => { setOfferSearch(''); setOfferPage(1); }}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+                  
+                  {/* Selected Offer Preview */}
+                  {formData.offer_id && (() => {
+                    const selected = offers.find(o => o.offer_id === formData.offer_id);
+                    return selected ? (
+                      <div className="flex items-center gap-3 p-3 mb-3 rounded-xl border-2 border-[#009842] bg-green-50">
+                        <img
+                          src={selected.image}
+                          alt={selected.title}
+                          className="w-10 h-10 rounded-lg object-cover shrink-0"
+                          onError={(e) => { e.target.src = '/placeholder.png' }}
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-gray-900 truncate">{selected.title}</p>
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            <img
+                              src={selected.business_logo}
+                              alt={selected.business_name}
+                              className="w-4 h-4 rounded-full object-cover"
+                              onError={(e) => { e.target.src = '/placeholder.png' }}
+                            />
+                            <span className="text-xs text-gray-500 truncate">{selected.business_name}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <span className="text-xs text-[#009842] font-medium">Selected</span>
+                          <button
+                            type="button"
+                            onClick={() => setFormData(prev => ({ ...prev, offer_id: null }))}
+                            className="w-6 h-6 rounded-full bg-gray-200 hover:bg-red-100 hover:text-red-500 flex items-center justify-center text-gray-500 text-xs transition-colors"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      </div>
+                    ) : null;
+                  })()}
+          
+                  {/* Offer List */}
+                  {(() => {
+                    const ITEMS_PER_PAGE = 6;
+                    const filtered = offers.filter(o =>
+                      o.title.toLowerCase().includes(offerSearch.toLowerCase()) ||
+                      o.business_name?.toLowerCase().includes(offerSearch.toLowerCase())
+                    );
+                    const paginated = filtered.slice(0, offerPage * ITEMS_PER_PAGE);
+                    const hasMore = paginated.length < filtered.length;
+                  
+                    return filtered.length === 0 ? (
+                      <div className="text-center py-8 text-gray-400 text-sm border border-gray-200 rounded-xl">
+                        No offers found
+                      </div>
+                    ) : (
+                      <>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-80 overflow-y-auto pr-1">
+                          {paginated.map(offer => (
+                            <button
+                              key={offer.offer_id}
+                              type="button"
+                              onClick={() => setFormData(prev => ({
+                                ...prev,
+                                offer_id: prev.offer_id === offer.offer_id ? null : offer.offer_id
+                              }))}
+                              className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all text-left ${
+                                formData.offer_id === offer.offer_id
+                                  ? 'border-[#009842] bg-green-50'
+                                  : 'border-gray-200 hover:border-gray-300 bg-white'
+                              }`}
+                            >
+                              <img
+                                src={offer.image}
+                                alt={offer.title}
+                                className="w-10 h-10 rounded-lg object-cover shrink-0"
+                                onError={(e) => { e.target.src = '/placeholder.png' }}
+                              />
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-semibold text-gray-900 truncate">{offer.title}</p>
+                                <div className="flex items-center gap-1.5 mt-0.5">
+                                  <img
+                                    src={offer.business_logo}
+                                    alt={offer.business_name}
+                                    className="w-4 h-4 rounded-full object-cover"
+                                    onError={(e) => { e.target.src = '/placeholder.png' }}
+                                  />
+                                  <span className="text-xs text-gray-500 truncate">{offer.business_name}</span>
+                                </div>
+                              </div>
+                              {formData.offer_id === offer.offer_id && (
+                                <div className="w-5 h-5 rounded-full bg-[#009842] flex items-center justify-center shrink-0">
+                                  <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                                    <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                  </svg>
+                                </div>
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                        
+                        {hasMore && (
+                          <button
+                            type="button"
+                            onClick={() => setOfferPage(p => p + 1)}
+                            className="w-full mt-3 py-2 text-sm text-[#009842] font-medium border border-[#009842] rounded-lg hover:bg-green-50 transition-colors"
+                          >
+                            Show more ({filtered.length - paginated.length} remaining)
+                          </button>
+                        )}
+          
+                        <p className="text-xs text-gray-400 mt-2 text-right">
+                          Showing {paginated.length} of {filtered.length} offers
+                        </p>
+                      </>
+                    );
+                  })()}
+          
+                </div>
+              )}
+          
             </div>
           )}
 

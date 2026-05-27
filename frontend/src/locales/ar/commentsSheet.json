@@ -1,4 +1,6 @@
 {
     "title":"التعليقات",
-    "placeholder":"...أكتب تعليق"
+    "placeholder":"...أكتب تعليق",
+    "noComments":"لا تعليقات حتي الآن",
+    "beTheFirstComment":"كن اول من يعلق"
 }

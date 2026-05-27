@@ -40,7 +40,7 @@ const filters = ['All', 'Core', 'Data', 'Legal', 'Financial', 'Security']
     content: t("2.content"),  },
   {
     id: 3,
-    icon: '🎁',
+    icon: '💰',
     tag: t("3.tag"),
     title: t("3.title"),
     content: t("3.content"),  },
@@ -167,26 +167,6 @@ const filters = ['All', 'Core', 'Data', 'Legal', 'Financial', 'Security']
         <div className="flex flex-col items-center flex-1">
           <span className="text-lg font-bold" style={{ color: '#009842' }}>⚖️</span>
           <span className="text-xs text-gray-500 mt-0.5 text-center">Compliant</span>
-        </div>
-      </div>
-
-      {/* Filter bar */}
-      <div className="px-4 mb-3 overflow-x-auto">
-        <div className="flex gap-2 pb-1">
-          {filters.map((f) => (
-            <button
-              key={f}
-              onClick={() => setActiveFilter(f)}
-              className="text-xs font-semibold px-4 py-2 rounded-full whitespace-nowrap border transition-all duration-150"
-              style={
-                activeFilter === f
-                  ? { background: '#009842', color: 'white', borderColor: '#009842' }
-                  : { background: 'white', color: '#6b7280', borderColor: '#e5e7eb' }
-              }
-            >
-              {f}
-            </button>
-          ))}
         </div>
       </div>
 

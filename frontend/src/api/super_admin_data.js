@@ -3,7 +3,6 @@ import axios from 'axios'
 export const getBusinessPageData = async (setError , setBusinesses, t)=>{
     try{
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/super_admin/getBusinessPageData`)
-        console.log(response.data);
         setBusinesses(response.data)
     }catch(err){
         if (err.response?.data?.message) {
@@ -48,7 +47,6 @@ export const editBusinessActivity = async (setError ,businesses, business , setB
 export const getUserPageData = async (setError , setUsers , setTotalPercantage , setMalePercantage , setFemalePercantage, t)=>{
     try{
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/super_admin/getUserPageData`)
-        console.log(response.data);
         setUsers(response.data.total_users)
         setTotalPercantage(response.data.percentage_total)
         setMalePercantage(response.data.percentage_male)
@@ -69,7 +67,6 @@ export const getUserPageData = async (setError , setUsers , setTotalPercantage ,
 export const getDashboardPageData = async (setError, setPercentages , setTotalUsers , setTotalBusinesses , setTotalScans , setTotalSales , setSalesChartData, t)=>{
     try{
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/super_admin/getDashboardPageData`)
-        console.log(response.data);
         setPercentages(response.data.percentages)
         setTotalUsers(response.data.totalUsers)
         setTotalBusinesses(response.data.totalBusinesses)
@@ -94,8 +91,6 @@ export const getCategoriesPageData = async (setError , setCategories, t)=>{
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/super_admin/getCategoriesPageData`)
         if(response){
             setCategories(response.data.categories)
-        console.log(response.data);
-
         }
     }catch(err){
         if (err.response?.data?.message) {
@@ -113,8 +108,24 @@ export const getCategoriesPageData = async (setError , setCategories, t)=>{
 export const getOffersPageData = async (setError , setOffers, t)=>{
     try{
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/super_admin/getOffersPageData`)
-        console.log(response.data);
         setOffers(response.data)
+    }catch(err){
+        if (err.response?.data?.message) {
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setError(t(`errors:${err.message}`))
+        } else {
+            setError(t("errors:SOMETHING_WENT_WRONG"))
+        }
+    }
+}
+
+export const getOffers = async(setError , setOffers , t)=>{
+        try{
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/super_admin/getOffers`)
+        setOffers(response.data.offers)
     }catch(err){
         if (err.response?.data?.message) {
             setError(t(`errors:${err.response.data.message}`))

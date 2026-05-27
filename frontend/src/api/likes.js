@@ -21,7 +21,6 @@ export const likeOffer = async (offerId,offers,setOffers,setError , t) => {
     const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/likes/create/${offerId}` , {} , {
       withCredentials:true
     });
-    console.log(res);
 
     // If backend says already liked → rollback count increase
     if (res.data.message === "already_liked") {
@@ -69,9 +68,6 @@ export const unlikeOffer = async (offerId,offers,setOffers,setError , t) => {
 
   try {
     const res =await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/likes/delete/${offerId}` , {withCredentials:true});
-    console.log(res);
-
-
   } catch (err) {
     // 🔁 Rollback
     setOffers(prevOffers);

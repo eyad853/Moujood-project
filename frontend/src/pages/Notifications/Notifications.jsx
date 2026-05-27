@@ -1,6 +1,6 @@
 import React from 'react';
 import { ArrowLeft, X } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useEffect } from 'react';
 import { fetchMyNotifications , markAllNotificationsAsRead } from '../../api/notifications';
@@ -24,6 +24,8 @@ const Notifications = () => {
   const {user}=useUser()
   const {t}=useTranslation('notification')
   const {isNotificationSheetOpen,setIsNotificationSheetOpen,selectedNotification,setSelectedNotification}=useNotifications()
+  const location = useLocation()
+  const [offerId , setOfferId]=useState(null)
   
   useEffect(() => {
   if (!user) return;
@@ -33,8 +35,8 @@ const Notifications = () => {
       setLoading(true);
       const data = await fetchMyNotifications(user?.accountType,setNotifications,setPageError , t);
       
-      if(data?.notifications?.length>0){
-        await markAllNotificationsAsRead(user?.accountType,notifications,setNotifications,setPageError , t);
+      if(data?.length>0){
+        await markAllNotificationsAsRead(user?.accountType,setNotifications,setPageError , t);
       }
     } catch (err) {
         if (err.response?.data?.message) {
@@ -54,12 +56,45 @@ const Notifications = () => {
   get();
 }, [user?.accountType]);
 
+useEffect(() => {
+  if (!location.search) return;
+
+  const params = new URLSearchParams(location.search);
+
+  const notification_id = params.get("notification_id");
+
+  if (!notification_id) return;
+
+  const notification = notifications.find(
+    n => String(n.id) === String(notification_id)
+  );
+
+  if (notification) {
+    setSelectedNotification(notification);
+    setIsNotificationSheetOpen(true);
+  }
+}, [location.search, notifications]);
+
     useEffect(() => {
   // 🔔 Notification created
-      const onNotificationCreated = ({ notification }) => {
-        setNotifications(prev => {
-          return [notification, ...prev];
-        });
+      const onNotificationCreated = async ({ notification }) => {
+      
+        setNotifications(prev => [notification, ...prev]);
+      
+        // since user is already viewing notifications
+        try {
+          await markAllNotificationsAsRead(user?.accountType,setNotifications,setPageError,t);
+        } catch (err) {
+            if (err.response?.data?.message) {
+                setSmallError(t(`errors:${err.response.data.message}`))
+            } else if (err.message === "Network Error") {
+                setSmallError(t("errors:NETWORK_ERROR"))
+            } else if (err.message) {
+                setSmallError(t(`errors:${err.message}`))
+            } else {
+                setSmallError(t("errors:SOMETHING_WENT_WRONG"))
+            }
+        }
       };
     
       // ✏️ Notification edited

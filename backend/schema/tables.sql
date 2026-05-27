@@ -84,7 +84,8 @@
         offer_id INTEGER REFERENCES offers(offer_id) ON DELETE CASCADE,
         user_id INTEGER REFERENCES users(id),
         content TEXT NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        parent_id INTEGER REFERENCES comments(id)  ON DELETE CASCADE
       );
 
       CREATE TABLE IF NOT EXISTS notifications (
@@ -94,6 +95,7 @@
         filter_type VARCHAR(20),
         filter_value VARCHAR(255),
         specific_names TEXT[],
+        offer_id INTEGER REFERENCES offers(offer_id) ON DELETE CASCADE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
 

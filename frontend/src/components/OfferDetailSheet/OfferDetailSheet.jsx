@@ -8,8 +8,10 @@ import MapModal from '../modals/MapModal/MapModal';
 import { useUser } from '../../context/userContext';
 import { useTranslation } from 'react-i18next';
 import PageError from '../PageError/PageError';
+import CommentList from '../CommentList/CommentList';
+import { getOfferComments } from '../../api/comments';
 
-const OfferDetailSheet = ({ isOpen, onClose , offerId}) => {
+const OfferDetailSheet = ({ isOpen, onClose , offerId , setOffers}) => {
     const [offer , setOffer]=useState({})    
     const [error ,setError]=useState('')
     const [loading , setLoading]=useState(true)
@@ -17,6 +19,8 @@ const OfferDetailSheet = ({ isOpen, onClose , offerId}) => {
     const {user}=useUser()
     const {t , i18n}=useTranslation('offerDetailsSheet')
     const isRTL = i18n.language==='ar'
+    const [comments, setComments] = useState([]);
+    
 
 
      useEffect(()=>{
@@ -24,6 +28,7 @@ const OfferDetailSheet = ({ isOpen, onClose , offerId}) => {
       try{
         setLoading(true)
         await getOfferSheet(offerId , setOffer , setMarkers , setError , t)
+        await getOfferComments(offerId , setComments , setError , t)
       }catch(err){
         if (err.response?.data?.message) {
             setError(t(`errors:${err.response.data.message}`))
@@ -352,6 +357,15 @@ useEffect(() => {
                 userLocation={userLocation}
                 />
                 
+
+                <CommentList 
+                comments={comments}
+                setComments={setComments}
+                onClose={onClose}
+                setOffers={setOffers}
+                offerId={offerId}
+                isCommentsSheet={false}
+                />
             </div>
             </>)}
           </motion.div>

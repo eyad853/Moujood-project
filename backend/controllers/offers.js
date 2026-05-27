@@ -40,7 +40,6 @@ export const addOffer = async (req, res) => {
   }
 };
 
-
 export const editOffer = async (req, res) => {
   try {
     const business_id = req.user.id;
@@ -124,7 +123,6 @@ export const deleteOffer = async (req, res) => {
     res.status(500).json({ message: ERRORS.SERVER_ERROR });
   }
 };
-
 
 export const getOffers = async (req, res) => {
   try {

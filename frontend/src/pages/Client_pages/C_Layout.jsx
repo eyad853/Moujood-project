@@ -3,9 +3,9 @@ import { Link, Outlet, useLocation } from 'react-router-dom'
 import { IoHomeOutline } from "react-icons/io5";
 import { CgProfile } from "react-icons/cg";
 import { FaPlus } from "react-icons/fa6";
-import { TbBorderAll } from "react-icons/tb";
+import { CiGrid41 } from "react-icons/ci";
 import { LuScanLine } from "react-icons/lu";
-import { IoMdSettings } from "react-icons/io";
+import { IoSettingsOutline } from "react-icons/io5";
 import { Bell } from 'lucide-react';
 import { useUser } from '../../context/userContext';
 import { fetchNotificationCount } from '../../api/notifications';
@@ -26,15 +26,25 @@ const C_Layout = () => {
   const {t}=useTranslation()
 
 
+
+    const onNotificationCreated = async ({ notification }) => {
+    
+      const isOnNotificationsPage =
+        location.pathname === "/client/notifications";
+    
+      if (isOnNotificationsPage) {
+        return;
+      }
+    
+      setNotificationsCount(prev => prev + 1);
+    };
+  
+    // 🗑️ Notification deleted
+    const onNotificationDeleted = () => {
+      setNotificationsCount(prev => Math.max(prev - 1, 0))
+    };
+
   useEffect(() => {
-    const onNotificationCreated = () => {
-          setNotificationsCount(prev=>prev+1)
-        };
-      
-        // 🗑️ Notification deleted
-        const onNotificationDeleted = () => {
-          setNotificationsCount(prev=>prev-1)
-        };
 
     socket.on("notification_created", onNotificationCreated);
     socket.on("notification_deleted", onNotificationDeleted);
@@ -44,7 +54,7 @@ const C_Layout = () => {
       socket.off("notification_created", onNotificationCreated);
       socket.off("notification_deleted", onNotificationDeleted);
     };
-  }, [socket]);
+  }, [socket , location.pathname]);
 
   useEffect(()=>{
       if (!user) return;
@@ -76,7 +86,7 @@ const C_Layout = () => {
         <Link
         to={`/client/feed`} 
         className={`w-1/4 h-full flex justify-center items-center`}>
-          <div className={`h-full w-16 rounded-full ${location.pathname==="/client/feed"?"bg-[#009842] text-white":null} flex transition-all duration-200 justify-center items-center `}>
+          <div className={`h-12 w-12 rounded-full ${location.pathname==="/client/feed"?"bg-[#009842] text-white":null} flex transition-all duration-200 justify-center items-center `}>
             <IoHomeOutline size={25}/>
           </div>
         </Link>
@@ -85,8 +95,8 @@ const C_Layout = () => {
         <Link
         to={`/client/categories`} 
         className={`w-1/4 h-full flex justify-center items-center`}>
-          <div className={`h-full w-16 rounded-full ${  isActive ? "bg-[#009842] text-white" : ""} flex transition-all duration-200 justify-center items-center`}>
-            <TbBorderAll size={25}/>
+          <div className={`h-12 w-12 rounded-full ${  isActive ? "bg-[#009842] text-white" : ""} flex transition-all duration-200 justify-center items-center`}>
+            <CiGrid41 size={25}/>
           </div>
         </Link>
 
@@ -94,7 +104,7 @@ const C_Layout = () => {
         <Link
         to={`/client/profile`} 
         className={`w-1/4 h-full flex justify-center items-center`}>
-          <div className={`h-full w-16 rounded-full ${location.pathname==="/client/profile"?"bg-[#009842] text-white":null} flex transition-all duration-200 justify-center items-center `}>
+          <div className={`h-12 w-12 rounded-full ${location.pathname==="/client/profile"?"bg-[#009842] text-white":null} flex transition-all duration-200 justify-center items-center `}>
             <CgProfile size={25}/>
           </div>
         </Link>
@@ -102,8 +112,8 @@ const C_Layout = () => {
         <Link
         to={`/client/settings`} 
         className={`w-1/4 h-full flex justify-center items-center`}>
-          <div className={`h-full w-16 rounded-full ${location.pathname==="/client/settings"?"bg-[#009842] text-white":null} flex transition-all duration-200 justify-center items-center `}>
-            <IoMdSettings  size={25}/>
+          <div className={`h-12 w-12 rounded-full ${location.pathname==="/client/settings"?"bg-[#009842] text-white":null} flex transition-all duration-200 justify-center items-center `}>
+            <IoSettingsOutline  size={25}/>
           </div>
         </Link>
 
@@ -114,7 +124,7 @@ const C_Layout = () => {
           setNotificationsCount(0)
         }}
         >
-          <div className={`h-full w-16 rounded-full ${location.pathname==="/client/notifications"?"bg-[#009842] text-white":null} flex transition-all duration-200 justify-center items-center `}>
+          <div className={`h-12 w-12 rounded-full ${location.pathname==="/client/notifications"?"bg-[#009842] text-white":null} flex transition-all duration-200 justify-center items-center `}>
           <div className="relative">
             <Bell  size={25}/>
             {notificationsCount>0&&

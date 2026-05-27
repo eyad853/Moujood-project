@@ -259,7 +259,7 @@ const filteredOffers = offers.filter(offer => {
                 setSelectedOffer(offer)
                 setIsOfferSheetOpen(true)
               }}
-              className="relative rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-shadow"
+              className="relative aspect-square rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-shadow"
             >
               {/* Offer Image - Full Poster */}
               <img

@@ -131,27 +131,7 @@ const filters = ['All', 'Core', 'Policy', 'Legal', 'Financial']
       <div className="mx-4 mb-4 bg-white rounded-2xl p-4 flex gap-3 items-start" style={{ border: '1px solid #e5e7eb', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
         <span className="text-2xl mt-0.5 flex-shrink-0">🏢</span>
         <div>
-          {t('introduction')}
-        </div>
-      </div>
-
-      {/* Filter bar */}
-      <div className="px-4  mb-3 overflow-x-auto">
-        <div className="flex gap-2 pb-1">
-          {filters.map(f => (
-            <button
-              key={f}
-              onClick={() => setActiveFilter(f)}
-              className="text-xs font-semibold px-4 py-2 rounded-full whitespace-nowrap border transition-all duration-150"
-              style={
-                activeFilter === f
-                  ? { background: '#009842', color: 'white', borderColor: '#009842' }
-                  : { background: 'white', color: '#6b7280', borderColor: '#e5e7eb' }
-              }
-            >
-              {f}
-            </button>
-          ))}
+          {t('introductions')}
         </div>
       </div>
 

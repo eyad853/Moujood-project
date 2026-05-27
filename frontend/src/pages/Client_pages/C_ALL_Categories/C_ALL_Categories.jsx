@@ -99,20 +99,13 @@ const handleSliderScroll = () => {
 
 useEffect(() => {
   if (!extendedAds.length || !sliderElement || !isSliderInitialized || !canAutoScroll) {
-    console.log('Auto-scroll waiting...', { 
-      ads: extendedAds.length, 
-      element: !!sliderElement, 
-      init: isSliderInitialized 
-    });
     return;
   }
 
-  console.log('✅ Starting auto-scroll');
 
   const interval = setInterval(() => {
     if (isJumpingRef.current || !sliderElement) return;
 
-    console.log('Scrolling from', currentSlide, 'to', currentSlide + 1);
 
     sliderElement.scrollTo({
       left: (currentSlide + 1) * sliderElement.offsetWidth,

@@ -2,7 +2,7 @@ import axios from "axios";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
-export const createComment = async (offer_id , content , comments , setComments , setError ,user, t) => {
+export const createComment = async (offer_id , content , parent_id , comments , setComments , setError ,user, t) => {
 
   if (!content || content.trim().length === 0) {
     setError(t("limits:CONTENT_REQUIRED"));
@@ -23,17 +23,15 @@ export const createComment = async (offer_id , content , comments , setComments 
     offer_id,
     content,
     created_at: new Date().toISOString(),
+    parent_id,
     optimistic: true,
   };
-
-  console.log('instant update ', optimisticComment);
 
   // optimistic update
   setComments(prev => [optimisticComment, ...prev]);
 
   try {
-    const { data } = await axios.post(`${API}/comments/create/${offer_id}`, { content } , { withCredentials: true });
-    console.log('clg' , data);
+    const { data } = await axios.post(`${API}/comments/create/${offer_id}`, { content , parent_id} , { withCredentials: true });
 
     // replace optimistic comment with real one
     setComments(prev =>
@@ -96,11 +94,21 @@ export const updateComment = async (comment_id, newContent , comments , setComme
   }
 };
 
-export const deleteComment = async  (comment_id , comments , setComments , setError , t) => {
+export const deleteComment = async  (comment_id , comments , setComments , setOffers , offerId , setError , t) => {
   const oldComments = [...comments];
 
   // optimistic remove
-  setComments(prev => prev.filter(c => c.id !== comment_id));
+    setComments(prev => prev.filter(c => c.id !== comment_id));
+  
+
+    setOffers(prev =>
+      prev.map(o =>
+        o.offer_id === offerId
+          ? { ...o, comments_count: Number(o.comments_count) - 1 }
+          : o
+      )
+    );
+  
 
   try {
     await axios.delete(`${API}/comments/delete/${comment_id}`,{ withCredentials: true });
@@ -124,7 +132,6 @@ export const deleteComment = async  (comment_id , comments , setComments , setEr
 export const getOfferComments = async  (offer_id , setComments , setError , t) => {
   try {
     const { data } = await axios.get(`${API}/comments/getOfferComments/${offer_id}`);
-    console.log(data);
 
     setComments(data);
 

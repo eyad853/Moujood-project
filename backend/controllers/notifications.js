@@ -27,8 +27,11 @@ export const createNotification = async (req, res) => {
       receiver_type,
       filter_type,
       filter_value,
-      specific_names = []
+      specific_names = [],
+      offer_id
     } = req.body;
+
+    console.log("offer id in creating notification",offer_id)
 
     
     if (!title || !message || !receiver_type || !filter_type) {
@@ -39,10 +42,10 @@ export const createNotification = async (req, res) => {
 
     // 1️⃣ create notification
     const notificationResult = await client.query(
-      `INSERT INTO notifications (title, message , filter_type , filter_value , specific_names)
-        VALUES ($1, $2 ,$3 ,$4 , $5)
+      `INSERT INTO notifications (title, message , filter_type , filter_value , specific_names , offer_id)
+        VALUES ($1, $2 ,$3 ,$4 , $5 , $6)
        RETURNING *`,
-      [title, message , filter_type , filter_value , specific_names]
+      [title, message , filter_type , filter_value , specific_names , offer_id]
     );
 
     const notification = notificationResult.rows[0];
@@ -130,7 +133,7 @@ export const createNotification = async (req, res) => {
     }
 
     if (tokens.length > 0) {
-      const result =await sendNotification(title , message , tokens)
+      const result =await sendNotification(title , message , tokens , offer_id , fullNotification.id)
 
       if(result.error){
         return res.status(400).json({
@@ -165,7 +168,8 @@ export const editNotification = async (req, res) => {
       receiver_type,
       filter_type,
       filter_value,
-      specific_names
+      specific_names,
+      offer_id
     } = req.body;
 
     if (!receiver_type || !filter_type) {
@@ -181,10 +185,11 @@ export const editNotification = async (req, res) => {
            message = COALESCE($2, message),
            filter_type = $3,
            filter_value = $4,
-           specific_names = $5
-       WHERE id = $6
+           specific_names = $5,
+           offer_id = $6
+       WHERE id = $7
        RETURNING *`,
-      [title, message, filter_type, filter_value, specific_names, id]
+      [title, message, filter_type, filter_value, specific_names,offer_id, id]
     );
 
     const notification = updateResult.rows[0];
@@ -375,6 +380,7 @@ export const getAllNotifications = async (req, res) => {
         n.filter_type,
         n.filter_value,
         n.specific_names,
+        n.offer_id,
         n.created_at,
         COUNT(nt.id)::int AS receivers
       FROM notifications n
@@ -545,9 +551,51 @@ export const getMyNotifications = async (req, res) => {
 
 export const getNotificationDetails = async (req, res) => {
   try {
-    const { notification_id } = req.params;
+    let { notification_id} = req.params;
 
-    const result = await pool.query(
+    console.log('notificationId' , notification_id)
+
+    if (notification_id === "null" || notification_id === "undefined" || notification_id === "") {
+      notification_id = null;
+    }
+
+    if(!notification_id){
+      return res.status(500).json({
+        error:true,
+        message:ERRORS.SERVER_ERROR
+      })
+    }
+
+    const checkIsThereOffer = await pool.query(
+      `SELECT offer_id FROM notifications WHERE id = $1`,
+      [notification_id]
+    );
+
+    const offer_id = checkIsThereOffer.rows[0]?.offer_id;
+
+    let offer = null;
+
+    if (offer_id) {
+      const offerResult = await pool.query(
+        `
+        SELECT 
+          o.*,
+          b.id AS business_id,
+          b.name AS business_name,
+          b.logo AS business_logo
+        FROM offers o
+        JOIN businesses b ON o.business_id = b.id
+        WHERE o.offer_id = $1
+        `,
+        [offer_id]
+      );
+    
+      offer = offerResult.rows[0] || null;
+    }
+
+
+
+    const notificationResult = await pool.query(
       `
       SELECT 
         n.title,
@@ -559,13 +607,15 @@ export const getNotificationDetails = async (req, res) => {
       [notification_id]
     );
 
-    if (!result.rows.length) {
+    if (!notificationResult.rows.length) {
       return res.status(404).json({error:true, message: ERRORS.NOTIFICATION_NOT_FOUND });
     }
 
+    const notification = {...notificationResult.rows[0] , offer:offer}
+
     res.json({
       error: false,
-      notification: result.rows[0]
+      notification
     });
 
   } catch (err) {
@@ -615,7 +665,7 @@ export const getNotificationCount = async (req, res) => {
       JOIN notifications n ON nt.notification_id = n.id
       WHERE nt.receiver_type = $1
         AND nt.receiver_id = $2
-        AND nt.is_read = false
+        AND nt.is_read = FALSE
         AND n.created_at >= $3
       `,
       [receiver_type, receiver_id, accountCreatedAt]

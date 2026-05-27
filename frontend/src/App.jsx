@@ -2,7 +2,7 @@ import { App as CapApp } from '@capacitor/app';
 import { PushNotifications } from '@capacitor/push-notifications';
 import { SocialLogin } from '@capgo/capacitor-social-login';
 import { Preferences } from '@capacitor/preferences';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, useLocation, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import SignupAs from './pages/SignupAs/SignupAs';
 import ClientSignup from './pages/ClientAuth/ClientSignup/ClientSignup';
@@ -46,17 +46,6 @@ import Business_Terms_And_Conditions from './pages/Terms_&_Conditions/Business_T
 import Client_Privacy_Policy from './pages/Privacy_Policy/Client_Privacy_Policy';
 import Business_Privacy_Policy from './pages/Privacy_Policy/Business_Privacy_Policy';
 import { useUser } from './context/userContext';
-
-
-const handleBackButton = () => {
-  if (window.history.length > 1) {
-    window.history.back();
-  } else {
-    // hi eyad, if you want to minimize instead of exit, you can use this instead of exitApp()
-    // App.minimizeApp();
-    CapApp.exitApp();
-  }
-};
 
 const routes = [
   {
@@ -259,16 +248,14 @@ const router = createBrowserRouter(routes)
 const App = () => {
   const {user , authReady}=useUser()
 
-  if (window.Capacitor && typeof window.Capacitor.triggerEvent === 'function') {
-      window.Capacitor.triggerEvent('pause', 'document');
-  }
-
   const [showUpdateModal, setShowUpdateModal] = useState(false);
 
   useEffect(() => {
+
+    let registrationListener, errorListener, actionListener, backHandler, urlHandler;
+
   const init = async () => {
     // Initialize social login
-    console.log('SocialLogin:', SocialLogin);
     await SocialLogin.initialize({
       google: {
         clientId:import.meta.env.VITE_GOOGLE_ANDROID_CLIENT_ID,
@@ -296,36 +283,69 @@ const App = () => {
     }
 
     // Push notification listeners
-    const registrationListener = PushNotifications.addListener('registration', async (token) => {
-      console.log('revieved token:' , token.value)
+     registrationListener =await  PushNotifications.addListener('registration', async (token) => {
         await Preferences.set({ key: "pushToken", value: token.value });
     });
 
-    const errorListener = PushNotifications.addListener('registrationError', (error) => {
+     errorListener =await PushNotifications.addListener('registrationError', (error) => {
       console.log(error)
     });
 
-    const actionListener = PushNotifications.addListener('pushNotificationActionPerformed', () => {
+     actionListener =await PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
+      const data = action.notification.data
+
       if(!authReady)return
+
       if(!user){
         router.navigate('/')
-      }else if(user.accountType==='user'){
-        router.navigate('/client/notifications');
-      }else if(user.accountType==='business'){
-        router.navigate('/business/notifications');
-      }
+        return 
+      } 
+      
+      if (user.accountType === 'business') {
+      router.navigate(`/business/notifications?notification_id=${data.notification_id}`);
+      return;
+    }
+
+    if (user.accountType === 'user') {
+      router.navigate(`/client/notifications?notification_id=${data.notification_id}`);
+      return
+    }
     });
 
 
+      const blockedBackPages = [
+        "/signup_as",
+        "/client_sign_up",
+        "/super_admin_login",
+        "/verify_email",
+        "/forgot-password",
+        "/business_sign_up",
+        "/login",
+        "/",
+      ];
+
+    const handleBackButton = async ({ canGoBack }) => {
+      const currentPath = window.location.pathname;
+
+      if (blockedBackPages.includes(currentPath)) {
+        await CapApp.minimizeApp();
+        return;
+      }
+    
+      if (canGoBack) {
+        router.navigate(-1); // ✅ React Router-aware back navigation
+      } else {
+        await CapApp.minimizeApp();
+      }
+    };
+
+    backHandler = await CapApp.addListener('backButton', handleBackButton)
 
     // Check for updates
     const updateResult = await checkForAppUpdate();
     if (updateResult.update) setShowUpdateModal(true);
 
-    // Back button & URL listeners
-    console.log('CapApp:', CapApp);
-    const backHandler = CapApp.addListener('backButton', handleBackButton);
-    const urlHandler = CapApp.addListener('appUrlOpen', (event) => {
+     urlHandler =await CapApp.addListener('appUrlOpen', (event) => {
       try {
         const url = new URL(event.url);
         router.navigate(url.pathname + url.search);
@@ -335,16 +355,18 @@ const App = () => {
     });
 
     // Cleanup listeners when component unmounts
-    return () => {
-      registrationListener?.remove();
-      errorListener?.remove();
-      actionListener?.remove();
-      backHandler.remove();
-      urlHandler.remove();
-    };
   };
-
+  
   init();
+  
+  return () => {
+    registrationListener?.remove();
+    errorListener?.remove();
+    actionListener?.remove();
+    backHandler?.remove();
+    urlHandler?.remove();
+    backHandler?.remove();
+  };
 }, [user, authReady]);
 
   return (

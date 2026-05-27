@@ -6,7 +6,6 @@ export const getFeedPageData = async (setError , setOffers , setCategories , set
         setOffers(response.data.offers)
         setCategories(response.data.categories)
         setAds(response.data.ads)
-        console.log(response.data);
     }catch(err){
         if (err.response?.data?.message) {
             setError(t(`errors:${err.response.data.message}`))
@@ -39,9 +38,7 @@ export const getSubCategoriesOfCategory = async (setError , setCategories , cate
 
 export const getBusinessesOfCategory = async (setError , setBusinesses , categoryId , t)=>{
     try{
-        console.log('started');
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/clients/getbusinessesOfCategory/${categoryId}`)
-        console.log(response.data);
         setBusinesses(response.data.businesses)
     }catch(err){
         if (err.response?.data?.message) {
@@ -64,7 +61,6 @@ export const getBusinessPageData = async (setError , setBusiness , setCategories
         setBusiness(response.data.business)
         setOffers(response.data.offers)
         setMarkers(response.data.locations)
-        console.log(response.data.locations);
     }catch(err){
         if (err.response?.data?.message) {
             setError(t(`errors:${err.response.data.message}`))

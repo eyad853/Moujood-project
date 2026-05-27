@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Clock } from 'lucide-react';
+import { X, Clock, DollarSign } from 'lucide-react';
 import { fetchNotificationDetails } from '../../api/notifications';
 import Loadiing from '../Loadiing/Loadiing';
 import { useTranslation } from 'react-i18next';
@@ -131,13 +131,98 @@ const NotificationBottomSheet = ({ isOpen, onClose, notificationId }) => {
                   </div>
 
                   {/* Message */}
-                  <div className="pt-2">
+                  <div className="pt-2 mb-10 font-normal">
                     <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
                       {notification.message}
                     </p>
                   </div>
                 </div>
               )}
+
+              {notification.offer&&(
+                <div className="border-t border-neutral-300 pt-10">
+                {/* Offer Image */}
+                {notification.offer?.image && (
+                  <div className="w-full h-auto bg-gradient-to-br from-[#009842] to-[#007a36] rounded-2xl overflow-hidden mb-5">
+                    <img
+                      src={notification.offer?.image}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+
+                {/* Business Info */}
+                <div className="bg-gray-50 rounded-2xl p-4 mb-5">
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+                    {t("information")}
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <div className="w-14 h-14 bg-[#009842] rounded-full flex items-center justify-center flex-shrink-0">
+                      {notification.offer?.business_logo ? (
+                        <img
+                          src={notification.offer?.business_logo}
+                          className="w-full h-full rounded-full object-contain"
+                        />
+                      ) : (
+                        <span className="text-white text-xl font-bold">
+                          {notification.offer?.business_name?.charAt(0) || 'B'}
+                        </span>
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900 text-base">
+                        {notification.offer?.business_name || 'Business Name'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* notification.Offer Title & Description */}
+                <div className="mb-5">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                    {notification.offer?.title}
+                  </h3>
+                  {notification.offer.description && (
+                    <p className="text-gray-600 whitespace-pre-wrap text-base leading-relaxed">
+                      {notification.offer?.description}
+                    </p>
+                  )}
+                </div>
+
+                {/* Price Section */}
+                <div className="bg-gradient-to-br from-[#009842]/10 to-[#007a36]/10 rounded-2xl p-5 mb-5">
+                  <div className="flex items-center gap-2 mb-3">
+                    <DollarSign size={20} className="text-[#009842]" />
+                    <p className="text-sm font-semibold text-gray-700">{t('price')}</p>
+                  </div>
+                  <div className="flex items-center gap-3 flex-wrap">
+                    {notification.offer?.offer_price_after && notification.offer?.offer_price_after !== notification.offer?.offer_price_before ? (
+                      <>
+                        <span className={`${Number(notification.offer?.offer_price_after)>0?"text-gray-500 line-through":"text-[#009842] font-bold"}  text-xl`}>
+                          ${parseFloat(notification.offer?.offer_price_before).toFixed(2)}
+                        </span>
+                        {Number(notification.offer?.offer_price_after)>0&&(<span className="text-3xl font-bold text-[#009842]">
+                          ${parseFloat(notification.offer?.offer_price_after).toFixed(2)}
+                        </span>)}
+                        {Number(notification.offer.offer_price_after) > 0 && (
+                          <span className="bg-red-500 text-white text-sm font-bold px-3 py-1 rounded-full">
+                            {discount}% OFF
+                          </span>
+                        )}
+                      </>
+                    ) : (
+                      <span className="text-3xl font-bold text-[#009842]">
+                        ${parseFloat(notification.offer?.offer_price_before).toFixed(2)}
+                      </span>
+                    )}
+                  </div>
+                  {Number(notification.offer.offer_price_after)>0 && (
+                    <p className="text-sm text-green-700 font-medium mt-2">
+                      Save ${(parseFloat(notification.offer?.offer_price_before) - parseFloat(notification.offer?.offer_price_after)).toFixed(2)}
+                    </p>
+                  )}
+                </div>
+              </div>)}
             </div>
 
             {/* Safe area for mobile devices */}

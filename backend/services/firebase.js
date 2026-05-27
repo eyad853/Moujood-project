@@ -2,7 +2,7 @@ import ERRORS from '../config/errors.js';
 import admin from '../config/firebase.js';
 import {pool} from '../index.js'
 
-export async function sendNotification(title, body, tokens) {
+export async function sendNotification(title, body, tokens , offer_id , notification_id) {
   try {
     if(tokens.length===0)return
 
@@ -12,6 +12,13 @@ export async function sendNotification(title, body, tokens) {
         title,
         body,
       },
+      data:offer_id?{
+        type: "offer",
+        notification_id,
+      }:{
+        type: "notification",
+        notification_id: String(notification_id),
+      }
     };
 
     const response = await admin.messaging().sendEachForMulticast(message)

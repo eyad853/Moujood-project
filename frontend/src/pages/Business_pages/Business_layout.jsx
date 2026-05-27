@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react'
 import { Link, Outlet, useLocation } from 'react-router-dom'
 import { IoHomeOutline } from "react-icons/io5";
 import { CgProfile } from "react-icons/cg";
-import { TbBorderAll } from "react-icons/tb";
-import { IoMdSettings } from 'react-icons/io';
+import { CiGrid41 } from "react-icons/ci";
+import { IoSettingsOutline } from "react-icons/io5";
 import { Bell } from 'lucide-react';
 import socket from '../../Socket';
 import { useTranslation } from 'react-i18next';
@@ -18,15 +18,26 @@ const Business_layout = () => {
   const {t}=useTranslation()
   const [error , setError]=useState([])
 
+  const onNotificationCreated = async ({ notification }) => {
+  
+    const isOnNotificationsPage =
+      location.pathname === "/business/notifications";
+  
+    if (isOnNotificationsPage) {
+      // already viewing notifications
+      return;
+    }
+  
+    setNotificationsCount(prev => prev + 1);
+  };
+
+  // 🗑️ Notification deleted
+  const onNotificationDeleted = () => {
+    setNotificationsCount(prev => Math.max(prev - 1, 0))
+  };
+
+
     useEffect(() => {
-    const onNotificationCreated = () => {
-          setNotificationsCount(prev=>prev+1)
-        };
-      
-        // 🗑️ Notification deleted
-        const onNotificationDeleted = () => {
-          setNotificationsCount(prev=>prev-1)
-        };
 
     socket.on("notification_created", onNotificationCreated);
     socket.on("notification_deleted", onNotificationDeleted);
@@ -36,7 +47,7 @@ const Business_layout = () => {
       socket.off("notification_created", onNotificationCreated);
       socket.off("notification_deleted", onNotificationDeleted);
     };
-  }, [socket]);
+  }, [socket , location.pathname]);
 
   useEffect(()=>{
         if (!user) return;
@@ -63,7 +74,7 @@ const Business_layout = () => {
         <Link
         to={`/business/dashboard`} 
         className={`w-1/4 h-full flex justify-center items-center`}>
-          <div className={`h-full w-16 rounded-full ${location.pathname==="/business/dashboard"?"bg-[#009842] text-white":null} flex transition-all duration-200 justify-center items-center `}>
+          <div className={`h-12 w-12 rounded-full ${location.pathname==="/business/dashboard"?"bg-[#009842] text-white":null} flex transition-all duration-200 justify-center items-center `}>
             <IoHomeOutline size={25}/>
           </div>
         </Link>
@@ -72,8 +83,8 @@ const Business_layout = () => {
         <Link
         to={`/business/offers`} 
         className={`w-1/4 h-full flex justify-center items-center`}>
-          <div className={`h-full w-16 rounded-full ${location.pathname==="/business/offers"?"bg-[#009842] text-white":null} flex transition-all duration-200 justify-center items-center `}>
-            <TbBorderAll size={25}/>
+          <div className={`h-12 w-12 rounded-full ${location.pathname==="/business/offers"?"bg-[#009842] text-white":null} flex transition-all duration-200 justify-center items-center `}>
+            <CiGrid41 size={25}/>
           </div>
         </Link>
 
@@ -81,7 +92,7 @@ const Business_layout = () => {
         <Link
         to={`/business/profile`} 
         className={`w-1/4 h-full flex justify-center items-center`}>
-          <div className={`h-full w-16 rounded-full ${location.pathname==="/business/profile"?"bg-[#009842] text-white":null} flex transition-all duration-200 justify-center items-center `}>
+          <div className={`h-12 w-12 rounded-full ${location.pathname==="/business/profile"?"bg-[#009842] text-white":null} flex transition-all duration-200 justify-center items-center `}>
             <CgProfile size={25}/>
           </div>
         </Link>
@@ -89,8 +100,8 @@ const Business_layout = () => {
         <Link
         to={`/business/settings`} 
         className={`w-1/4 h-full flex justify-center items-center`}>
-          <div className={`h-full w-16 rounded-full ${location.pathname==="/business/settings"?"bg-[#009842] text-white":null} flex transition-all duration-200 justify-center items-center `}>
-            <IoMdSettings size={25}/>
+          <div className={`h-12 w-12 rounded-full ${location.pathname==="/business/settings"?"bg-[#009842] text-white":null} flex transition-all duration-200 justify-center items-center `}>
+            <IoSettingsOutline size={25}/>
           </div>
         </Link>
 
@@ -100,7 +111,7 @@ const Business_layout = () => {
           setNotificationsCount(0)
         }}
         className={`w-1/4 h-full flex justify-center items-center`}>
-          <div className={`h-full w-16 rounded-full ${location.pathname==="/business/notifications"?"bg-[#009842] text-white":null} flex transition-all duration-200 justify-center items-center `}>
+          <div className={`h-12 w-12 rounded-full ${location.pathname==="/business/notifications"?"bg-[#009842] text-white":null} flex transition-all duration-200 justify-center items-center `}>
             <div className="relative">
               <Bell  size={25}/>
               {notificationsCount>0&&

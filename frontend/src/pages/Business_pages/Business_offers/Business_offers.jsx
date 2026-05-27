@@ -25,7 +25,7 @@ const Business_offers = () => {
   const {smallError , setSmallError}=useError()
   const { t , i18n} = useTranslation("businessOffers")
   const isRTL = i18n.language === "ar"; // true if Arabic
-
+  const [offerCategoryId , setOfferCategoryId]=useState(null)
   
   
   const filteredOffers = offers
@@ -203,6 +203,7 @@ if (pageError) {
       offerId={selectedOffer?.offer_id}
       setOffers={setOffers}
       setFuncUsedCategories={setCategories}
+      offerCategoryId={offerCategoryId}
       />)}
 
       {isOfferDetailsOpen && selectedOffer?.offer_id&& (
@@ -213,6 +214,7 @@ if (pageError) {
             setSelectedOffer(null)
           }}
           offerId={selectedOffer?.offer_id}
+          setOffers={setOffers}
         /> 
       )}
 

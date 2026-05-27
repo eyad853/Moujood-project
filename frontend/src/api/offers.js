@@ -385,7 +385,6 @@ export const getOfferSheet = async (offer_id, setOffer , setMarkers , setError ,
   try {
 
     const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/offers/getOfferSheet/${offer_id}`);
-    console.log(data);
 
     setOffer(data.offer); // assuming your API returns { offer: {...} }
     if(setMarkers){

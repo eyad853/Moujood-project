@@ -39,7 +39,7 @@ const OfferSheet = ({ isOpen, onClose, offerId ,setOffers , setTotalOffers , set
       if (offerId) {
         await getOfferSheet(offerId, setOffer, null, setPageError , t);
       }
-      await getAllSubCategories(setPageError, setCategories , t);
+      await getAllSubCategories(setPageError, setCategories , t , offerId);
     } catch (err) {
         if (err.response?.data?.message) {
             setPageError(t(`errors:${err.response.data.message}`))

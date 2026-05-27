@@ -22,6 +22,7 @@ export const getFeedPageData = async (req , res) => {
       SELECT 
         o.*,
 
+        b.id AS business_id,
         b.name AS business_name,
         b.logo AS business_logo,
         b.category AS business_category,

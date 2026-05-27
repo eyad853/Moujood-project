@@ -46,7 +46,6 @@ export const createCategory = async (setError , data , imagePreview , setCategor
         const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/categories/createCategory` , formData , {
             headers:{"Content-Type":"multipart/form-data"}
         })
-        console.log(response.data);
 
         const realCategory = response.data.category
         
@@ -103,7 +102,6 @@ export const editCategory = async (setError , data , imagePreview, categoryId , 
 
     try{
         const response = await axios.patch(`${import.meta.env.VITE_BACKEND_URL}/categories/editCategory/${categoryId}` , data)
-        console.log(response.data);
     }catch(err){
         setCategories(prev =>prev.map(cat =>cat.id === categoryId ? previous : cat));
 
@@ -132,7 +130,6 @@ export const deleteCategory = async (setError ,categoryId, setCategories , t)=>{
         });
 
         const response = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/categories/deleteCategory/${categoryId}`)
-        console.log(response.data);
     }catch(err){
 
          // Rollback UI if failed
@@ -155,7 +152,6 @@ export const deleteCategory = async (setError ,categoryId, setCategories , t)=>{
 export const getAllCategories = async (setError , setCategories , t)=>{
     try{
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/categories/getAllCategories`)
-        console.log(response.data.categories);
         setCategories(response.data.categories)
     }catch(err){
         console.log(err);
@@ -171,9 +167,9 @@ export const getAllCategories = async (setError , setCategories , t)=>{
     }
 }
 
-export const getAllSubCategories = async (setError , setCategories , t)=>{
+export const getAllSubCategories = async (setError , setCategories , t , offerId)=>{
     try{
-        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/categories/getAllSubCategories` , {withCredentials:true})
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/categories/getAllSubCategories?offer_id=${offerId}` , {withCredentials:true})
         setCategories(response.data.data)
     }catch(err){
         if (err.response?.data?.message) {

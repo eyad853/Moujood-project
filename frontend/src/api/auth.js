@@ -301,7 +301,6 @@ export const handleGoogleAuth = async (navigate , setUser)=>{
         scopes: ['email', 'profile'],
       }
     })
-    console.log(res);
 
     if (!res?.result?.idToken) {
       console.log("Google login failed: no idToken returned");
@@ -309,7 +308,6 @@ export const handleGoogleAuth = async (navigate , setUser)=>{
     }
 
     const idToken = res.result.idToken;
-    console.log("idToken : ",idToken);
 
     const { deviceToken, deviceId } = await getDeviceInfo();
 
@@ -333,7 +331,6 @@ export const handleFacebookAuth =async (navigate , setUser)=>{
         permissions: ['email', 'public_profile'],
       }
     })
-    console.log(res);
     
 
 const accessToken =

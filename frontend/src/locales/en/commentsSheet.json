@@ -1,4 +1,6 @@
 {
     "title":"Comments",
-    "placeholder":"Write a comment..."
+    "placeholder":"Write a comment...",
+    "noComments":"No Comments Yet",
+    "beTheFirstComment":"Be the first to comment"
 }
