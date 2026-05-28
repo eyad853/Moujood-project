@@ -3,7 +3,7 @@ import { PushNotifications } from '@capacitor/push-notifications';
 import { SocialLogin } from '@capgo/capacitor-social-login';
 import { Preferences } from '@capacitor/preferences';
 import { createBrowserRouter, RouterProvider, useLocation, useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import SignupAs from './pages/SignupAs/SignupAs';
 import ClientSignup from './pages/ClientAuth/ClientSignup/ClientSignup';
 import ClientLogin from './pages/ClientAuth/ClientLogin/ClientLogin';
@@ -46,6 +46,8 @@ import Business_Terms_And_Conditions from './pages/Terms_&_Conditions/Business_T
 import Client_Privacy_Policy from './pages/Privacy_Policy/Client_Privacy_Policy';
 import Business_Privacy_Policy from './pages/Privacy_Policy/Business_Privacy_Policy';
 import { useUser } from './context/userContext';
+import {SplashScreen }from'@capacitor/splash-screen';
+import PageError from './components/PageError/PageError';
 
 const routes = [
   {
@@ -246,128 +248,164 @@ const routes = [
 const router = createBrowserRouter(routes)
 
 const App = () => {
-  const {user , authReady}=useUser()
-
+  const {user , authReady , error}=useUser()
   const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const userRef = useRef(user);
+  const authReadyRef = useRef(authReady);
+  
 
   useEffect(() => {
+    userRef.current = user;
+    authReadyRef.current = authReady;
+  }, [user, authReady]);
 
-    let registrationListener, errorListener, actionListener, backHandler, urlHandler;
+  useEffect(() => {
+    if (authReady) {
+      SplashScreen.hide();
+    }
+  }, [authReady]);
 
-  const init = async () => {
-    // Initialize social login
-    await SocialLogin.initialize({
-      google: {
-        clientId:import.meta.env.VITE_GOOGLE_ANDROID_CLIENT_ID,
-        webClientId: import.meta.env.VITE_GOOGLE_WEB_CLIENT_ID,
-        scopes: ["email", "profile"],
-      },
-      facebook: {
-        appId: import.meta.env.VITE_FACEBOOK_CLIENT_ID,
-        clientToken: import.meta.env.VITE_FACEBOOK_CLIENT_TOKEN ,
-        scopes: ["email", "public_profile"],
-      }
-    });
-
-    let result = await PushNotifications.checkPermissions();
-    if (result.receive === "granted") {
-      await PushNotifications.register();
-
-    }else{
-      // Push notification permissions
-      result = await PushNotifications.requestPermissions();
-      if (result.receive === 'granted') {
+  useEffect(()=>{
+    let registrationListener, errorListener , backHandler, urlHandler , actionListener;
+  
+    const init =async ()=>{
+      await SocialLogin.initialize({
+        google: {
+          clientId:import.meta.env.VITE_GOOGLE_ANDROID_CLIENT_ID,
+          webClientId: import.meta.env.VITE_GOOGLE_WEB_CLIENT_ID,
+          scopes: ["email", "profile"],
+        },
+        facebook: {
+          appId: import.meta.env.VITE_FACEBOOK_CLIENT_ID,
+          clientToken: import.meta.env.VITE_FACEBOOK_CLIENT_TOKEN ,
+          scopes: ["email", "public_profile"],
+        }
+      });
+    
+      let result = await PushNotifications.checkPermissions();
+      if (result.receive === "granted") {
         await PushNotifications.register();
-      }
-
-    }
-
-    // Push notification listeners
-     registrationListener =await  PushNotifications.addListener('registration', async (token) => {
-        await Preferences.set({ key: "pushToken", value: token.value });
-    });
-
-     errorListener =await PushNotifications.addListener('registrationError', (error) => {
-      console.log(error)
-    });
-
-     actionListener =await PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
-      const data = action.notification.data
-
-      if(!authReady)return
-
-      if(!user){
-        router.navigate('/')
-        return 
-      } 
       
-      if (user.accountType === 'business') {
-      router.navigate(`/business/notifications?notification_id=${data.notification_id}`);
-      return;
-    }
-
-    if (user.accountType === 'user') {
-      router.navigate(`/client/notifications?notification_id=${data.notification_id}`);
-      return
-    }
-    });
-
-
-      const blockedBackPages = [
-        "/signup_as",
-        "/client_sign_up",
-        "/super_admin_login",
-        "/verify_email",
-        "/forgot-password",
-        "/business_sign_up",
-        "/login",
-        "/",
-      ];
-
-    const handleBackButton = async ({ canGoBack }) => {
-      const currentPath = window.location.pathname;
-
-      if (blockedBackPages.includes(currentPath)) {
-        await CapApp.minimizeApp();
-        return;
+      }else{
+        // Push notification permissions
+        result = await PushNotifications.requestPermissions();
+        if (result.receive === 'granted') {
+          await PushNotifications.register();
+        }
+      
       }
     
-      if (canGoBack) {
-        router.navigate(-1); // ✅ React Router-aware back navigation
-      } else {
-        await CapApp.minimizeApp();
-      }
-    };
-
-    backHandler = await CapApp.addListener('backButton', handleBackButton)
-
-    // Check for updates
-    const updateResult = await checkForAppUpdate();
-    if (updateResult.update) setShowUpdateModal(true);
-
-     urlHandler =await CapApp.addListener('appUrlOpen', (event) => {
+      // Push notification listeners
+       registrationListener =await  PushNotifications.addListener('registration', async (token) => {
+          await Preferences.set({ key: "pushToken", value: token.value });
+      });
+    
+       errorListener =await PushNotifications.addListener('registrationError', (error) => {
+        console.log(error)
+      });
+        // Initialize social login
+    
+          // Check for updates
+      const updateResult = await checkForAppUpdate();
+      if (updateResult.update) setShowUpdateModal(true);
+    
+      const blockedBackPages = [
+          "/signup_as",
+          "/client_sign_up",
+          "/super_admin_login",
+          "/verify_email",
+          "/forgot-password",
+          "/business_sign_up",
+          "/login",
+          "/",
+        ];
+      
+      const handleBackButton = async ({ canGoBack }) => {
+        const currentPath = window.location.pathname;
+      
+        if (blockedBackPages.includes(currentPath)) {
+          await CapApp.minimizeApp();
+          return;
+        }
+      
+        if (canGoBack) {
+          router.navigate(-1); // ✅ React Router-aware back navigation
+        } else {
+          await CapApp.minimizeApp();
+        }
+      };
+    
+      backHandler = await CapApp.addListener('backButton', handleBackButton)
+    
+      actionListener = await PushNotifications.addListener(
+        'pushNotificationActionPerformed',
+        async (action) => {
+          const data = action.notification.data;
+        
+          try {
+            const waitForAppReady = () =>
+              new Promise((resolve) => {
+                const check = () => {
+                  if (authReadyRef.current) return resolve(true);
+                  setTimeout(check, 50);
+                };
+                check();
+              });
+            
+            await waitForAppReady();
+            
+            const currentUser = userRef.current;
+            
+            let targetRoute = null;
+            
+            if (!currentUser) {
+              targetRoute = '/';
+            } else if (currentUser.accountType === 'business') {
+              targetRoute = `/business/notifications?notification_id=${data.notification_id}`;
+            } else {
+              targetRoute = `/client/notifications?notification_id=${data.notification_id}`;
+            }
+          
+            router.navigate(targetRoute);
+          
+          } catch (error) {
+            console.log("Notification error:", error);
+          
+          } finally {
+            await SplashScreen.hide();
+          }
+        }
+      );
+    
+    urlHandler =await CapApp.addListener('appUrlOpen', (event) => {
       try {
         const url = new URL(event.url);
-        router.navigate(url.pathname + url.search);
+        const path = url.host ? `/${url.host}` : url.pathname;
+        router.navigate(path + url.search);
       } catch (err) {
         console.log("Deep link error:", err);
       }
     });
+    
+    }
 
-    // Cleanup listeners when component unmounts
-  };
+    init()
   
-  init();
-  
-  return () => {
-    registrationListener?.remove();
-    errorListener?.remove();
-    actionListener?.remove();
-    backHandler?.remove();
-    urlHandler?.remove();
-    backHandler?.remove();
-  };
-}, [user, authReady]);
+    return ()=>{
+      registrationListener?.remove();
+      errorListener?.remove();
+      backHandler?.remove();
+      urlHandler?.remove();
+      actionListener?.remove();
+    }
+  },[])
+
+  if(error){
+    return (
+    <div className="fixed inset-0 pb-[env(safe-area-inset-bottom)] pt-[env(safe-area-inset-top)]">
+      <PageError error={error}/>
+    </div>)
+  }
 
   return (
     <>

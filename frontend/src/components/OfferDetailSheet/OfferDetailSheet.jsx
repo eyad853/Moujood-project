@@ -276,7 +276,7 @@ useEffect(() => {
                 </div>
                 {Number(offer.offer_price_after)>0 && (
                   <p className="text-sm text-green-700 font-medium mt-2">
-                    Save ${(parseFloat(offer?.offer_price_before) - parseFloat(offer?.offer_price_after)).toFixed(2)}
+                    {t('save')} ${(parseFloat(offer?.offer_price_before) - parseFloat(offer?.offer_price_after)).toFixed(2)}
                   </p>
                 )}
               </div>
@@ -291,7 +291,7 @@ useEffect(() => {
                     </div>
                     <div className="flex-1">
                       <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
-                        Location
+                        {t('location')}
                       </p>
                       <p className="font-medium text-gray-900">
                         {offer.location}

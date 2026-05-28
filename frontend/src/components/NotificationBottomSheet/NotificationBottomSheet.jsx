@@ -10,7 +10,16 @@ const NotificationBottomSheet = ({ isOpen, onClose, notificationId }) => {
   const [notification, setNotification] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
-  const {t}=useTranslation()
+  const {t}=useTranslation('notificationsDetails')
+
+    const calculateDiscount = () => {
+    if (notification?.offer?.offer_price_after && notification?.offer?.offer_price_before !== notification?.offer?.offer_price_after) {
+      return Math.round((1 - notification?.offer?.offer_price_after / notification?.offer?.offer_price_before) * 100);
+    }
+    return 0;
+  };
+
+  const discount = calculateDiscount();
 
   const timeAgo = (dateString) => {
   const now = new Date();
@@ -103,7 +112,7 @@ const NotificationBottomSheet = ({ isOpen, onClose, notificationId }) => {
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
               <h2 className="text-lg font-semibold text-gray-900">
-                Notification Details
+                {t('title')}
               </h2>
               <button
                 onClick={onClose}
@@ -218,7 +227,7 @@ const NotificationBottomSheet = ({ isOpen, onClose, notificationId }) => {
                   </div>
                   {Number(notification.offer.offer_price_after)>0 && (
                     <p className="text-sm text-green-700 font-medium mt-2">
-                      Save ${(parseFloat(notification.offer?.offer_price_before) - parseFloat(notification.offer?.offer_price_after)).toFixed(2)}
+                      {t("save")} ${(parseFloat(notification.offer?.offer_price_before) - parseFloat(notification.offer?.offer_price_after)).toFixed(2)}
                     </p>
                   )}
                 </div>

@@ -17,12 +17,25 @@ export const AccountProvider = ({ children }) => {
   // Fetch user once when app loads
   useEffect(() => {
     const getUserData = async()=>{
-      const hasToken = await getUser(setLoading , setUser , setError , setToken , t)
-      if(!hasToken){
-        await handleCreateToken();
+      try{
+        const hasToken = await getUser(setLoading , setUser , setError , setToken , t)
+        if(!hasToken){
+          await handleCreateToken();
+        }
+      }catch(err){
+        if (err.response?.data?.message) {
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setError(t(`errors:${err.message}`))
+        } else {
+            setError(t("errors:SOMETHING_WENT_WRONG"))
+        }
+      }finally{
+        setAuthReady(true)
       }
       
-      setAuthReady(true)
     }
     getUserData()
   }, []);

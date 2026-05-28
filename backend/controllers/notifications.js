@@ -56,21 +56,21 @@ export const createNotification = async (req, res) => {
 
     if (receiver_type === "user") {
       if (filter_type === "all") {
-        receiversQuery = `SELECT id FROM users`;
+        receiversQuery = `SELECT id FROM users WHERE  user_type != 'super_admin'`;
       }
 
       if (filter_type === "gender") {
-        receiversQuery = `SELECT id FROM users WHERE gender = $1`;
+        receiversQuery = `SELECT id FROM users WHERE gender = $1 AND user_type != 'super_admin'`;
         params = [filter_value];
       }
 
       if (filter_type === "governorate") {
-        receiversQuery = `SELECT id FROM users WHERE governorate = $1`;
+        receiversQuery = `SELECT id FROM users WHERE governorate = $1 AND user_type != 'super_admin'`;
         params = [filter_value];
       }
 
       if (filter_type === "specific") {
-        receiversQuery = `SELECT id FROM users WHERE name = ANY($1)`;
+        receiversQuery = `SELECT id FROM users WHERE name = ANY($1) AND user_type != 'super_admin'`;
         params = [specific_names];
       }
     }

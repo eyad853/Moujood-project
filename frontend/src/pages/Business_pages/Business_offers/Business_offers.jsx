@@ -124,7 +124,7 @@ if (pageError) {
 
         {/* Offers List */}
       {offers?.length > 0 ? (
-        <div className="space-y-3 mb-12">
+        <div className="space-y-3 mb-24">
           {filteredOffers.map((offer) => (
             <div
               key={offer?.offer_id}

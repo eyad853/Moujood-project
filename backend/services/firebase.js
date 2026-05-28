@@ -14,7 +14,7 @@ export async function sendNotification(title, body, tokens , offer_id , notifica
       },
       data:offer_id?{
         type: "offer",
-        notification_id,
+        notification_id:String(notification_id),
       }:{
         type: "notification",
         notification_id: String(notification_id),

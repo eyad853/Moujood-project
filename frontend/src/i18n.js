@@ -27,6 +27,7 @@ import enclient_Terms_And_Conditions from './locales/en/client_Terms_and_Conditi
 import enclient_Privacy_Policy from './locales/en/client_Privacy_Policy.json'
 import enbusiness_Terms_And_Conditions from './locales/en/business_Terms_and_Conditions.json'
 import enbusiness_Privacy_Policy from './locales/en/business_Privacy_Policy.json'
+import ennotificationsDetails from './locales/en/notificationsDetails.json'
 
 
 
@@ -55,6 +56,7 @@ import arclient_Terms_And_Conditions from './locales/ar/client_Terms_and_Conditi
 import arclient_Privacy_Policy from './locales/ar/client_Privacy_Policy.json'
 import arbusiness_Terms_And_Conditions from './locales/ar/business_Terms_and_Conditions.json'
 import arbusiness_Privacy_Policy from './locales/ar/business_Privacy_Policy.json'
+import arnotificationsDetails from './locales/ar/notificationsDetails.json'
 
 
 
@@ -89,7 +91,8 @@ i18n
             client_Terms_And_Conditions:arclient_Terms_And_Conditions,
             client_Privacy_Policy:arclient_Privacy_Policy,
             business_Terms_And_Conditions:arbusiness_Terms_And_Conditions,
-            business_Privacy_Policy:arbusiness_Privacy_Policy
+            business_Privacy_Policy:arbusiness_Privacy_Policy,
+            notificationsDetails:arnotificationsDetails
         },
 
         en:{
@@ -117,11 +120,12 @@ i18n
             client_Terms_And_Conditions:enclient_Terms_And_Conditions,
             client_Privacy_Policy:enclient_Privacy_Policy,
             business_Terms_And_Conditions:enbusiness_Terms_And_Conditions,
-            business_Privacy_Policy:enbusiness_Privacy_Policy
+            business_Privacy_Policy:enbusiness_Privacy_Policy,
+            notificationsDetails:ennotificationsDetails
         }
     },
     fallbackLng:"ar", 
-    ns: ['signupAs' , "client_Terms_And_Conditions" , "client_Privacy_Policy","business_Terms_And_Conditions","business_Privacy_Policy" , 'clientAuth' , 'businessAuth' , 'login' , 'settings', 'notification' , 'profile' , 'feed' , 'businessDashboard' , 'businessOffers','commentsSheet' , 'editProfileSheet' , 'offerDetailsSheet' , 'offerSheet' , 'passwordEditSheet' , 'verifyEmail ' , 'errors' , 'limits' , 'forgotPassword' , 'updateModal'],
+    ns: ['signupAs' , "client_Terms_And_Conditions" , "notificationsDetails" , "client_Privacy_Policy","business_Terms_And_Conditions","business_Privacy_Policy" , 'clientAuth' , 'businessAuth' , 'login' , 'settings', 'notification' , 'profile' , 'feed' , 'businessDashboard' , 'businessOffers','commentsSheet' , 'editProfileSheet' , 'offerDetailsSheet' , 'offerSheet' , 'passwordEditSheet' , 'verifyEmail ' , 'errors' , 'limits' , 'forgotPassword' , 'updateModal'],
     defaultNS:"signupAs",
     interpolation: { escapeValue: false }
 })

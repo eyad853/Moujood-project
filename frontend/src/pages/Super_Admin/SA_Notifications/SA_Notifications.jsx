@@ -165,6 +165,16 @@ const SA_Notifications = () => {
     }
   }
 
+
+  const ITEMS_PER_PAGE = 6;
+  const filtered = offers.filter(o =>
+    o.title.toLowerCase().includes(offerSearch.toLowerCase()) ||
+    o.business_name?.toLowerCase().includes(offerSearch.toLowerCase())
+  );
+
+const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+const paginated = filtered.slice((offerPage - 1) * ITEMS_PER_PAGE, offerPage * ITEMS_PER_PAGE);
+
   const notifications = receiver_type==='user'?userNotifications:businessNotifications
 
   const filteredNotifications = notifications.filter(notification => {
@@ -483,21 +493,13 @@ const SA_Notifications = () => {
           
                   {/* Offer List */}
                   {(() => {
-                    const ITEMS_PER_PAGE = 6;
-                    const filtered = offers.filter(o =>
-                      o.title.toLowerCase().includes(offerSearch.toLowerCase()) ||
-                      o.business_name?.toLowerCase().includes(offerSearch.toLowerCase())
-                    );
-                    const paginated = filtered.slice(0, offerPage * ITEMS_PER_PAGE);
-                    const hasMore = paginated.length < filtered.length;
-                  
                     return filtered.length === 0 ? (
                       <div className="text-center py-8 text-gray-400 text-sm border border-gray-200 rounded-xl">
                         No offers found
                       </div>
                     ) : (
                       <>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-80 overflow-y-auto pr-1">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pr-1">
                           {paginated.map(offer => (
                             <button
                               key={offer.offer_id}
@@ -541,15 +543,33 @@ const SA_Notifications = () => {
                           ))}
                         </div>
                         
-                        {hasMore && (
+                      {totalPages > 1 && (
+                        <div className="flex items-center justify-between mt-3">
+                          <button
+                            type="button"
+                            onClick={() => setOfferPage(p => p - 1)}
+                            disabled={offerPage === 1}
+                            className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                          >
+                            <ChevronLeft size={16} />
+                            Prev
+                          </button>
+                      
+                          <span className="text-xs text-gray-500">
+                            Page {offerPage} of {totalPages}
+                          </span>
+                      
                           <button
                             type="button"
                             onClick={() => setOfferPage(p => p + 1)}
-                            className="w-full mt-3 py-2 text-sm text-[#009842] font-medium border border-[#009842] rounded-lg hover:bg-green-50 transition-colors"
+                            disabled={offerPage === totalPages}
+                            className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                           >
-                            Show more ({filtered.length - paginated.length} remaining)
+                            Next
+                            <ChevronRight size={16} />
                           </button>
-                        )}
+                        </div>
+                      )}
           
                         <p className="text-xs text-gray-400 mt-2 text-right">
                           Showing {paginated.length} of {filtered.length} offers
