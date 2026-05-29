@@ -22,7 +22,7 @@ const Notifications = () => {
   const [loading , setLoading]=useState(true)
   const [notifications , setNotifications]=useState([])
   const {user}=useUser()
-  const {t}=useTranslation('notification')
+  const {t , i18n}=useTranslation('notification')
   const {isNotificationSheetOpen,setIsNotificationSheetOpen,selectedNotification,setSelectedNotification}=useNotifications()
   const location = useLocation()
   const [offerId , setOfferId]=useState(null)
@@ -145,7 +145,7 @@ useEffect(() => {
       const date = new Date(dateString);
       const seconds = Math.floor((now - date) / 1000);
 
-      const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
+      const rtf = new Intl.RelativeTimeFormat(i18n.language, { numeric: "auto" });
 
       if (seconds < 60) return rtf.format(-seconds, "second");
 

@@ -93,14 +93,21 @@ const extendedAds = ads.length
     { label: 'minute', seconds: 60 }
   ];
 
+  const rtf = new Intl.RelativeTimeFormat(i18n.language, {
+    numeric: "auto",
+  });
+
   for (const i of intervals) {
     const count = Math.floor(seconds / i.seconds);
+
     if (count >= 1) {
-      return `${count} ${i.label}${count > 1 ? 's' : ''} ago`;
+      return rtf.format(-count, i.label);
     }
   }
 
-  return 'just now';
+  return i18n.language.startsWith("ar")
+    ? "الآن"
+    : "just now";
 };
 
   useEffect(()=>{

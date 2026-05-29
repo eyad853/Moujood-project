@@ -46,8 +46,8 @@ import Business_Terms_And_Conditions from './pages/Terms_&_Conditions/Business_T
 import Client_Privacy_Policy from './pages/Privacy_Policy/Client_Privacy_Policy';
 import Business_Privacy_Policy from './pages/Privacy_Policy/Business_Privacy_Policy';
 import { useUser } from './context/userContext';
-import {SplashScreen }from'@capacitor/splash-screen';
 import PageError from './components/PageError/PageError';
+import Loadiing from './components/Loadiing/Loadiing'
 
 const routes = [
   {
@@ -259,12 +259,6 @@ const App = () => {
     authReadyRef.current = authReady;
   }, [user, authReady]);
 
-  useEffect(() => {
-    if (authReady) {
-      SplashScreen.hide();
-    }
-  }, [authReady]);
-
   useEffect(()=>{
     let registrationListener, errorListener , backHandler, urlHandler , actionListener;
   
@@ -371,8 +365,6 @@ const App = () => {
           } catch (error) {
             console.log("Notification error:", error);
           
-          } finally {
-            await SplashScreen.hide();
           }
         }
       );
@@ -404,6 +396,13 @@ const App = () => {
     return (
     <div className="fixed inset-0 pb-[env(safe-area-inset-bottom)] pt-[env(safe-area-inset-top)]">
       <PageError error={error}/>
+    </div>)
+  }
+
+  if(!authReady){
+    return (
+    <div className="fixed inset-0 pb-[env(safe-area-inset-bottom)] pt-[env(safe-area-inset-top)]">
+      <Loadiing/>
     </div>)
   }
 

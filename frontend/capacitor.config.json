@@ -2,23 +2,23 @@
   "appId": "com.moujood.www",
   "appName": "moujood",
   "webDir": "dist",
+  "server": {
+    "url": "http://192.168.8.16:5173",
+    "cleartext": true  
+  },
   "plugins": {
   "PushNotifications": {
     "presentationOptions": ["sound", "alert" , "badge"] 
   },
-  "server": {
-    "url": "https://moujood-project.vercel.app",
-    "cleartext": true  
-  },
   
   "SplashScreen": {
     "launchShowDuration": 3000,
-    "launchAutoHide": false,
+    "launchAutoHide": true,
     "launchFadeOutDuration": 3000,
     "backgroundColor": "#ffffffff",
     "androidSplashResourceName": "splash",
     "androidScaleType": "CENTER_CROP",
-    "showSpinner": false,
+    "showSpinner": true,
     "androidSpinnerStyle": "large",
     "iosSpinnerStyle": "small",
     "spinnerColor": "#999999",

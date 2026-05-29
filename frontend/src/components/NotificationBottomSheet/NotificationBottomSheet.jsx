@@ -10,7 +10,7 @@ const NotificationBottomSheet = ({ isOpen, onClose, notificationId }) => {
   const [notification, setNotification] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
-  const {t}=useTranslation('notificationsDetails')
+  const {t , i18n}=useTranslation('notificationsDetails')
 
     const calculateDiscount = () => {
     if (notification?.offer?.offer_price_after && notification?.offer?.offer_price_before !== notification?.offer?.offer_price_after) {
@@ -26,7 +26,7 @@ const NotificationBottomSheet = ({ isOpen, onClose, notificationId }) => {
   const date = new Date(dateString);
   const seconds = Math.floor((now - date) / 1000);
 
-  const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
+  const rtf = new Intl.RelativeTimeFormat(i18n.language, { numeric: "auto" });
 
   if (seconds < 60) return rtf.format(-seconds, "second");
 
