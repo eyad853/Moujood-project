@@ -369,15 +369,23 @@ const App = () => {
         }
       );
     
-    urlHandler =await CapApp.addListener('appUrlOpen', (event) => {
-      try {
-        const url = new URL(event.url);
-        const path = url.host ? `/${url.host}` : url.pathname;
-        router.navigate(path + url.search);
-      } catch (err) {
-        console.log("Deep link error:", err);
-      }
-    });
+      urlHandler = await CapApp.addListener('appUrlOpen', (event) => {
+        try {
+          const url = new URL(event.url);
+        
+          let path;
+        
+          if (url.protocol === 'http:' || url.protocol === 'https:') {
+            path = url.pathname;
+          } else {
+            path = url.host ? `/${url.host}` : url.pathname;
+          }
+        
+          router.navigate(path + url.search);
+        } catch (err) {
+          console.log("Deep link error:", err);
+        }
+      });
     
     }
 

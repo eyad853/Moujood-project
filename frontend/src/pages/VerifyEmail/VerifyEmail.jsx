@@ -33,7 +33,9 @@ export default function VerifyEmail() {
 
 useEffect(()=>{
   if(!token)return
-    verifyToken(setLoading , setUser , setAccountType , setError , token , t , setEmail)
+  if (calledRef.current) return;
+  calledRef.current = true;
+  verifyToken(setLoading , setUser , setAccountType , setError , token , t , setEmail)
 },[token])
 
 if(loading){
