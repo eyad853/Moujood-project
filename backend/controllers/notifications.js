@@ -30,9 +30,6 @@ export const createNotification = async (req, res) => {
       specific_names = [],
       offer_id
     } = req.body;
-
-    console.log("offer id in creating notification",offer_id)
-
     
     if (!title || !message || !receiver_type || !filter_type) {
       return res.status(400).json({error:true, message: ERRORS.MISSING_REQUIRED_FIELDS });
@@ -629,7 +626,7 @@ export const getNotificationCount = async (req, res) => {
 
   try {
     const { receiver_type } = req.params;
-    const receiver_id = req.user.id;
+    const receiver_id = req.user?.id;
     console.log(receiver_id);
     console.log(receiver_type);
 
