@@ -3,7 +3,7 @@
   "appName": "moujood",
   "webDir": "dist",
   "server": {
-    "url": "http://192.168.8.16:5173",
+    "url": "https://moujood-project.vercel.app",
     "cleartext": true  
   },
   "plugins": {
