@@ -5,6 +5,7 @@ import { fetchNotificationDetails } from '../../api/notifications';
 import Loadiing from '../Loadiing/Loadiing';
 import { useTranslation } from 'react-i18next';
 import PageError from '../PageError/PageError';
+import { Link } from 'react-router-dom';
 
 const NotificationBottomSheet = ({ isOpen, onClose, notificationId }) => {
   const [notification, setNotification] = useState(null);
@@ -161,7 +162,7 @@ const NotificationBottomSheet = ({ isOpen, onClose, notificationId }) => {
                 )}
 
                 {/* Business Info */}
-                <div className="bg-gray-50 rounded-2xl p-4 mb-5">
+                < Link to={`/client/business_page/${notification.offer?.business_id}`} className="bg-gray-50 rounded-2xl p-4 mb-5">
                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
                     {t("information")}
                   </p>
@@ -184,7 +185,7 @@ const NotificationBottomSheet = ({ isOpen, onClose, notificationId }) => {
                       </p>
                     </div>
                   </div>
-                </div>
+                </Link>
 
                 {/* notification.Offer Title & Description */}
                 <div className="mb-5">
@@ -231,6 +232,17 @@ const NotificationBottomSheet = ({ isOpen, onClose, notificationId }) => {
                     </p>
                   )}
                 </div>
+
+                {notification?.offer&&(
+                  <div className="flex justify-center">
+                    <Link
+                      to={`/client/business_page/${notification.offer?.business_id}`}
+                      className="font-semibold text-center text-[#009842]"
+                    >
+                      {t('seeMore')}
+                    </Link>
+                  </div>
+                  )}
               </div>)}
             </div>
 
