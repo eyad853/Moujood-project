@@ -286,6 +286,13 @@ export const editNotification = async (req, res) => {
 export const deleteNotification = async (req, res) => {
   const client = await pool.connect();
 
+    if (!req.user) {
+      return res.status(401).json({
+        error: true,
+        message: ERRORS.NOT_AUTHENTICATED,
+      });
+    }
+
   const { id: notification_id } = req.params;
   const { id: receiver_id, accountType } = req.user;
   

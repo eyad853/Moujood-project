@@ -353,6 +353,12 @@ export const login = async (req, res, next) => {
 
 export const getUser = async (req, res) => {
   try {
+    if (!req.user) {
+      return res.status(401).json({
+        error: true,
+        message: ERRORS.NOT_AUTHENTICATED,
+      });
+    }
     const { id, accountType } = req.user;
     const {deviceId}=req.params
 
@@ -448,6 +454,13 @@ export const editAccount = async (req, res, next) => {
   const image = req.file? `${process.env.backendURL}/${req.file.path.replace(/\\/g, '/')}`: null;
 
   try {
+    if (!req.user) {
+      return res.status(401).json({
+        error: true,
+        message: ERRORS.NOT_AUTHENTICATED,
+      });
+    }
+
     const { id, accountType } = req.user;
       if(!id , !accountType){
     return res.status(400).json({
@@ -657,6 +670,12 @@ export const editAccount = async (req, res, next) => {
 
 export const logout = async (req, res) => {
   try {
+    if (!req.user) {
+      return res.status(401).json({
+        error: true,
+        message: ERRORS.NOT_AUTHENTICATED,
+      });
+    }
     const { id: receiver_id, accountType: receiver_type } = req.user; // get from req.user
     const {deviceId} = req.body; // frontend should send deviceId
 

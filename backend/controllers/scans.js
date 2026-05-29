@@ -28,7 +28,7 @@ export const addScanAndPoints = async (req, res) => {
   const client = await pool.connect();
 
   try {
-    const user_id = req.user.id;
+    const user_id = req.user?.id;
     const { business_id, offer_ids } = req.body;
 
     if (
