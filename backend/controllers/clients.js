@@ -2,7 +2,7 @@ import ERRORS from "../config/errors.js";
 import { pool } from "../index.js";
 
 export const getFeedPageData = async (req , res) => {
-  const userId = req.user.id;
+  const userId = req.user?.id;
 
   if(!userId){
     return res.status(400).json({
@@ -204,7 +204,7 @@ export const getBusinessPageData = async (req , res) => {
 };
 
 export const getUserPoints = async (req, res) => {
-  const user_id = req.user.id;
+  const user_id = req.user?.id;
 
     if(!user_id){
     return res.status(400).json({

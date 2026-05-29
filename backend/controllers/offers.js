@@ -3,7 +3,7 @@ import { pool } from "../index.js";
 
 export const addOffer = async (req, res) => {
   try {
-    const business_id = req.user.id;
+    const business_id = req.user?.id;
 
       if(!business_id){
     return res.status(400).json({
@@ -42,7 +42,7 @@ export const addOffer = async (req, res) => {
 
 export const editOffer = async (req, res) => {
   try {
-    const business_id = req.user.id;
+    const business_id = req.user?.id;
     const {offer_id} = req.params;
 
     // 1) Get existing offer (to keep old values)
@@ -97,7 +97,7 @@ export const editOffer = async (req, res) => {
 
 export const deleteOffer = async (req, res) => {
   try {
-    const business_id = req.user.id;
+    const business_id = req.user?.id;
     const { offer_id } = req.params;
 
       if(!business_id){

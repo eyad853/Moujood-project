@@ -2,7 +2,7 @@ import ERRORS from "../config/errors.js";
 import { pool } from "../index.js";
 
 export const createComment = async (req, res) => {
-  const user_id = req.user.id;
+  const user_id = req.user?.id;
   const { offer_id } = req.params;
   const {content , parent_id} = req.body
 
@@ -48,7 +48,7 @@ export const createComment = async (req, res) => {
 
 
 export const updateComment = async (req, res) => {
-  const user_id = req.user.id;
+  const user_id = req.user?.id;
   const {content } = req.body;
   const {comment_id} = req.params
 
@@ -96,7 +96,7 @@ export const updateComment = async (req, res) => {
 };
 
 export const deleteComment = async (req, res) => {
-  const user_id = req.user.id;
+  const user_id = req.user?.id;
   const { id } = req.params; // comment id
 
     if(!user_id){

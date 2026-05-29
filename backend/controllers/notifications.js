@@ -488,7 +488,7 @@ export const getAllBusinesses = async (req, res) => {
 export const getMyNotifications = async (req, res) => {
   try {
     const { receiver_type} = req.params;
-    const receiver_id = req.user.id
+    const receiver_id = req.user?.id
 
       if(!receiver_id){
     return res.status(400).json({
@@ -686,7 +686,7 @@ export const markAllNotificationsAsRead = async (req, res) => {
 
   try {
     const { receiver_type} = req.params;
-    const receiver_id = req.user.id
+    const receiver_id = req.user?.id
 
       if(!receiver_id){
     return res.status(400).json({

@@ -2,7 +2,7 @@ import ERRORS from "../config/errors.js";
 import { pool } from "../index.js";
 
 export const createLike = async (req, res) => {
-  const user_id = req.user.id;
+  const user_id = req.user?.id;
   const { offer_id } = req.params;
 
     if(!user_id){
@@ -40,7 +40,7 @@ export const createLike = async (req, res) => {
 };
 
 export const deleteLike = async (req, res) => {
-  const user_id = req.user.id;
+  const user_id = req.user?.id;
   const { offer_id } = req.params;
 
     if(!user_id){

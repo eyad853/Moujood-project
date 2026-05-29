@@ -3,7 +3,7 @@ import ERRORS from "../config/errors.js";
 
 export const getBusinessDashboardData = async (req, res) => {
   try {
-    const business_id = req.user.id;
+    const business_id = req.user?.id;
 
       if(!business_id){
         return res.status(400).json({
@@ -78,7 +78,7 @@ export const getBusinessDashboardData = async (req, res) => {
 
 export const getBusinessOffers = async (req, res) => {
   try {
-    const business_id = req.user.id;
+    const business_id = req.user?.id;
 
       if(!business_id){
     return res.status(400).json({
