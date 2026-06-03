@@ -314,7 +314,7 @@ const App = () => {
           "/login",
           "/",
         ];
-        
+
         const currentPath = window.location.pathname;
       
         if (blockedBackPages.includes(currentPath)) {
@@ -324,8 +324,10 @@ const App = () => {
       
         if (canGoBack) {
           router.navigate(-1); // ✅ React Router-aware back navigation
+          return
         } else {
           await CapApp.minimizeApp();
+          return
         }
       };
     
