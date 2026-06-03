@@ -918,6 +918,13 @@ export const handleOuthAuth = async (req, res) => {
         });
       }
 
+      if(email && email===process.env.SUPER_ADMIN){
+        return res.status(401).json({
+          error: true,
+          message: ERRORS.EMAIL_ALREADY_EXISTED,
+        });
+      }
+
     } else if (provider === 'facebook') {
       const { accessToken } = req.body;
 
@@ -944,6 +951,13 @@ export const handleOuthAuth = async (req, res) => {
       name = payload?.name ?? 'Facebook User';
       email = payload?.email ?? null;
       avatar = payload?.picture?.data?.url ?? null;
+      
+      if(email && email===process.env.SUPER_ADMIN){
+        return res.status(401).json({
+          error: true,
+          message: ERRORS.EMAIL_ALREADY_EXISTED,
+        });
+      }
       
     } else {
       return res.status(400).json({ error: true, message: "Invalid provider" });

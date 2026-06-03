@@ -302,8 +302,9 @@ const App = () => {
           // Check for updates
       const updateResult = await checkForAppUpdate();
       if (updateResult.update) setShowUpdateModal(true);
-    
-      const blockedBackPages = [
+      
+      const handleBackButton = async ({ canGoBack }) => {
+        const blockedBackPages = [
           "/signup_as",
           "/client_sign_up",
           "/super_admin_login",
@@ -313,8 +314,7 @@ const App = () => {
           "/login",
           "/",
         ];
-      
-      const handleBackButton = async ({ canGoBack }) => {
+        
         const currentPath = window.location.pathname;
       
         if (blockedBackPages.includes(currentPath)) {
