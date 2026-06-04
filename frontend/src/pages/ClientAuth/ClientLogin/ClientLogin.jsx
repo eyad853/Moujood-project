@@ -169,7 +169,7 @@ const ClientLogin = () => {
             </div>
         </div>
       </div>
-        <SmallError message={smallError} onClose={()=>{setSmallError('')}}/>
+      {smallError&&(<SmallError message={smallError} onClose={()=>{setSmallError('')}}/>)}
     </div>
   );
 };
