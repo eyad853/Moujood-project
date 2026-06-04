@@ -62,8 +62,6 @@ const C_Sub_Categories = () => {
 
 useEffect(() => {
   if (!extendedAds.length || !sliderElement || isSliderInitialized) return;
-
-  console.log('Initializing slider');
   sliderElement.scrollLeft = sliderElement.offsetWidth;
   setCurrentSlide(1);
   setIsSliderInitialized(true);

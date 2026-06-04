@@ -70,8 +70,6 @@ const canAutoScroll = ads.length > 1;
 
 useEffect(() => {
   if (!extendedAds.length || !sliderElement || isSliderInitialized) return;
-
-  console.log('Initializing slider');
   sliderElement.scrollLeft = sliderElement.offsetWidth;
   setCurrentSlide(1);
   setIsSliderInitialized(true);

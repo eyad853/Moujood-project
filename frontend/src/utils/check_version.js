@@ -22,8 +22,6 @@ export const checkForAppUpdate = async () => {
   try {
     const installedVersion = await getAppVersion();
     const serverData = await fetchAppVersion();
-    console.log(installedVersion);
-    console.log(serverData);
 
     if (!serverData) return { update: false };
 

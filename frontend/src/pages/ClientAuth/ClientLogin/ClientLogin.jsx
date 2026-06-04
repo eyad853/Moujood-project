@@ -6,6 +6,7 @@ import { handleGoogleAuth , handleFacebookAuth } from '../../../api/auth';
 import { login } from '../../../api/auth';
 import { useUser } from '../../../context/userContext';
 import { useTranslation } from 'react-i18next'
+import SmallError from '../../../components/SmallError/SmallError';
 
 
 const ClientLogin = () => {
@@ -17,6 +18,7 @@ const ClientLogin = () => {
   const {setUser}=useUser()
   const {t , i18n}=useTranslation('login')
   const isRTL = i18n.language === "ar"; // true if Arabic
+  const {smallError,setSmallError}=useError()
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -47,7 +49,7 @@ const ClientLogin = () => {
         {/* Social Login Buttons */}
         <div className="flex gap-3 mb-6">
           <button
-            onClick={()=>{handleGoogleAuth(navigate , setUser)}}
+            onClick={()=>{handleGoogleAuth(navigate , setUser , setSmallError)}}
             className="flex-1 bg-[#009842] text-white py-3.5 px-4 rounded-xl font-semibold flex items-center justify-center gap-2 text-base"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="white">
@@ -59,7 +61,7 @@ const ClientLogin = () => {
             {t('social.google')}
           </button>
           <button
-            onClick={()=>{handleFacebookAuth(navigate , setUser)}}
+            onClick={()=>{handleFacebookAuth(navigate , setUser , setSmallError)}}
             className="flex-1 bg-[#009842] text-white py-3.5 px-4 rounded-xl font-semibold flex items-center justify-center gap-2 text-base"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="white">
@@ -167,6 +169,7 @@ const ClientLogin = () => {
             </div>
         </div>
       </div>
+        <SmallError message={smallError} onClose={()=>{setSmallError('')}}/>
     </div>
   );
 };

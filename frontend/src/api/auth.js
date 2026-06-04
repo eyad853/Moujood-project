@@ -291,7 +291,7 @@ export const businessAuth = async(setError , data ,navigate , setLoading , setUs
     }
 }
 
-export const handleGoogleAuth = async (navigate , setUser)=>{
+export const handleGoogleAuth = async (navigate , setUser , setError)=>{
   try{
     const provider = 'google'
 
@@ -316,12 +316,20 @@ export const handleGoogleAuth = async (navigate , setUser)=>{
       setUser(response.data.account)
       navigate(response.data.account.accountType==='user'?'/client/feed':"/business/dashboard")
     }
-  }catch(error){
-    console.log(error);
+  }catch(err){
+        if (err.response?.data?.message) {
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setError(t(`errors:${err.message}`))
+        } else {
+            setError(t("errors:SOMETHING_WENT_WRONG"))
+        }
   }
 }
 
-export const handleFacebookAuth =async (navigate , setUser)=>{
+export const handleFacebookAuth =async (navigate , setUser , setError)=>{
     try{
       const provider = 'facebook'
 
@@ -349,8 +357,16 @@ const accessToken =
       setUser(response.data.account)
       navigate(response.data.account.accountType==='user'?'/client/feed':"/business/dashboard")
     }
-  }catch(error){
-    console.log(error);
+  }catch(err){
+        if (err.response?.data?.message) {
+            setError(t(`errors:${err.response.data.message}`))
+        } else if (err.message === "Network Error") {
+            setError(t("errors:NETWORK_ERROR"))
+        } else if (err.message) {
+            setError(t(`errors:${err.message}`))
+        } else {
+            setError(t("errors:SOMETHING_WENT_WRONG"))
+        }
   }
 }
 

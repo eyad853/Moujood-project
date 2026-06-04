@@ -6,6 +6,8 @@ import { localAuth } from '../../../api/auth';
 import Loadiing from '../../../components/Loadiing/Loadiing';
 import { useUser } from '../../../context/userContext';
 import { useTranslation } from 'react-i18next'
+import { useError } from '../../../context/error';
+import SmallError from '../../../components/SmallError/SmallError';
 
 const ClientSignup = () => {
   const navigate = useNavigate()
@@ -18,6 +20,7 @@ const ClientSignup = () => {
   const [fieldErrors, setFieldErrors] = useState({})
   const [showGenderDropdown, setShowGenderDropdown] = useState(false);
   const [showCityDropdown, setShowCityDropdown] = useState(false);
+  const {smallError,setSmallError}=useError()
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -103,7 +106,7 @@ const governorateOptions = [
         {/* Social Login Buttons */}
         <div className="flex gap-3 mb-6">
           <button
-            onClick={()=>{handleGoogleAuth(navigate , setUser)}}
+            onClick={()=>{handleGoogleAuth(navigate , setUser , setSmallError)}}
             className="flex-1 bg-[#009842] text-white py-3.5 px-4 rounded-xl font-semibold flex items-center justify-center gap-2 text-base"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="white">
@@ -115,7 +118,7 @@ const governorateOptions = [
             {t('social.google')}
           </button>
           <button
-            onClick={()=>{handleFacebookAuth(navigate , setUser)}}
+            onClick={()=>{handleFacebookAuth(navigate , setUser , setSmallError)}}
             className="flex-1 bg-[#009842] text-white py-3.5 px-4 rounded-xl font-semibold flex items-center justify-center gap-2 text-base"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="white">
@@ -411,6 +414,7 @@ const governorateOptions = [
             </div>
         </div>
       </div>
+      <SmallError message={smallError} onClose={()=>{setSmallError('')}}/>
     </div>
   );
 };
