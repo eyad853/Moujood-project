@@ -341,34 +341,43 @@ const App = () => {
         }
       );
 
-        const handleBackButton = async ({ canGoBack }) => {
-          const blockedBackPages = [
-            "/signup_as",
-            "/client_sign_up",
-            "/business_sign_up",
-            "/super_admin_login",
-            "/verify_email",
-            "/forgot-password",
-            "/login",
-            "/",
-          ];
-        
-          // Read path at call time, not at registration time
-          const currentPath = window.location.pathname;
-        
-          if (blockedBackPages.includes(currentPath)) {
-            await CapApp.minimizeApp();
-            return;
-          }
-        
-  // Use router history index instead of WebView's canGoBack
-  if (window.history.length > 1) {
-    router.navigate(-1);
-    return;
-  }
+      const handleBackButton = async () => {
+        const blockedBackPages = [
+          "/signup_as",
+          "/super_admin_login",
+          "/verify_email",
+          "/forgot-password",
+          "/",
+        ];
+      
+        const backToSignupAs = [
+          "/client_sign_up",
+          "/business_sign_up",
+          "/login",
+        ];
+      
+        const currentPath = window.location.pathname;
 
-  await CapApp.minimizeApp();
-        };
+        console.log(blockedBackPages.includes(currentPath))
+        console.log(backToSignupAs.includes(currentPath))
+      
+        if (blockedBackPages.includes(currentPath)) {
+          await CapApp.minimizeApp();
+          return;
+        }
+      
+        if (backToSignupAs.includes(currentPath)) {
+          await CapApp.minimizeApp();
+          return;
+        }
+      
+        if (window.history.length > 1) {
+          router.navigate(-1);
+          return;
+        }
+      
+        await CapApp.minimizeApp();
+      };
 
         backHandler = await CapApp.addListener("backButton", handleBackButton);
 
