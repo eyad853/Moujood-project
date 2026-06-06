@@ -312,13 +312,19 @@ const App = () => {
 
       // Case 1: In app pages
       if (inApp(currentPath)) {
-        if (!prevPath || blockedBackPages.includes(prevPath) || termsPages.includes(prevPath)) {
+        if (
+          !prevPath ||
+          blockedBackPages.includes(prevPath) ||
+          termsPages.includes(prevPath) ||
+          backToSignupAs.includes(prevPath)  // ← add this
+        ) {
           await CapApp.minimizeApp();
           return;
         }
         router.navigate(-1);
         return;
       }
+
 
       // Case 2: On Terms/Privacy page
       if (termsPages.includes(currentPath)) {
