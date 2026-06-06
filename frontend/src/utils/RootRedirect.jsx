@@ -3,13 +3,15 @@ import Loadiing from '../components/Loadiing/Loadiing'
 import { useUser } from '../context/userContext';
 
 const RootRedirect = () => {
-  const { user, loading } = useUser();
+  const { user, authReady } = useUser();
 
-  if (loading) return (
+  if (!authReady) {
+    return (
     <div className="fixed inset-0">
       <Loadiing />
     </div>
   );
+}
 
   // ❌ Not logged in → signup choice page
   if (!user) {

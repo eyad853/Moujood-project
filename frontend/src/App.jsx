@@ -48,6 +48,7 @@ import Business_Privacy_Policy from './pages/Privacy_Policy/Business_Privacy_Pol
 import { useUser } from './context/userContext';
 import PageError from './components/PageError/PageError';
 import Loadiing from './components/Loadiing/Loadiing'
+import { Capacitor } from '@capacitor/core';
 
 const routes = [
   {
@@ -252,6 +253,47 @@ const App = () => {
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const userRef = useRef(user);
   const authReadyRef = useRef(authReady);
+
+  const prevPathRef = useRef(null);
+  const currentPathRef = useRef(window.location.pathname);
+
+      const blockedBackPages = [
+        "/signup_as",
+        "/super_admin_login",
+        "/verify_email",
+        "/forgot-password",
+        "/",
+        "/client_sign_up",
+        "/business_sign_up",
+        "/login",
+      ];
+    
+      const backToSignupAs = [
+        "/client_sign_up",
+        "/business_sign_up",
+        "/login",
+      ]
+
+      const termsPages=[
+        "/client_Terms-&-Conditions",
+        "/business_Terms-&-Conditions",
+        "/client_Privacy_Policy",
+        "/business_Privacy_Policy"
+      ]
+
+      const inApp = (path) =>
+  path.startsWith("/client/") ||
+  path.startsWith("/business/") ||
+  path.startsWith("/super_admin/");
+
+  // Add this effect to track path changes (inside App component, alongside other useEffects)
+  useEffect(() => {
+    const unsubscribe = router.subscribe((state) => {
+      prevPathRef.current = currentPathRef.current;
+      currentPathRef.current = state.location.pathname;
+    });
+    return () => unsubscribe();
+  }, []);
   
 
   useEffect(() => {
@@ -261,146 +303,161 @@ const App = () => {
 
   useEffect(()=>{
     let registrationListener, errorListener , backHandler, urlHandler , actionListener;
-  
-    const init =async ()=>{
-      await SocialLogin.initialize({
-        google: {
-          clientId:import.meta.env.VITE_GOOGLE_ANDROID_CLIENT_ID,
-          webClientId: import.meta.env.VITE_GOOGLE_WEB_CLIENT_ID,
-          scopes: ["email", "profile"],
-        },
-        facebook: {
-          appId: import.meta.env.VITE_FACEBOOK_CLIENT_ID,
-          clientToken: import.meta.env.VITE_FACEBOOK_CLIENT_TOKEN ,
-          scopes: ["email", "public_profile"],
+
+    const handleBackButton = async () => {
+      const currentPath = currentPathRef.current;
+      const prevPath = prevPathRef.current;
+
+      console.log("Back pressed | current:", currentPath, "| prev:", prevPath); // helpful for debugging
+
+      // Case 1: In app pages
+      if (inApp(currentPath)) {
+        if (!prevPath || blockedBackPages.includes(prevPath) || termsPages.includes(prevPath)) {
+          await CapApp.minimizeApp();
+          return;
         }
-      });
-    
-      let result = await PushNotifications.checkPermissions();
-      if (result.receive === "granted") {
-        await PushNotifications.register();
-      
-      }else{
-        // Push notification permissions
-        result = await PushNotifications.requestPermissions();
-        if (result.receive === 'granted') {
-          await PushNotifications.register();
-        }
-      
+        router.navigate(-1);
+        return;
       }
-    
-      // Push notification listeners
-       registrationListener =await  PushNotifications.addListener('registration', async (token) => {
-          await Preferences.set({ key: "pushToken", value: token.value });
-      });
-    
-       errorListener =await PushNotifications.addListener('registrationError', (error) => {
-        console.log(error)
-      });
-        // Initialize social login
-    
-          // Check for updates
-      const updateResult = await checkForAppUpdate();
-      if (updateResult.update) setShowUpdateModal(true);
-    
-      actionListener = await PushNotifications.addListener(
-        'pushNotificationActionPerformed',
-        async (action) => {
-          const data = action.notification.data;
-        
-          try {
-            const waitForAppReady = () =>
-              new Promise((resolve) => {
-                const check = () => {
-                  if (authReadyRef.current) return resolve(true);
-                  setTimeout(check, 50);
-                };
-                check();
-              });
-            
-            await waitForAppReady();
-            
-            const currentUser = userRef.current;
-            
-            let targetRoute = null;
-            
-            if (!currentUser) {
-              targetRoute = '/';
-            } else if (currentUser.accountType === 'business') {
-              targetRoute = `/business/notifications?notification_id=${data.notification_id}`;
-            } else {
-              targetRoute = `/client/notifications?notification_id=${data.notification_id}`;
-            }
-          
-            router.navigate(targetRoute);
-          
-          } catch (error) {
-            console.log("Notification error:", error);
-          
-          }
-        }
-      );
 
-      const handleBackButton = async () => {
-        const blockedBackPages = [
-          "/signup_as",
-          "/super_admin_login",
-          "/verify_email",
-          "/forgot-password",
-          "/",
-        ];
-      
-        const backToSignupAs = [
-          "/client_sign_up",
-          "/business_sign_up",
-          "/login",
-        ];
-      
-        const currentPath = window.location.pathname;
-
-        console.log(blockedBackPages.includes(currentPath))
-        console.log(backToSignupAs.includes(currentPath))
-      
-        if (blockedBackPages.includes(currentPath)) {
+      // Case 2: On Terms/Privacy page
+      if (termsPages.includes(currentPath)) {
+        if (!prevPath) {
           await CapApp.minimizeApp();
           return;
         }
-      
-        if (backToSignupAs.includes(currentPath)) {
-          await CapApp.minimizeApp();
-          return;
-        }
-      
-        if (window.history.length > 1) {
+        if (inApp(prevPath)) {
           router.navigate(-1);
           return;
         }
-      
+        if (backToSignupAs.includes(prevPath)) {
+          router.navigate(-1);
+          return;
+        }
         await CapApp.minimizeApp();
-      };
+        return;
+      }
 
-        backHandler = await CapApp.addListener("backButton", handleBackButton);
+      // Case 3: On signup pages → go to /signup_as
+      if (backToSignupAs.includes(currentPath)) {
+        router.navigate("/signup_as");
+        return;
+      }
 
+      // Case 4: Any other blocked page → minimize
+      if (blockedBackPages.includes(currentPath)) {
+        await CapApp.minimizeApp();
+        return;
+      }
 
-    
-      urlHandler = await CapApp.addListener('appUrlOpen', (event) => {
-        try {
-          const url = new URL(event.url);
+      // Default: no history → minimize, otherwise go back
+      if (!prevPath) {
+        await CapApp.minimizeApp();
+        return;
+      }
+
+      router.navigate(-1);
+    };
+  
+    const init =async ()=>{
+      if(Capacitor.getPlatform()==='android'){
+        await SocialLogin.initialize({
+          google: {
+            clientId:import.meta.env.VITE_GOOGLE_ANDROID_CLIENT_ID,
+            webClientId: import.meta.env.VITE_GOOGLE_WEB_CLIENT_ID,
+            scopes: ["email", "profile"],
+          },
+          facebook: {
+            appId: import.meta.env.VITE_FACEBOOK_CLIENT_ID,
+            clientToken: import.meta.env.VITE_FACEBOOK_CLIENT_TOKEN ,
+            scopes: ["email", "public_profile"],
+          }
+        });
+      
+        let result = await PushNotifications.checkPermissions();
+        if (result.receive === "granted") {
+          await PushNotifications.register();
         
-          let path;
-        
-          if (url.protocol === 'http:' || url.protocol === 'https:') {
-            path = url.pathname;
-          } else {
-            path = url.host ? `/${url.host}` : url.pathname;
+        }else{
+          // Push notification permissions
+          result = await PushNotifications.requestPermissions();
+          if (result.receive === 'granted') {
+            await PushNotifications.register();
           }
         
-          router.navigate(path + url.search);
-        } catch (err) {
-          console.log("Deep link error:", err);
         }
-      });
+      
+        // Push notification listeners
+         registrationListener =await  PushNotifications.addListener('registration', async (token) => {
+            await Preferences.set({ key: "pushToken", value: token.value });
+        });
+      
+         errorListener =await PushNotifications.addListener('registrationError', (error) => {
+          console.log(error)
+        });
+
+          actionListener = await PushNotifications.addListener(
+            'pushNotificationActionPerformed',
+            async (action) => {
+              const data = action.notification.data;
+            
+              try {
+                const waitForAppReady = () =>
+                  new Promise((resolve) => {
+                    const check = () => {
+                      if (authReadyRef.current) return resolve(true);
+                      setTimeout(check, 50);
+                    };
+                    check();
+                  });
+                
+                await waitForAppReady();
+                
+                const currentUser = userRef.current;
+                
+                let targetRoute = null;
+                
+                if (!currentUser) {
+                  targetRoute = '/';
+                } else if (currentUser.accountType === 'business') {
+                  targetRoute = `/business/notifications?notification_id=${data.notification_id}`;
+                } else {
+                  targetRoute = `/client/notifications?notification_id=${data.notification_id}`;
+                }
+              
+                router.navigate(targetRoute);
+              
+              } catch (error) {
+                console.log("Notification error:", error);
+              
+              }
+            }
+          );
+
+          backHandler = await CapApp.addListener("backButton", handleBackButton);
     
+          urlHandler = await CapApp.addListener('appUrlOpen', (event) => {
+            try {
+              const url = new URL(event.url);
+            
+              let path;
+            
+              if (url.protocol === 'http:' || url.protocol === 'https:') {
+                path = url.pathname;
+              } else {
+                path = url.host ? `/${url.host}` : url.pathname;
+              }
+            
+              router.navigate(path + url.search);
+            } catch (err) {
+              console.log("Deep link error:", err);
+            }
+          });
+
+          // Check for updates
+        const updateResult = await checkForAppUpdate();
+        if (updateResult.update) setShowUpdateModal(true);
+      }
     }
 
     init()

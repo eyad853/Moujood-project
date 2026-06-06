@@ -370,20 +370,21 @@ const accessToken =
   }
 }
 
-export const getUser = async(setLoading , setUser , setError , setToken , t)=>{
+export const getUser = async(setLoading , setUser , setError , t)=>{
   try {
     setLoading(true)
     setError('')
     const {deviceId } = await getDeviceInfo();
     
-    const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/auth/me/${deviceId}`,{
+    const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/auth/me?deviceId=${deviceId}`,{
       withCredentials: true 
     });
 
-    if(response?.data?.account){
+    if(response?.data?.authenticated){
       setUser(response.data.account); 
-      return response.data.hasToken
+      return response.data
     }else{
+      setUser(null)
       return false
     }
   } catch (err) {
@@ -564,11 +565,18 @@ export const logout = async (setError,navigate,setUser,setLoading , t) => {
 
     const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/logout`, {deviceId} , { withCredentials: true });
 
-    // clear frontend auth state
-    setUser(null);
 
-    // navigate after successful logout
-    navigate("/login");
+    if(!response.data.error){
+      // clear frontend auth state
+      setUser(null);
+  
+      // navigate after successful logout
+      if(response.data.accountType==='super_admin'){
+        navigate("/super_admin_login" , { replace: true });
+      }else{
+        navigate('/login' , { replace: true })
+      }
+    }
   } catch (err) {
         if (err.response?.data?.message) {
             setError(t(`errors:${err.response.data.message}`))
@@ -646,9 +654,8 @@ export const verifyToken = async(setLoading , setUser , setAccountType , setErro
     }
 }
 
-export const handleCreateToken = async()=>{
+export const handleCreateToken = async(deviceToken , deviceId)=>{
   try{
-    const { deviceToken, deviceId } = await getDeviceInfo();
     const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/createToken` , {deviceId , deviceToken}, {withCredentials:true})
   }catch(error){
     console.log(error);

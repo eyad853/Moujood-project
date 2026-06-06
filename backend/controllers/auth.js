@@ -354,52 +354,80 @@ export const login = async (req, res, next) => {
 export const getUser = async (req, res) => {
   try {
     if (!req.user) {
-      return res.status(401).json({
+      return res.status(200).json({
+        authenticated: false,
+        account: null,
+      });
+    }
+
+    const { id, accountType } = req.user;
+    const { deviceId } = req.query;
+
+    if (!id || !accountType) {
+      return res.status(400).json({
         error: true,
         message: ERRORS.NOT_AUTHENTICATED,
       });
     }
-    const { id, accountType } = req.user;
-    const {deviceId}=req.params
 
-      if(!id || !accountType){
-    return res.status(400).json({
-      error:true,
-      message:ERRORS.NOT_AUTHENTICATED
-    })
-  }
+    let hasToken = false;
 
-    const tokenResult = await pool.query(`
-      SELECT id FROM device_tokens WHERE receiver_type=$1 AND receiver_id=$2 AND device_id=$3` 
-      , [accountType , id , deviceId] 
-    )
+    if (accountType !== "super_admin" && deviceId) {
+      const tokenResult = await pool.query(
+        `
+        SELECT id
+        FROM device_tokens
+        WHERE receiver_type = $1
+        AND receiver_id = $2
+        AND device_id = $3
+        `,
+        [accountType, id, deviceId]
+      );
 
-      const hasToken = tokenResult.rows.length>0
-
-    if (!id) {
-      return res.status(401).json({error:true , message: ERRORS.NOT_AUTHENTICATED });
+      hasToken = tokenResult.rows.length > 0;
     }
 
-    if (accountType === 'user' || accountType=== 'super_admin') {
-      // Fetch user data
+    if (accountType === "user" || accountType === "super_admin") {
       const result = await pool.query(
-        "SELECT id, name, email, gender, governorate, avatar , auth_provider , user_type, created_at FROM users WHERE id = $1",
+        `
+        SELECT
+          id,
+          name,
+          email,
+          gender,
+          governorate,
+          avatar,
+          auth_provider,
+          user_type,
+          created_at
+        FROM users
+        WHERE id = $1
+        `,
         [id]
       );
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ 
-          error:true,
-          message: ERRORS.USER_NOT_FOUND
+        return res.status(404).json({
+          error: true,
+          message: ERRORS.USER_NOT_FOUND,
         });
       }
-      return res.json({account:{ ...result.rows[0], accountType } , hasToken});
 
-    } else if (accountType === 'business') {
-      // Fetch business and its locations in a single query
+      return res.status(200).json({
+        authenticated: true,
+        error: false,
+        account: {
+          ...result.rows[0],
+          accountType,
+        },
+        hasToken,
+      });
+    }
+
+    if (accountType === "business") {
       const result = await pool.query(
         `
-        SELECT 
+        SELECT
           b.id,
           b.name,
           b.email,
@@ -419,33 +447,50 @@ export const getUser = async (req, res) => {
             '[]'
           ) AS locations
         FROM businesses b
-        LEFT JOIN business_locations l ON b.id = l.business_id
+        LEFT JOIN business_locations l
+          ON b.id = l.business_id
         WHERE b.id = $1
-        GROUP BY b.id;
+        GROUP BY b.id
         `,
         [id]
       );
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ 
-          error:true,
-          message: ERRORS.BUSINESS_NOT_FOUND
+        return res.status(404).json({
+          error: true,
+          message: ERRORS.BUSINESS_NOT_FOUND,
         });
       }
 
       const businessData = result.rows[0];
-      // If no locations exist, json_agg returns [null], fix it
-      businessData.locations = businessData.locations[0] === null ? [] : businessData.locations;
 
-      return res.status(200).json({ 
-        error:false,
+      businessData.locations =
+        businessData.locations[0] === null
+          ? []
+          : businessData.locations;
+
+      return res.status(200).json({
+        authenticated: true,
+        error: false,
+        account: {
+          ...businessData,
+          accountType,
+        },
         hasToken,
-        account:{...businessData, accountType} });
+      });
     }
 
+    return res.status(400).json({
+      error: true,
+      message: ERRORS.NOT_AUTHENTICATED,
+    });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: ERRORS.SERVER_ERROR });
+
+    return res.status(500).json({
+      error: true,
+      message: ERRORS.SERVER_ERROR,
+    });
   }
 };
 
@@ -676,7 +721,7 @@ export const logout = async (req, res) => {
         message: ERRORS.NOT_AUTHENTICATED,
       });
     }
-    const { id: receiver_id, accountType: receiver_type } = req.user; // get from req.user
+    const { id: receiver_id, accountType: receiver_type } = req?.user; // get from req.user
     const {deviceId} = req.body; // frontend should send deviceId
 
     // delete the device token for this user/business and device
@@ -703,6 +748,7 @@ export const logout = async (req, res) => {
 
       return res.status(200).json({
         error: false,
+        accountType:receiver_type,
         message: "Logged out successfully",
       });
     });
@@ -715,9 +761,6 @@ export const logout = async (req, res) => {
 export const verifyEmail = async (req, res) => {
   const { token } = req.params;
   const { deviceToken, deviceId } = req.body
-  console.log("token:" , token)
-  console.log("deviceToken:" ,deviceToken)
-  console.log("deviceId:" ,deviceId )
 
   try {
     const result = await pool.query(

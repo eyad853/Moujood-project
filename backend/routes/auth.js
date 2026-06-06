@@ -13,9 +13,9 @@ authRouter.post('/local' , localSignup)
 authRouter.post('/google' , handleOuthAuth)
 authRouter.post('/facebook' , handleOuthAuth)
 authRouter.post('/login' , login)
-authRouter.get('/me/:deviceId' ,ensureAuth, getUser)
+authRouter.get('/me' , getUser)
 authRouter.post('/logout' , logout)
-authRouter.patch('/editAccount' ,uploadFile('logo').single('image'), editAccount)
+authRouter.patch('/editAccount' , ensureAuth , uploadFile('logo').single('image'), editAccount)
 authRouter.post("/verify-email/:token", verifyEmail);
 authRouter.post("/resend-verify-email", resendVerificationEmail);
 authRouter.post("/forgot-password", forgotPassword);

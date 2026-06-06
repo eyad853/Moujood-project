@@ -6,8 +6,8 @@ import { useUser } from '../../context/userContext';
 import EditProfileSheet from '../../components/EditProfileSheet/EditProfileSheet ';
 import PasswordEditSheet from '../../components/PasswordEditSheet/PasswordEditSheet';
 import { useTranslation } from 'react-i18next'
-import { useError } from '../../context/error';
 import SmallError from '../../components/SmallError/SmallError';
+import { useError } from '../../context/error';
 
 
 

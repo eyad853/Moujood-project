@@ -10,7 +10,6 @@ export const AccountProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading , setLoading]=useState(true)
   const [error , setError]=useState('')
-  const [token , setToken]=useState(null)
   const {t} = useTranslation()
   const [authReady, setAuthReady] = useState(false);
 
@@ -18,9 +17,16 @@ export const AccountProvider = ({ children }) => {
   useEffect(() => {
     const getUserData = async()=>{
       try{
-        const hasToken = await getUser(setLoading , setUser , setError , setToken , t)
-        if(!hasToken){
-          await handleCreateToken();
+        const data = await getUser(setLoading , setUser , setError , t)
+
+        if(data.account && !data.hasToken){
+
+          const { deviceToken, deviceId } = await getDeviceInfo();
+
+          if(deviceToken && deviceId ){
+            await handleCreateToken(deviceToken, deviceId);
+          }
+
         }
       }catch(err){
         if (err.response?.data?.message) {

@@ -5,12 +5,13 @@ import { RiLogoutBoxLine } from "react-icons/ri";
 import { logout } from '../../api/auth';
 import { useUser } from '../../context/userContext';
 import { useTranslation } from 'react-i18next';
-import {useError} from '../../context/error'
+import { useError } from '../../context/error';
+
 
 const SA_Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate()
-  const {setSmallError}=useError
+  const {setSmallError}=useError()
   const [loading , setLoading]=useState(false)
   const {setUser}=useUser()
   const {t}=useTranslation()

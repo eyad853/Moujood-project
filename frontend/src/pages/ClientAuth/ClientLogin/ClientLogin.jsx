@@ -7,6 +7,7 @@ import { login } from '../../../api/auth';
 import { useUser } from '../../../context/userContext';
 import { useTranslation } from 'react-i18next'
 import SmallError from '../../../components/SmallError/SmallError';
+import { useError } from '../../../context/error';
 
 
 const ClientLogin = () => {
