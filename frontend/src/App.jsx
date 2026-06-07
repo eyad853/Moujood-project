@@ -274,17 +274,9 @@ const App = () => {
         "/login",
       ]
 
-      const termsPages=[
-        "/client_Terms-&-Conditions",
-        "/business_Terms-&-Conditions",
-        "/client_Privacy_Policy",
-        "/business_Privacy_Policy"
-      ]
-
       const inApp = (path) =>
-  path.startsWith("/client/") ||
-  path.startsWith("/business/") ||
-  path.startsWith("/super_admin/");
+        path.startsWith("/client/") ||
+        path.startsWith("/business/") ||
 
   // Add this effect to track path changes (inside App component, alongside other useEffects)
   useEffect(() => {
@@ -313,46 +305,12 @@ const App = () => {
       // Case 1: In app pages
       if (inApp(currentPath)) {
         if (
-          !prevPath ||
-          blockedBackPages.includes(prevPath) ||
-          termsPages.includes(prevPath) ||
-          backToSignupAs.includes(prevPath)  // ← add this
+          !prevPath || blockedBackPages.includes(prevPath) 
         ) {
           await CapApp.minimizeApp();
           return;
         }
         router.navigate(-1);
-        return;
-      }
-
-
-      // Case 2: On Terms/Privacy page
-      if (termsPages.includes(currentPath)) {
-        if (!prevPath) {
-          await CapApp.minimizeApp();
-          return;
-        }
-        if (inApp(prevPath)) {
-          router.navigate(-1);
-          return;
-        }
-        if (backToSignupAs.includes(prevPath)) {
-          router.navigate(-1);
-          return;
-        }
-        await CapApp.minimizeApp();
-        return;
-      }
-
-      // Case 3: On signup pages → go to /signup_as
-      if (backToSignupAs.includes(currentPath)) {
-        router.navigate("/signup_as");
-        return;
-      }
-
-      // Case 4: Any other blocked page → minimize
-      if (blockedBackPages.includes(currentPath)) {
-        await CapApp.minimizeApp();
         return;
       }
 
