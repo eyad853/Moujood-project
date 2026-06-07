@@ -257,17 +257,17 @@ const App = () => {
   const prevPathRef = useRef(null);
   const currentPathRef = useRef(window.location.pathname);
 
-      const blockedBackPages = [
-        "/signup_as",
-        "/super_admin_login",
-        "/verify_email",
-        "/forgot-password",
-        "/",
-        "/client_sign_up",
-        "/business_sign_up",
-        "/login",
-      ];
-    
+    const blockedBackPages = [
+      "/signup_as",
+      "/super_admin_login",
+      "/verify_email",
+      "/forgot-password",
+      "/",
+      "/client_sign_up",
+      "/business_sign_up",
+      "/login",
+    ];
+  
       const backToSignupAs = [
         "/client_sign_up",
         "/business_sign_up",
@@ -276,7 +276,7 @@ const App = () => {
 
       const inApp = (path) =>
         path.startsWith("/client/") ||
-        path.startsWith("/business/") ||
+        path.startsWith("/business/") ;
 
   // Add this effect to track path changes (inside App component, alongside other useEffects)
   useEffect(() => {
