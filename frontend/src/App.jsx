@@ -268,24 +268,51 @@ const App = () => {
       "/login",
     ];
   
-      const backToSignupAs = [
-        "/client_sign_up",
-        "/business_sign_up",
-        "/login",
-      ]
+    const inApp = (path) => path.startsWith("/client/") || path.startsWith("/business/");
 
-      const inApp = (path) =>
-        path.startsWith("/client/") ||
-        path.startsWith("/business/") ;
+    const handleBackButton = async () => {
+      const currentPath = currentPathRef.current;
+      const prevPath = prevPathRef.current;
+
+      // Case 1: currently on a blocked page → minimize
+      if (blockedBackPages.includes(currentPath)) {
+        await CapApp.minimizeApp();
+        return;
+      }
+    
+      // Case 2: in app pages
+      if (inApp(currentPath)) {
+        if (!prevPath || blockedBackPages.includes(prevPath)) {
+          await CapApp.minimizeApp();
+          return;
+        }
+        router.navigate(-1);
+        return;
+      }
+    
+      // Case 3: no history → minimize
+      if (!prevPath) {
+        await CapApp.minimizeApp();
+        return;
+      }
+    
+      router.navigate(-1);
+    };
 
   // Add this effect to track path changes (inside App component, alongside other useEffects)
-  useEffect(() => {
-    const unsubscribe = router.subscribe((state) => {
-      prevPathRef.current = currentPathRef.current;
-      currentPathRef.current = state.location.pathname;
-    });
-    return () => unsubscribe();
-  }, []);
+useEffect(() => {
+  const unsubscribe = router.subscribe((state) => {
+    const newPath = state.location.pathname;
+    
+    // ignore same-page navigations
+    if (newPath === currentPathRef.current) return;
+
+    console.log("Route changed | prev:", currentPathRef.current, "→ new:", newPath);
+    prevPathRef.current = currentPathRef.current;
+    currentPathRef.current = newPath;
+  });
+  return () => unsubscribe();
+}, []);
   
 
   useEffect(() => {
@@ -295,33 +322,6 @@ const App = () => {
 
   useEffect(()=>{
     let registrationListener, errorListener , backHandler, urlHandler , actionListener;
-
-    const handleBackButton = async () => {
-      const currentPath = currentPathRef.current;
-      const prevPath = prevPathRef.current;
-
-      console.log("Back pressed | current:", currentPath, "| prev:", prevPath); // helpful for debugging
-
-      // Case 1: In app pages
-      if (inApp(currentPath)) {
-        if (
-          !prevPath || blockedBackPages.includes(prevPath) 
-        ) {
-          await CapApp.minimizeApp();
-          return;
-        }
-        router.navigate(-1);
-        return;
-      }
-
-      // Default: no history → minimize, otherwise go back
-      if (!prevPath) {
-        await CapApp.minimizeApp();
-        return;
-      }
-
-      router.navigate(-1);
-    };
   
     const init =async ()=>{
       if(Capacitor.getPlatform()==='android'){
