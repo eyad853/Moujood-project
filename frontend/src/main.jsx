@@ -9,12 +9,14 @@ import Modal from 'react-modal'
 import i18n from './i18n.js';
 import { I18nextProvider } from "react-i18next";
 import { ErrorProvider } from './context/error.jsx';
+import { NavigationProvider } from './context/navigationContext.jsx';
 
 Modal.setAppElement('#root');
 
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
+    <NavigationProvider>
     <ErrorProvider>
       <I18nextProvider i18n={i18n}>
         <AccountProvider>
@@ -22,5 +24,6 @@ createRoot(document.getElementById('root')).render(
         </AccountProvider>
       </I18nextProvider>
     </ErrorProvider>
+    </NavigationProvider>
   </StrictMode>,
 )

@@ -49,6 +49,7 @@ import { useUser } from './context/userContext';
 import PageError from './components/PageError/PageError';
 import Loadiing from './components/Loadiing/Loadiing'
 import { Capacitor } from '@capacitor/core';
+import { useNavigation } from './context/navigationContext';
 
 const routes = [
   {
@@ -246,7 +247,7 @@ const routes = [
 
 ]
 
-const router = createBrowserRouter(routes)
+export const router = createBrowserRouter(routes)
 
 const App = () => {
   const {user , authReady , error}=useUser()
@@ -256,7 +257,7 @@ const App = () => {
 
   const prevPathRef = useRef(null);
   const currentPathRef = useRef(window.location.pathname);
-  const historyStackRef = useRef([window.location.pathname]);
+  const { historyStackRef, clearHistory } = useNavigation();
 
     const blockedBackPages = [
       "/signup_as",
@@ -279,29 +280,6 @@ const App = () => {
 
     const inApp = (path) => path.startsWith("/client/") || path.startsWith("/business/");
     
-    useEffect(() => {
-      const unsubscribe = router.subscribe((state) => {
-        const newPath = state.location.pathname;
-        const stack = historyStackRef.current;
-        const currentPath = stack[stack.length - 1];
-      
-        if (newPath === currentPath) return;
-      
-        const action = state.historyAction; // "PUSH", "POP", "REPLACE"
-      
-        if (action === 'PUSH') {
-          stack.push(newPath);
-        } else if (action === 'POP') {
-          if (stack.length > 1) stack.pop();
-        } else if (action === 'REPLACE') {
-          stack[stack.length - 1] = newPath;
-        }
-      
-        console.log("History stack:", [...stack]);
-      });
-      return () => unsubscribe();
-    }, []);
-
     useEffect(() => {
       userRef.current = user;
       authReadyRef.current = authReady;

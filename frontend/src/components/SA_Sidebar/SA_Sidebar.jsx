@@ -6,6 +6,7 @@ import { logout } from '../../api/auth';
 import { useUser } from '../../context/userContext';
 import { useTranslation } from 'react-i18next';
 import { useError } from '../../context/error';
+import { useNavigation } from '../../context/navigationContext';
 
 
 const SA_Sidebar = () => {
@@ -15,6 +16,7 @@ const SA_Sidebar = () => {
   const [loading , setLoading]=useState(false)
   const {setUser}=useUser()
   const {t}=useTranslation()
+  const { clearHistory } = useNavigation();
 
   const menuItems = [
     {
@@ -92,7 +94,7 @@ const SA_Sidebar = () => {
             {/* Logout Button - at bottom */}
             <button
               onClick={() => {
-                logout(setSmallError , navigate , setUser , setLoading , t)
+                logout(setSmallError , navigate , setUser , setLoading , t , clearHistory)
               }}
               className="flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-400 text-red-600 hover:bg-red-500 cursor-pointer hover:text-white mt-auto"
             >

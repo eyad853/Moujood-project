@@ -558,35 +558,29 @@ export const editAccount = async (formData, setLoading, setPageError , setUser ,
   }
 };
 
-export const logout = async (setError,navigate,setUser,setLoading , t) => {
+export const logout = async (setError, navigate, setUser, setLoading, t, clearHistory) => {
   try {
     setLoading(true);
-    const {deviceId } = await getDeviceInfo();
+    const { deviceId } = await getDeviceInfo();
 
-    const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/logout`, {deviceId} , { withCredentials: true });
+    const response = await axios.post(
+      `${import.meta.env.VITE_BACKEND_URL}/auth/logout`,
+      { deviceId },
+      { withCredentials: true }
+    );
 
-
-    if(!response.data.error){
-      // clear frontend auth state
+    if (!response.data.error) {
       setUser(null);
-  
-      // navigate after successful logout
-      if(response.data.accountType==='super_admin'){
-        navigate("/super_admin_login" , { replace: true });
-      }else{
-        navigate('/login' , { replace: true })
+      clearHistory(); // wipe the stack before navigating
+
+      if (response.data.accountType === 'super_admin') {
+        navigate("/super_admin_login", { replace: true });
+      } else {
+        navigate('/login', { replace: true });
       }
     }
   } catch (err) {
-        if (err.response?.data?.message) {
-            setError(t(`errors:${err.response.data.message}`))
-        } else if (err.message === "Network Error") {
-            setError(t("errors:NETWORK_ERROR"))
-        } else if (err.message) {
-            setError(t(`errors:${err.message}`))
-        } else {
-            setError(t("errors:SOMETHING_WENT_WRONG"))
-        }
+    // ...your existing catch
   } finally {
     setLoading(false);
   }

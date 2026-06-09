@@ -8,6 +8,7 @@ import PasswordEditSheet from '../../components/PasswordEditSheet/PasswordEditSh
 import { useTranslation } from 'react-i18next'
 import SmallError from '../../components/SmallError/SmallError';
 import { useError } from '../../context/error';
+import { useNavigation } from '../../context/navigationContext';
 
 
 
@@ -20,6 +21,7 @@ const Settings = () => {
   const lang = i18n.language
   const isRTL = i18n.language === "ar";
   const {user}=useUser()
+  const { clearHistory } = useNavigation();
 
   const normalizeLanguage = (lang) => lang?.split('-')[0] || 'en';
 
@@ -128,7 +130,7 @@ const Settings = () => {
         <div className="fixed bottom-32 left-0 right-0 px-5 z-10">
           <button 
             onClick={()=>{
-              logout(setSmallError , navigate , setUser , setLoading , t)
+              logout(setSmallError , navigate , setUser , setLoading , t , clearHistory)
             }}
             className="w-full bg-red-100 text-red-600 py-4 rounded-2xl font-semibold hover:bg-red-100 transition-colors">
             {t('logout')}
