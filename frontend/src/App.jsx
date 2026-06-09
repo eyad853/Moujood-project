@@ -256,6 +256,7 @@ const App = () => {
 
   const prevPathRef = useRef(null);
   const currentPathRef = useRef(window.location.pathname);
+  const historyStackRef = useRef([window.location.pathname]);
 
     const blockedBackPages = [
       "/signup_as",
@@ -267,58 +268,79 @@ const App = () => {
       "/business_sign_up",
       "/login",
     ];
-  
+
+    const authPages = [
+      "/signup_as",
+      "/login",
+      "/business_sign_up",
+      "/forgot-password",
+      "/verify_email", 
+    ]
+
     const inApp = (path) => path.startsWith("/client/") || path.startsWith("/business/");
-
-    const handleBackButton = async () => {
-      const currentPath = currentPathRef.current;
-      const prevPath = prevPathRef.current;
-
-      // Case 1: currently on a blocked page → minimize
-      if (blockedBackPages.includes(currentPath)) {
-        await CapApp.minimizeApp();
-        return;
-      }
     
-      // Case 2: in app pages
-      if (inApp(currentPath)) {
-        if (!prevPath || blockedBackPages.includes(prevPath)) {
-          await CapApp.minimizeApp();
-          return;
+    useEffect(() => {
+      const unsubscribe = router.subscribe((state) => {
+        const newPath = state.location.pathname;
+        const stack = historyStackRef.current;
+        const currentPath = stack[stack.length - 1];
+      
+        if (newPath === currentPath) return;
+      
+        const action = state.historyAction; // "PUSH", "POP", "REPLACE"
+      
+        if (action === 'PUSH') {
+          stack.push(newPath);
+        } else if (action === 'POP') {
+          if (stack.length > 1) stack.pop();
+        } else if (action === 'REPLACE') {
+          stack[stack.length - 1] = newPath;
         }
-        router.navigate(-1);
-        return;
-      }
-    
-      // Case 3: no history → minimize
-      if (!prevPath) {
-        await CapApp.minimizeApp();
-        return;
-      }
-    
-      router.navigate(-1);
-    };
+      
+        console.log("History stack:", [...stack]);
+      });
+      return () => unsubscribe();
+    }, []);
 
-  // Add this effect to track path changes (inside App component, alongside other useEffects)
-useEffect(() => {
-  const unsubscribe = router.subscribe((state) => {
-    const newPath = state.location.pathname;
-    
-    // ignore same-page navigations
-    if (newPath === currentPathRef.current) return;
+    useEffect(() => {
+      userRef.current = user;
+      authReadyRef.current = authReady;
+    }, [user, authReady]);
 
-    console.log("Route changed | prev:", currentPathRef.current, "→ new:", newPath);
-    prevPathRef.current = currentPathRef.current;
-    currentPathRef.current = newPath;
-  });
-  return () => unsubscribe();
-}, []);
-  
+const handleBackButton = async () => {
+  const stack = historyStackRef.current;
+  const currentPath = stack[stack.length - 1];
+  const prevPath = stack.length >= 2 ? stack[stack.length - 2] : null;
 
-  useEffect(() => {
-    userRef.current = user;
-    authReadyRef.current = authReady;
-  }, [user, authReady]);
+  console.log("Back pressed | stack:", [...stack], "| current:", currentPath, "| prev:", prevPath);
+
+  // Case 1: on a hard-blocked page (no going back from these ever)
+  const hardBlocked = ["/", "/verify_email"];
+  if (hardBlocked.includes(currentPath)) {
+    await CapApp.minimizeApp();
+    return;
+  }
+
+  // Case 2: in app pages (/client/* or /business/*)
+  if (inApp(currentPath)) {
+    // If no previous page, or previous was root/auth → minimize
+    if (!prevPath || blockedBackPages.includes(prevPath)) {
+      await CapApp.minimizeApp();
+      return;
+    }
+    router.navigate(-1);
+    return;
+  }
+
+  // Case 3: on auth pages (signup_as, login, etc.)
+  // Allow going back if there's history, otherwise minimize
+  if (!prevPath || prevPath === "/") {
+    await CapApp.minimizeApp();
+    return;
+  }
+
+  router.navigate(-1);
+};
 
   useEffect(()=>{
     let registrationListener, errorListener , backHandler, urlHandler , actionListener;
