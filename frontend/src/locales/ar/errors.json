@@ -36,5 +36,6 @@
   "YOU_DONT_HAVE_PREMMISSION_TO_EDIT_THIS_OFFER": "ليس لديك صلاحية لتعديل هذا العرض.",
   "ACCESS_DENIED_ADMINS_ONLY": "تم رفض الوصول. هذا الإجراء متاح للمشرفين فقط.",
   "FAILED_TO_GET_SEARCH_ADDRESS":"فشل في الحصول علي عناوين البحث",
-  "NETWORK_ERROR": "خطأ في الشبكة"
+  "NETWORK_ERROR": "خطأ في الشبكة",
+  "CANT_DELETE_CATEGORY":"لا يمكن حذف الفئة لأن هناك من يستخدمها."
 }

@@ -36,5 +36,6 @@
   "YOU_DONT_HAVE_PREMMISSION_TO_EDIT_THIS_OFFER": "You don't have permission to edit this offer.",
   "ACCESS_DENIED_ADMINS_ONLY": "Access denied. Admins only.",
   "FAILED_TO_GET_SEARCH_ADDRESS":"Failed To Get Search Addresses",
-  "NETWORK_ERROR": "Network error occurred"
+  "NETWORK_ERROR": "Network error occurred",
+  "CANT_DELETE_CATEGORY":"Cannot delete category because businesses are using it."
 }

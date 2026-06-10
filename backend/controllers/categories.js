@@ -86,6 +86,19 @@ export const deleteCategory = async (req, res) => {
   try {
     const { id } = req.params;
 
+        // Check if category is being used
+    const businesses = await pool.query(
+      `SELECT 1 FROM businesses WHERE category = $1 LIMIT 1`,
+      [id]
+    );
+
+    if (businesses.rows.length > 0) {
+      return res.status(400).json({
+        error: true,
+        message: ERRORS.CANT_DELETE_CATEGORY
+      });
+    }
+
     const result = await pool.query(`DELETE FROM categories WHERE id = $1 RETURNING *`, [id]);
 
     if (!result.rows.length) return res.status(404).json({error:true ,  message: ERRORS.CATEGORY_NOT_FOUND });
