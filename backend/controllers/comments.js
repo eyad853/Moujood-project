@@ -36,10 +36,10 @@ export const createComment = async (req, res) => {
       FROM comments c
     
       LEFT JOIN users u 
-        ON c.accountType = 'user' AND c.user_id = u.id
+        ON c."accountType" = 'user' AND c.user_id = u.id
     
       LEFT JOIN businesses b 
-        ON c.accountType = 'business' AND c.user_id = b.id
+        ON c."accountType" = 'business' AND c.user_id = b.id
     
       WHERE c.id = $2
       `,
@@ -162,10 +162,10 @@ export const getOfferComments = async(req , res)=>{
       FROM comments c
 
       LEFT JOIN users u 
-        ON c.accountType = 'user' AND c.user_id = u.id
+        ON c."accountType" = 'user' AND c.user_id = u.id
 
       LEFT JOIN businesses b 
-        ON c.accountType = 'business' AND c.user_id = b.id
+        ON c."accountType" = 'business' AND c.user_id = b.id
 
       WHERE c.offer_id = $1
 
