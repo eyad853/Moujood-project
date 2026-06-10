@@ -83,7 +83,7 @@
         id SERIAL PRIMARY KEY,
         offer_id INTEGER REFERENCES offers(offer_id) ON DELETE CASCADE,
         user_id INTEGER NOT NULL,
-        accountType VARCHAR(20) CHECK (accountType IN ('user', 'business')),
+        account_type VARCHAR(20) CHECK (account_type IN ('user', 'business')),
         content TEXT NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         parent_id INTEGER REFERENCES comments(id)  ON DELETE CASCADE

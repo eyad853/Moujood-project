@@ -16,7 +16,7 @@ export const createComment = async (req, res) => {
   try {
     const result = await pool.query(
       `
-      INSERT INTO comments (offer_id, user_id, content , parent_id , accountType)
+      INSERT INTO comments (offer_id, user_id, content , parent_id , account_type)
       VALUES ($1, $2, $3 , $4 , $5)
       RETURNING *;
       `,
@@ -36,10 +36,10 @@ export const createComment = async (req, res) => {
       FROM comments c
     
       LEFT JOIN users u 
-        ON c."accountType" = 'user' AND c.user_id = u.id
+        ON c.account_type = 'user' AND c.user_id = u.id
     
       LEFT JOIN businesses b 
-        ON c."accountType" = 'business' AND c.user_id = b.id
+        ON c.account_type = 'business' AND c.user_id = b.id
     
       WHERE c.id = $2
       `,
@@ -137,7 +137,7 @@ export const deleteComment = async (req, res) => {
     const offer_id = check.rows[0].offer_id;
 
     await pool.query(
-      `DELETE FROM comments WHERE id = $1 AND accountType= $2`,
+      `DELETE FROM comments WHERE id = $1 AND account_type= $2`,
       [user_id , accountType]
     );
 
@@ -162,10 +162,10 @@ export const getOfferComments = async(req , res)=>{
       FROM comments c
 
       LEFT JOIN users u 
-        ON c."accountType" = 'user' AND c.user_id = u.id
+        ON c.account_type = 'user' AND c.user_id = u.id
 
       LEFT JOIN businesses b 
-        ON c."accountType" = 'business' AND c.user_id = b.id
+        ON c.account_type = 'business' AND c.user_id = b.id
 
       WHERE c.offer_id = $1
 
