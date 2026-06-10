@@ -2,7 +2,7 @@ import ERRORS from "../config/errors.js";
 import { pool } from "../index.js";
 
 export const createComment = async (req, res) => {
-  const user_id = req.user?.id;
+  const {id:user_id , accountType} = req.user;
   const { offer_id } = req.params;
   const {content , parent_id} = req.body
 
@@ -16,22 +16,35 @@ export const createComment = async (req, res) => {
   try {
     const result = await pool.query(
       `
-      INSERT INTO comments (offer_id, user_id, content , parent_id)
-      VALUES ($1, $2, $3 , $4)
+      INSERT INTO comments (offer_id, user_id, content , parent_id , accountType)
+      VALUES ($1, $2, $3 , $4 , $5)
       RETURNING *;
       `,
-      [offer_id, user_id, content , parent_id]
+      [offer_id, user_id, content , parent_id , accountType]
     );
 
-    const commentResult = await pool.query(`
-       SELECT 
+    const commentResult = await pool.query(
+      `
+      SELECT 
         c.*,
-        u.name AS "userName"
-        FROM comments c
-        LEFT JOIN users u
-        ON c.user_id = u.id
-        WHERE c.id = $1 ` , [result.rows[0].id]
-      )
+    
+        CASE 
+          WHEN $1 = 'user' THEN u.name
+          WHEN $1 = 'business' THEN b.name
+        END AS "userName"
+    
+      FROM comments c
+    
+      LEFT JOIN users u 
+        ON c.accountType = 'user' AND c.user_id = u.id
+    
+      LEFT JOIN businesses b 
+        ON c.accountType = 'business' AND c.user_id = b.id
+    
+      WHERE c.id = $2
+      `,
+      [accountType , result.rows[0].id]
+    );
 
     const newComment = commentResult.rows[0];
 
@@ -96,7 +109,7 @@ export const updateComment = async (req, res) => {
 };
 
 export const deleteComment = async (req, res) => {
-  const user_id = req.user?.id;
+  const {id:user_id , accountType} = req.user;
   const { id } = req.params; // comment id
 
     if(!user_id){
@@ -124,8 +137,8 @@ export const deleteComment = async (req, res) => {
     const offer_id = check.rows[0].offer_id;
 
     await pool.query(
-      `DELETE FROM comments WHERE id = $1`,
-      [id]
+      `DELETE FROM comments WHERE id = $1 AND accountType= $2`,
+      [user_id , accountType]
     );
 
     res.status(200).json({ message: "comment_removed" });
@@ -140,16 +153,26 @@ export const getOfferComments = async(req , res)=>{
   const {id} = req.params
 
   try{
-      const result = await pool.query(`
-        SELECT 
+    const result = await pool.query(
+      `
+      SELECT 
         c.*,
-        u.name AS "userName"
-        FROM comments c
-        LEFT JOIN users u
-        ON c.user_id = u.id
-        WHERE offer_id = $1 
-        ORDER BY created_at DESC
-        ` , [id])
+        COALESCE(u.name, b.name) AS "userName"
+
+      FROM comments c
+
+      LEFT JOIN users u 
+        ON c.accountType = 'user' AND c.user_id = u.id
+
+      LEFT JOIN businesses b 
+        ON c.accountType = 'business' AND c.user_id = b.id
+
+      WHERE c.offer_id = $1
+
+      ORDER BY c.created_at DESC
+      `,
+      [id]
+    );
       const comments = result.rows
       return res.status(200).json(comments)
   }catch(error){
