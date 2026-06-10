@@ -163,8 +163,6 @@ async function createTables() {
     const sql = fs.readFileSync('./schema/tables.sql','utf8')
     // users table
     await pool.query(sql);
-
-    console.log('✅ Tables "users" and "businesses" are ready!');
   } catch (err) {
     console.error('❌ Failed to create tables:', err.message);
     process.exit(1); // stop server if tables cannot be created
